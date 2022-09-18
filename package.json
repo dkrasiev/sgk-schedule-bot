@@ -4,7 +4,7 @@
   "description": "SGK schedule bot for yandex cloud function",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon ./src/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "dayjs": "^1.11.5",
+    "dotenv": "^16.0.2",
     "mongoose": "^6.6.1",
     "telegraf": "^4.9.2"
   },
