@@ -1,7 +1,12 @@
-const {Composer} = require('telegraf');
+const dayjs = require('dayjs');
 const {chats, groups} = require('../models');
-const {getGroupFromString} = require('../utils');
+const {
+  getGroupFromString,
+  fetchSchedule,
+  getScheduleMessage,
+} = require('../utils');
 
+const {Composer} = require('telegraf');
 const composer = new Composer();
 
 composer.command('groups', async (ctx) => {
@@ -38,6 +43,18 @@ composer.command('removedefault', async (ctx) => {
   }
 
   await ctx.reply('Группа по умолчанию не выбрана');
+});
+
+composer.command('today', async (ctx) => {
+  const group = ctx.session.group;
+
+  if (!group) {
+    return;
+  }
+
+  const schedule = await fetchSchedule(group, dayjs());
+
+  await ctx.reply(getScheduleMessage(schedule, group));
 });
 
 module.exports = composer;

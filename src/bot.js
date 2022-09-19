@@ -7,7 +7,8 @@ const bot = new Telegraf(token);
 if (!isProduction) bot.launch();
 
 const botCommands = [
-  {command: 'schedule', description: 'Скинуть расписание'},
+  {command: 'schedule', description: 'Расписание на два дня'},
+  {command: 'today', description: 'Расписание на сегодня'},
   {command: 'groups', description: 'Показать все группы'},
   {command: 'setgroup', description: 'Выбрать группу по умолчанию'},
   {command: 'subscribe', description: 'Подписаться на обновления расписания'},
