@@ -160,7 +160,7 @@ function log(message) {
  * @param {dayjs.Dayjs} date дата (по умолчанию сегодня)
  */
 async function sendSchedule(ctx, date = dayjs()) {
-  const group = ctx.data.group;
+  const group = ctx.session.group;
 
   if (!group) return false;
 

@@ -11,7 +11,7 @@ const composer = new Composer();
 
 composer.command('subscribe', async (ctx) => {
   const chat = await chats.findOne({id: ctx.chat.id});
-  const group = ctx.data.group;
+  const group = ctx.session.group;
 
   if (group) {
     const firstDate = getNextWorkDate(dayjs());
