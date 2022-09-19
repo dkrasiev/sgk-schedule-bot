@@ -1,7 +1,9 @@
 const {default: axios} = require('axios');
+const dayjs = require('dayjs');
+const {Context} = require('telegraf'); // eslint-disable-line no-unused-vars
 const {groups} = require('./models');
 
-const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/g);
+const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
 
 /**
  * Преобразует номер пары в время пары
@@ -79,7 +81,10 @@ function getNextWorkDate(date) {
  */
 async function removeSubscription(chat) {
   if (chat?.subscription?.groupId) {
-    chat.subscription = null;
+    chat.subscription = {
+      groupId: null,
+      lastSchedule: [],
+    };
     await chat.save();
     return true;
   }
@@ -94,9 +99,10 @@ async function removeSubscription(chat) {
 async function getGroupFromString(text) {
   const regexResult = groupRegex.exec(text);
 
-  if (regexResult) {
+  if (regexResult?.length) {
     const groupName = regexResult.slice(1).join('-').toUpperCase();
-    return await groups.findOne({name: groupName});
+    const group = await groups.findOne({name: groupName});
+    return group;
   }
 
   return null;
@@ -144,8 +150,30 @@ function compareSchedule(a, b) {
  * @param {string} message сообщение
  */
 function log(message) {
-  const time = `[${dayjs().format('HH:mm:ss:SSS')}]`;
+  const time = `[${dayjs().format('HH:mm:ss')}]`;
   console.log([time, message].join(' '));
+}
+
+/**
+ * Отправляет расписание на два дня
+ * @param {Context} ctx контекст
+ * @param {dayjs.Dayjs} date дата (по умолчанию сегодня)
+ */
+async function sendSchedule(ctx, date = dayjs()) {
+  const group = ctx.data.group;
+
+  if (!group) return false;
+
+  const firstDate = getNextWorkDate(date);
+  const secondDate = getNextWorkDate(firstDate.add(1, 'day'));
+
+  const firstSchedule = await fetchSchedule(group, firstDate);
+  const secondSchedule = await fetchSchedule(group, secondDate);
+
+  await ctx.reply(getScheduleMessage(firstSchedule, group));
+  await ctx.reply(getScheduleMessage(secondSchedule, group));
+
+  return true;
 }
 
 module.exports = {
@@ -157,5 +185,6 @@ module.exports = {
   fetchSchedule,
   compareSchedule,
   log,
+  sendSchedule,
   groupRegex,
 };

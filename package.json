@@ -4,9 +4,10 @@
   "description": "SGK schedule bot for yandex cloud function",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./src/index.js",
+    "dev": "nodemon src/index.js",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "deploy": "npx deploy-fn"
   },
   "author": "Dmitry Krasiev",
   "license": "ISC",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "eslint": "^8.23.1",
     "eslint-config-google": "^0.14.0",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "yandex-cloud-deploy-fn": "^2.0.0"
   }
 }
