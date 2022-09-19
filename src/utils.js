@@ -1,4 +1,5 @@
 const {default: axios} = require('axios');
+const {groups} = require('./models');
 
 const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/g);
 
@@ -138,6 +139,15 @@ function compareSchedule(a, b) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+/**
+ * Вызывает console.log с добавлением времени в начало сообщения
+ * @param {string} message сообщение
+ */
+function log(message) {
+  const time = `[${dayjs().format('HH:mm:ss:SSS')}]`;
+  console.log([time, message].join(' '));
+}
+
 module.exports = {
   getScheduleMessage,
   getGroupFromString,
@@ -146,5 +156,6 @@ module.exports = {
   removeSubscription,
   fetchSchedule,
   compareSchedule,
+  log,
   groupRegex,
 };
