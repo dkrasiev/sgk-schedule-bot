@@ -38,10 +38,11 @@ bot.help(async (ctx) => {
 
 bot.on('text', async (ctx, next) => {
   const chat = await chats.findOne({id: ctx.chat.id});
-  const group = await getGroupFromString(ctx.message.text);
+  const groupFromMessage = await getGroupFromString(ctx.message.text);
+  const groupFromChat = await groups.findOne({id: chat.defaultGroup});
 
   ctx.data = {
-    group: group || (await groups.findOne({id: chat.defaultGroup})),
+    group: groupFromMessage || groupFromChat,
   };
 
   next();

@@ -1,5 +1,6 @@
-require('./src');
 const dayjs = require('dayjs');
+
+require('./src');
 const bot = require('./src/bot');
 const {groups, chats} = require('./src/models');
 const {
@@ -9,7 +10,11 @@ const {
   getScheduleMessage,
 } = require('./src/utils');
 
-// for yandex cloud function
+/**
+ * Обработка событий бота
+ * @param {any} event http request
+ * @return {any} http response
+ */
 module.exports.handler = async function(event) {
   const message = JSON.parse(event.body);
   await bot.handleUpdate(message);
@@ -19,6 +24,9 @@ module.exports.handler = async function(event) {
   };
 };
 
+/**
+ * Проверяет обновления расписания
+ */
 module.exports.update = async function() {
   log('checking schedule...');
 
@@ -67,12 +75,3 @@ module.exports.update = async function() {
     }
   }
 };
-
-/**
- * Вызывает console.log с добавлением времени в начало сообщения
- * @param {string} message сообщение
- */
-function log(message) {
-  const time = `[${dayjs().format('HH:mm:ss:SSS')}]`;
-  console.log([time, message].join(' '));
-}
