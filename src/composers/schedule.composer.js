@@ -6,7 +6,7 @@ composer.command('schedule', async (ctx) => {
   const result = await sendSchedule(ctx);
 
   if (result === false) {
-    await ctx.reply('Группа не найдена или Вы ничего не ввели');
+    await ctx.reply(ctx.i18n.t('group_not_found'));
   }
 });
 
@@ -18,7 +18,7 @@ composer.on('text', async (ctx) => {
     const result = await sendSchedule(ctx);
 
     if (result === false) {
-      await ctx.reply('Группа не найдена или Вы ничего не ввели');
+      await ctx.reply(ctx.i18n.t('group_not_found'));
     }
   }
 });

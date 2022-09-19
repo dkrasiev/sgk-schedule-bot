@@ -26,9 +26,9 @@ composer.command('setgroup', async (ctx) => {
   if (group) {
     chat.defaultGroup = group.id;
     await chat.save();
-    await ctx.reply('Установлена группа ' + group.name);
+    await ctx.reply(ctx.i18n.t('set_group_success', {group}));
   } else {
-    await ctx.reply('Группа не найдена или Вы ничего не ввели');
+    await ctx.reply(ctx.i18n.t('set_group_fail'));
   }
 });
 
@@ -38,11 +38,11 @@ composer.command('removedefault', async (ctx) => {
   if (chat.defaultGroup) {
     chat.defaultGroup = null;
     await chat.save();
-    await ctx.reply('Группа по умолчанию удалена');
+    await ctx.reply(ctx.i18n.t('remove_group_success'));
     return;
   }
 
-  await ctx.reply('Группа по умолчанию не выбрана');
+  await ctx.reply(ctx.i18n.t('remove_group_fail'));
 });
 
 composer.command('today', async (ctx) => {

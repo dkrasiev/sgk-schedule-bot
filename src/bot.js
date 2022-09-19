@@ -1,4 +1,6 @@
 const {Telegraf} = require('telegraf');
+const TelegrafI18n = require('telegraf-i18n');
+const path = require('path');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
@@ -7,6 +9,7 @@ const bot = new Telegraf(token);
 if (!isProduction) bot.launch();
 
 const botCommands = [
+  {command: 'help', description: 'Помощь'},
   {command: 'schedule', description: 'Расписание на два дня'},
   {command: 'today', description: 'Расписание на сегодня'},
   {command: 'tomorrow', description: 'Расписание на завтра'},
@@ -20,6 +23,15 @@ const botCommands = [
 ];
 
 bot.telegram.setMyCommands(botCommands);
+
+
+const i18n = new TelegrafI18n({
+  defaultLanguage: 'ru',
+  allowMissing: false, // Default true
+  directory: path.resolve(__dirname, 'locales'),
+});
+
+bot.use(i18n.middleware());
 
 bot.on('text', require('./middlewares/log.middleware'));
 

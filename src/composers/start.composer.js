@@ -6,15 +6,11 @@ composer.start(async (ctx) => {
     `${ctx.from.first_name} ${ctx.from.last_name}` :
     ctx.from.first_name;
 
-  let startMessage = `Привет, ${name}!\n`;
-  startMessage += 'Чтобы узнать как я работаю, напиши /help';
-
-  await ctx.reply(startMessage);
+  await ctx.reply(ctx.i18n.t('welcome', {name}));
 });
 
 composer.help(async (ctx) => {
-  const helpMessage = 'Для получения расписания введи команду /schedule';
-  await ctx.reply(helpMessage);
+  await ctx.replyWithMarkdown(ctx.i18n.t('help'));
 });
 
 module.exports = composer;
