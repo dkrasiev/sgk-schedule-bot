@@ -8,6 +8,7 @@ const {
   getNextWorkDate,
   fetchSchedule,
   getScheduleMessage,
+  log,
 } = require('./src/utils');
 
 /**
