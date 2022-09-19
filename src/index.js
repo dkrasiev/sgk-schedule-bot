@@ -76,5 +76,3 @@ module.exports.update = async function() {
     }
   }
 };
-
-module.exports.update();
