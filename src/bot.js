@@ -9,6 +9,7 @@ if (!isProduction) bot.launch();
 const botCommands = [
   {command: 'schedule', description: 'Расписание на два дня'},
   {command: 'today', description: 'Расписание на сегодня'},
+  {command: 'tomorrow', description: 'Расписание на завтра'},
   {command: 'groups', description: 'Показать все группы'},
   {command: 'setgroup', description: 'Выбрать группу по умолчанию'},
   {command: 'subscribe', description: 'Подписаться на обновления расписания'},

@@ -57,4 +57,16 @@ composer.command('today', async (ctx) => {
   await ctx.reply(getScheduleMessage(schedule, group));
 });
 
+composer.command('tomorrow', async (ctx) => {
+  const group = ctx.session.group;
+
+  if (!group) {
+    return;
+  }
+
+  const schedule = await fetchSchedule(group, dayjs().add(1, 'day'));
+
+  await ctx.reply(getScheduleMessage(schedule, group));
+});
+
 module.exports = composer;
