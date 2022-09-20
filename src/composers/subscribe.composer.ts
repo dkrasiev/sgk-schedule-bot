@@ -1,19 +1,22 @@
-const dayjs = require('dayjs');
-const {chats, groups} = require('../models');
-const {
+import {Composer} from 'telegraf';
+import dayjs from 'dayjs';
+import {chats, groups} from '../models';
+import {
   getNextWorkDate,
   fetchSchedule,
   removeSubscription,
-} = require('../utils');
+} from '../utils';
+import {MyContext} from '../types/context.type';
 
-const {Composer} = require('telegraf');
-const composer = new Composer();
+const subscribeComposer = new Composer<MyContext>();
 
-composer.command('subscribe', async (ctx) => {
+subscribeComposer.command('subscribe', async (ctx) => {
+  if (!ctx.chat) return;
+
   const chat = await chats.findOne({id: ctx.chat.id});
-  const group = ctx.session.group;
+  const group = ctx.session?.group;
 
-  if (group) {
+  if (group && chat) {
     const firstDate = getNextWorkDate(dayjs());
     const secondDate = getNextWorkDate(firstDate);
 
@@ -31,8 +34,10 @@ composer.command('subscribe', async (ctx) => {
   }
 });
 
-composer.command('unsubscribe', async (ctx) => {
+subscribeComposer.command('unsubscribe', async (ctx) => {
   const chat = await chats.findOne({id: ctx.chat.id});
+  if (!chat) return;
+
   const group = await groups.findOne({id: chat.subscription?.groupId});
 
   if (await removeSubscription(chat)) {
@@ -42,4 +47,4 @@ composer.command('unsubscribe', async (ctx) => {
   }
 });
 
-module.exports = composer;
+export {subscribeComposer};

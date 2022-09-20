@@ -1,7 +1,11 @@
-const {Composer, Markup} = require('telegraf');
-const composer = new Composer();
+import {Composer, Markup} from 'telegraf';
+import {MyContext} from '../types/context.type';
 
-composer.start(async (ctx) => {
+const startComposer = new Composer<MyContext>();
+
+startComposer.start(async (ctx) => {
+  if (!ctx.from) return;
+
   const name = ctx.from.last_name ?
     `${ctx.from.first_name} ${ctx.from.last_name}` :
     ctx.from.first_name;
@@ -9,7 +13,7 @@ composer.start(async (ctx) => {
   await ctx.reply(ctx.i18n.t('welcome', {name}));
 });
 
-composer.help(async (ctx) => {
+startComposer.help(async (ctx) => {
   await ctx.replyWithMarkdown(
       ctx.i18n.t('help'),
       Markup.inlineKeyboard([
@@ -21,4 +25,4 @@ composer.help(async (ctx) => {
   );
 });
 
-module.exports = composer;
+export {startComposer};
