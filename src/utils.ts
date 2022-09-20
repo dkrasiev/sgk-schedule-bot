@@ -5,6 +5,7 @@ import {groups} from './models';
 import {ChatDocument} from './models/chat.model';
 import {GroupDocument} from './models/group.model';
 import Schedule from './types/schedule.type';
+import {i18n} from './i18n';
 
 const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
 
@@ -129,9 +130,7 @@ export function getScheduleMessage(
     schedule: Schedule,
     group: GroupDocument,
 ): string {
-  if (!schedule) {
-    return 'Не удалось получить расписание';
-  }
+  if (!schedule) return i18n.t('schedule_fail');
 
   let message = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
 
@@ -143,7 +142,7 @@ export function getScheduleMessage(
       message += lesson.cab + '\n\n';
     }
   } else {
-    message += 'Расписание не найдено';
+    message += i18n.t('schedule_not_found');
   }
 
   return message;
@@ -156,9 +155,21 @@ export function getScheduleMessage(
  * @return {boolean} результат сравнения
  */
 export function compareSchedule(a: Schedule, b: Schedule) {
-  console.log(a.lessons);
-  console.log(b.lessons);
-  return JSON.stringify(a) === JSON.stringify(b);
+  if (a.date !== b.date) return false;
+
+  if (a.lessons.length !== b.lessons.length) return false;
+
+  for (let i = 0; i < a.lessons.length; i++) {
+    const lessonA = a.lessons[i];
+    const lessonB = b.lessons[i];
+
+    if (lessonA.num !== lessonB.num) return false;
+    if (lessonA.title !== lessonB.title) return false;
+    if (lessonA.teachername !== lessonB.teachername) return false;
+    if (lessonA.cab !== lessonB.cab) return false;
+  }
+
+  return true;
 }
 
 /**
@@ -190,16 +201,3 @@ export async function sendSchedule(ctx: MyContext, date = dayjs()) {
 
   return true;
 }
-
-// export default {
-//   getScheduleMessage,
-//   getGroupFromString,
-//   getNextWorkDate,
-//   numToTime,
-//   removeSubscription,
-//   fetchSchedule,
-//   compareSchedule,
-//   log,
-//   sendSchedule,
-//   groupRegex,
-// };

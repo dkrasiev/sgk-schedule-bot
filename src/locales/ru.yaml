@@ -36,7 +36,7 @@ subscribe_fail: |
   Укажите номер группы после команды
   
   Пример команды:
-  /subscribe ИС-19-04
+  `/subscribe ИС-19-04`
 unsubscribe_success: |
   Вы отписались от обновлений расписания группы ${group.name}
 unsubscribe_fail: |
@@ -47,8 +47,13 @@ set_group_fail: |
   Укажите номер группы после команды
   
   Пример команды:
-  /setgroup ИС-19-04
+  `/setgroup ИС-19-04`
 remove_group_success: |
   Группа по умолчанию удалена
 remove_group_fail: |
   Группа по умолчанию не задана
+schedule_fail: |
+  Расписание не найдено
+schedule_not_found: |
+  Расписания нет
+  
