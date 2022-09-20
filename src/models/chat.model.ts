@@ -19,6 +19,7 @@ const ChatSchema = new Schema({
       date: String,
       lessons: [
         {
+          _id: false,
           title: String,
           num: String,
           teachername: String,
