@@ -72,6 +72,8 @@ module.exports.update = async function() {
 
     const lastSchedule = chat.subscription.lastSchedule;
 
+    console.log(lastSchedule.lessons[0]);
+
     const isScheduleNew =
       !compareSchedule(lastSchedule, newSchedule) &&
       newSchedule?.lessons?.length;
