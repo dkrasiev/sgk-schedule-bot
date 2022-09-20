@@ -1,4 +1,4 @@
-const {Composer} = require('telegraf');
+const {Composer, Markup} = require('telegraf');
 const composer = new Composer();
 
 composer.start(async (ctx) => {
@@ -10,7 +10,15 @@ composer.start(async (ctx) => {
 });
 
 composer.help(async (ctx) => {
-  await ctx.replyWithMarkdown(ctx.i18n.t('help'));
+  await ctx.replyWithMarkdown(
+      ctx.i18n.t('help'),
+      Markup.inlineKeyboard([
+        {
+          text: 'По возникшим вопросам можно написать сюда',
+          url: 't.me/dkrasiev',
+        },
+      ]),
+  );
 });
 
 module.exports = composer;
