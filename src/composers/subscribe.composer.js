@@ -25,15 +25,9 @@ composer.command('subscribe', async (ctx) => {
     };
     await chat.save();
 
-    await ctx.reply(
-        `Вы подписались на обновления расписания группы ${group.name}`,
-    );
+    await ctx.reply(ctx.i18n.t('subscribe_success', {group}));
   } else {
-    await ctx.reply(
-        'Укажите номер группы после команды\n\n' +
-        'Пример команды:\n' +
-        '/subscribe ИС-19-04',
-    );
+    await ctx.reply(ctx.i18n.t('subscribe_fail'));
   }
 });
 
@@ -42,11 +36,9 @@ composer.command('unsubscribe', async (ctx) => {
   const group = await groups.findOne({id: chat.subscription?.groupId});
 
   if (await removeSubscription(chat)) {
-    await ctx.reply(
-        `Вы отписались от обновлений расписания группы ${group.name}`,
-    );
+    await ctx.reply(ctx.i18n.t('unsubscribe_success', {group}));
   } else {
-    await ctx.reply('Вы не подписаны на обновления расписания');
+    await ctx.reply(ctx.i18n.t('unsubscribe_fail'));
   }
 });
 
