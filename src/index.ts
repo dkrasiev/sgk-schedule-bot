@@ -71,9 +71,6 @@ module.exports.update = async function() {
     const newSchedule = schedules[chat.subscription.groupId];
 
     const lastSchedule = chat.subscription.lastSchedule;
-    // lastSchedule.lessons.forEach((lesson) => {
-    //   delete lesson._id;
-    // });
 
     const isScheduleNew =
       !compareSchedule(lastSchedule, newSchedule) &&
