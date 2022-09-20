@@ -1,67 +1,76 @@
-const {default: axios} = require('axios');
-const dayjs = require('dayjs');
-const {Context} = require('telegraf'); // eslint-disable-line no-unused-vars
-const {groups} = require('./models');
+import axios from 'axios';
+import dayjs, {Dayjs} from 'dayjs';
+import {MyContext} from './types/context.type';
+import {groups} from './models';
+import {ChatDocument} from './models/chat.model';
+import {GroupDocument} from './models/group.model';
+import Schedule from './types/schedule.type';
 
 const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
+
+interface Times {
+  [key: string | number]: string;
+}
 
 /**
  * Преобразует номер пары в время пары
  * @param {string | number} num номер пары
  * @return {string} время пары
  */
-function numToTime(num) {
-  const times = {
-    1: '08:25-10:00',
-    2: '10:10-11:45',
-    3: '12:15-13:50',
-    4: '14:00-15:35',
-    5: '15:45-17:20',
-    6: '17:30-19:05',
-    7: '19:15-20:50',
-    1.1: '08:25-09:10',
-    1.2: '09:15-10:00',
-    2.1: '10:10-10:55',
-    2.2: '11:00-11:45',
-    3.1: '12:15-13:00',
-    3.2: '13:05-13:50',
-    4.1: '14:00-14:45',
-    4.2: '14:50-15:35',
-    5.1: '15:45-16:30',
-    5.2: '16:35-17:20',
-    6.1: '17:30-18:15',
-    6.2: '18:20-19:05',
-    7.1: '19:15-20:00',
-    7.2: '20:05-20:50',
+export function numToTime(num: string | number): string {
+  const times: Times = {
+    '1': '08:25-10:00',
+    '2': '10:10-11:45',
+    '3': '12:15-13:50',
+    '4': '14:00-15:35',
+    '5': '15:45-17:20',
+    '6': '17:30-19:05',
+    '7': '19:15-20:50',
+    '1.1': '08:25-09:10',
+    '1.2': '09:15-10:00',
+    '2.1': '10:10-10:55',
+    '2.2': '11:00-11:45',
+    '3.1': '12:15-13:00',
+    '3.2': '13:05-13:50',
+    '4.1': '14:00-14:45',
+    '4.2': '14:50-15:35',
+    '5.1': '15:45-16:30',
+    '5.2': '16:35-17:20',
+    '6.1': '17:30-18:15',
+    '6.2': '18:20-19:05',
+    '7.1': '19:15-20:00',
+    '7.2': '20:05-20:50',
   };
   return times[num];
 }
 
 /**
  * Получает расписание
- * @param {any} group группа
- * @param {dayjs.Dayjs} date дата
- * @return {any} расписание
+ * @param {GroupDocument} group группа
+ * @param {Dayjs} date дата
+ * @return {Schedule} расписание
  */
-async function fetchSchedule(group, date) {
-  const response = await axios.get(
+export async function fetchSchedule(
+    group: GroupDocument,
+    date: Dayjs,
+): Promise<Schedule> {
+  const {data} = await axios.get<Schedule>(
       [
         'https://asu.samgk.ru/api/schedule',
         group.id,
         date.format('YYYY-MM-DD'),
       ].join('/'),
   );
-  const schedule = response.data;
 
-  return schedule;
+  return data;
 }
 
 /**
  * Возвращает следующий будний день
- * @param {dayjs.Dayjs} date дата от которой искать
- * @return {dayjs.Dayjs} следующий будний день
+ * @param {Dayjs} date дата от которой искать
+ * @return {Dayjs} следующий будний день
  */
-function getNextWorkDate(date) {
+export function getNextWorkDate(date: Dayjs): Dayjs {
   switch (date.day()) {
     case 0:
       date = date.add(1, 'day');
@@ -76,14 +85,14 @@ function getNextWorkDate(date) {
 
 /**
  * Отменяет подписку на расписание
- * @param {any} chat объект чата
+ * @param {ChatDocument} chat объект чата
  * @return {boolean} получилось ли отписаться
  */
-async function removeSubscription(chat) {
+export async function removeSubscription(chat: ChatDocument) {
   if (chat?.subscription?.groupId) {
     chat.subscription = {
-      groupId: null,
-      lastSchedule: [],
+      groupId: undefined,
+      lastSchedule: {} as Schedule,
     };
     await chat.save();
     return true;
@@ -94,9 +103,11 @@ async function removeSubscription(chat) {
 /**
  * Находит учебную группу в тексте и возвращает ее
  * @param {string} text текст
- * @return {any} учебная группа
+ * @return {GroupDocument | null} учебная группа
  */
-async function getGroupFromString(text) {
+export async function getGroupFromString(
+    text: string,
+): Promise<GroupDocument | null> {
   const regexResult = groupRegex.exec(text);
 
   if (regexResult?.length) {
@@ -110,11 +121,14 @@ async function getGroupFromString(text) {
 
 /**
  * Получение сообщения для отправки пользователю
- * @param {any} schedule объект расписания
- * @param {any} group группа для которой расписание
+ * @param {Schedule} schedule объект расписания
+ * @param {GroupDocument} group группа для которой расписание
  * @return {string} сообщение для пользователя
  */
-function getScheduleMessage(schedule, group) {
+export function getScheduleMessage(
+    schedule: Schedule,
+    group: GroupDocument,
+): string {
   if (!schedule) {
     return 'Не удалось получить расписание';
   }
@@ -137,11 +151,13 @@ function getScheduleMessage(schedule, group) {
 
 /**
  * Сравнивает два расписания
- * @param {any} a первое расписание
- * @param {any} b второе расписание
+ * @param {Schedule} a первое расписание
+ * @param {Schedule} b второе расписание
  * @return {boolean} результат сравнения
  */
-function compareSchedule(a, b) {
+export function compareSchedule(a: Schedule, b: Schedule) {
+  console.log(a.lessons);
+  console.log(b.lessons);
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
@@ -149,7 +165,7 @@ function compareSchedule(a, b) {
  * Вызывает console.log с добавлением времени в начало сообщения
  * @param {string} message сообщение
  */
-function log(message) {
+export function log(message: string) {
   const time = `[${dayjs().format('HH:mm:ss')}]`;
   console.log([time, message].join(' '));
 }
@@ -157,11 +173,10 @@ function log(message) {
 /**
  * Отправляет расписание на два дня
  * @param {Context} ctx контекст
- * @param {dayjs.Dayjs} date дата (по умолчанию сегодня)
+ * @param {Dayjs} date дата (по умолчанию сегодня)
  */
-async function sendSchedule(ctx, date = dayjs()) {
-  const group = ctx.session.group;
-
+export async function sendSchedule(ctx: MyContext, date = dayjs()) {
+  const group = ctx.session?.group;
   if (!group) return false;
 
   const firstDate = getNextWorkDate(date);
@@ -176,15 +191,15 @@ async function sendSchedule(ctx, date = dayjs()) {
   return true;
 }
 
-module.exports = {
-  getScheduleMessage,
-  getGroupFromString,
-  getNextWorkDate,
-  numToTime,
-  removeSubscription,
-  fetchSchedule,
-  compareSchedule,
-  log,
-  sendSchedule,
-  groupRegex,
-};
+// export default {
+//   getScheduleMessage,
+//   getGroupFromString,
+//   getNextWorkDate,
+//   numToTime,
+//   removeSubscription,
+//   fetchSchedule,
+//   compareSchedule,
+//   log,
+//   sendSchedule,
+//   groupRegex,
+// };

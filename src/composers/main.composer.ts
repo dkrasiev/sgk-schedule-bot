@@ -1,29 +1,30 @@
-const dayjs = require('dayjs');
-const {chats, groups} = require('../models');
-const {
+import {Composer} from 'telegraf';
+import dayjs from 'dayjs';
+import {chats, groups} from '../models';
+import {
   getGroupFromString,
   fetchSchedule,
   getScheduleMessage,
-} = require('../utils');
+} from '../utils';
+import {MyContext} from '../types/context.type';
 
-const {Composer} = require('telegraf');
-const composer = new Composer();
+const mainComposer = new Composer<MyContext>();
 
-composer.command('groups', async (ctx) => {
-  let groupsArray = await groups.find();
+mainComposer.command('groups', async (ctx) => {
+  const groupsArray = await groups.find();
 
-  groupsArray = groupsArray
+  const groupsNameArray = groupsArray
       .map((group) => group.name)
       .sort((a, b) => a.localeCompare(b));
 
-  await ctx.reply(groupsArray.join('\n'));
+  await ctx.reply(groupsNameArray.join('\n'));
 });
 
-composer.command('setgroup', async (ctx) => {
+mainComposer.command('setgroup', async (ctx) => {
   const chat = await chats.findOne({id: ctx.chat.id});
   const group = await getGroupFromString(ctx.message.text);
 
-  if (group) {
+  if (group && chat) {
     chat.defaultGroup = group.id;
     await chat.save();
     await ctx.reply(ctx.i18n.t('set_group_success', {group}));
@@ -32,11 +33,11 @@ composer.command('setgroup', async (ctx) => {
   }
 });
 
-composer.command('removedefault', async (ctx) => {
+mainComposer.command('removedefault', async (ctx) => {
   const chat = await chats.findOne({id: ctx.chat.id});
 
-  if (chat.defaultGroup) {
-    chat.defaultGroup = null;
+  if (chat?.defaultGroup) {
+    chat.defaultGroup = undefined;
     await chat.save();
     await ctx.reply(ctx.i18n.t('remove_group_success'));
     return;
@@ -45,8 +46,8 @@ composer.command('removedefault', async (ctx) => {
   await ctx.reply(ctx.i18n.t('remove_group_fail'));
 });
 
-composer.command('today', async (ctx) => {
-  const group = ctx.session.group;
+mainComposer.command('today', async (ctx) => {
+  const group = ctx.session?.group;
 
   if (!group) {
     return;
@@ -57,8 +58,8 @@ composer.command('today', async (ctx) => {
   await ctx.reply(getScheduleMessage(schedule, group));
 });
 
-composer.command('tomorrow', async (ctx) => {
-  const group = ctx.session.group;
+mainComposer.command('tomorrow', async (ctx) => {
+  const group = ctx.session?.group;
 
   if (!group) {
     return;
@@ -69,4 +70,4 @@ composer.command('tomorrow', async (ctx) => {
   await ctx.reply(getScheduleMessage(schedule, group));
 });
 
-module.exports = composer;
+export {mainComposer};

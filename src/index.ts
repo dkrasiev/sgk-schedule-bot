@@ -1,22 +1,32 @@
-require('dotenv').config();
-require('mongoose').connect(process.env.MONGODB_URI);
-const dayjs = require('dayjs');
+import dotenv from 'dotenv';
+dotenv.config();
 
-const bot = require('./bot');
-const {chats, groups} = require('./models');
-const {
+import mongoose from 'mongoose';
+if (!process.env.MONGODB_URI) {
+  console.log('MONGODB_URI required');
+  process.exit();
+}
+mongoose.connect(process.env.MONGODB_URI);
+
+import dayjs from 'dayjs';
+
+import bot from './bot';
+import {chats, groups} from './models';
+import {
   fetchSchedule,
   getNextWorkDate,
   log,
   compareSchedule,
-} = require('./utils');
+  getScheduleMessage,
+} from './utils';
+import Schedule from './types/schedule.type';
 
 /**
  * Обработка событий бота
  * @param {any} event http request
  * @return {any} http response
  */
-module.exports.handler = async function(event) {
+module.exports.handler = async function(event: any) {
   const message = JSON.parse(event.body);
   await bot.handleUpdate(message);
   return {
@@ -35,13 +45,19 @@ module.exports.update = async function() {
   const chatsWithSubscription = allChats.filter(
       (chat) => chat.subscription.groupId,
   );
-  const groupIds = new Set(
+  const groupIds = new Set<number | undefined>(
       chatsWithSubscription.map((chat) => chat.subscription.groupId),
   );
 
-  const schedules = {};
+  type Schedules = {
+    [key: number]: Schedule;
+  };
+
+  const schedules: Schedules = {};
   for (const groupId of groupIds) {
     const group = await groups.findOne({id: groupId});
+    if (!group || !groupId) return;
+
     const dateNext = getNextWorkDate(dayjs().add(1, 'day'));
     const schedule = await fetchSchedule(group, dateNext);
 
@@ -49,13 +65,15 @@ module.exports.update = async function() {
   }
 
   for (const chat of chatsWithSubscription) {
-    const group = await groups.findOne({id: chat.subscription.groupId});
+    const group = await groups.findOne({id: chat.subscription.groupId}, '-_id');
+    if (!group || !chat.subscription.groupId) return;
+
     const newSchedule = schedules[chat.subscription.groupId];
 
-    const lastSchedule = chat.toObject().subscription.lastSchedule;
-    lastSchedule.lessons.forEach((lesson) => {
-      delete lesson._id;
-    });
+    const lastSchedule = chat.subscription.lastSchedule;
+    // lastSchedule.lessons.forEach((lesson) => {
+    //   delete lesson._id;
+    // });
 
     const isScheduleNew =
       !compareSchedule(lastSchedule, newSchedule) &&
