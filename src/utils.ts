@@ -1,11 +1,9 @@
 import axios from 'axios';
 import dayjs, {Dayjs} from 'dayjs';
-import {MyContext} from './types/context.type';
 import {groups} from './models';
 import {ChatDocument} from './models/chat.model';
 import {GroupDocument} from './models/group.model';
 import Schedule from './types/schedule.type';
-import {i18n} from './i18n';
 
 const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
 
@@ -130,7 +128,7 @@ export function getScheduleMessage(
     schedule: Schedule,
     group: GroupDocument,
 ): string {
-  if (!schedule) return i18n.t('schedule_fail');
+  if (!schedule) return 'Ошибка: не удалось получить расписание';
 
   let message = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
 
@@ -142,7 +140,7 @@ export function getScheduleMessage(
       message += lesson.cab + '\n\n';
     }
   } else {
-    message += i18n.t('schedule_not_found');
+    message += 'Расписания нет';
   }
 
   return message;
@@ -179,25 +177,4 @@ export function compareSchedule(a: Schedule, b: Schedule) {
 export function log(message: string) {
   const time = `[${dayjs().format('HH:mm:ss')}]`;
   console.log([time, message].join(' '));
-}
-
-/**
- * Отправляет расписание на два дня
- * @param {Context} ctx контекст
- * @param {Dayjs} date дата (по умолчанию сегодня)
- */
-export async function sendSchedule(ctx: MyContext, date = dayjs()) {
-  const group = ctx.session?.group;
-  if (!group) return false;
-
-  const firstDate = getNextWorkDate(date);
-  const secondDate = getNextWorkDate(firstDate.add(1, 'day'));
-
-  const firstSchedule = await fetchSchedule(group, firstDate);
-  const secondSchedule = await fetchSchedule(group, secondDate);
-
-  await ctx.reply(getScheduleMessage(firstSchedule, group));
-  await ctx.reply(getScheduleMessage(secondSchedule, group));
-
-  return true;
 }

@@ -41,9 +41,11 @@ bot.use(i18n.middleware());
 bot.use(logComposer);
 bot.use(chatComposer);
 bot.use(groupComposer);
+
 bot.use(startComposer);
 bot.use(mainComposer);
 bot.use(subscribeComposer);
+
 bot.use(scheduleComposer);
 
 export default bot;
