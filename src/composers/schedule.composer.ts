@@ -1,28 +1,73 @@
+import dayjs from 'dayjs';
 import {Composer} from 'telegraf';
 import {MyContext} from '../types/context.type';
-import {sendSchedule} from '../utils';
+import {
+  fetchSchedule,
+  getNextWorkDate,
+  getScheduleMessage,
+} from '../utils';
 
 const scheduleComposer = new Composer<MyContext>();
 
 scheduleComposer.command('schedule', async (ctx) => {
-  const result = await sendSchedule(ctx);
+  await sendSchedule(ctx);
+});
 
-  if (result === false) {
-    await ctx.reply(ctx.i18n.t('group_not_found'));
-  }
+scheduleComposer.command('today', async (ctx) => {
+  await sendShortSchedule(ctx, dayjs());
+});
+
+scheduleComposer.command('tomorrow', async (ctx) => {
+  await sendShortSchedule(ctx, dayjs().add(1, 'day'));
 });
 
 scheduleComposer.on('text', async (ctx) => {
   if (
-    (ctx.chat.type === 'private' && ctx.session?.messageHasGroup) ||
+    ctx.chat.type === 'private' && ctx.session?.messageHasGroup ||
     ctx.message.text.includes('расписание')
   ) {
-    const result = await sendSchedule(ctx);
-
-    if (result === false) {
-      await ctx.reply(ctx.i18n.t('group_not_found'));
-    }
+    await sendSchedule(ctx);
   }
 });
+
+/**
+ * Отправляет расписание на указанные день
+ * @param {Context<MyContext>} ctx Context
+ * @param {dayj.Dayjs} date  Date
+ */
+async function sendShortSchedule(ctx: MyContext, date: dayjs.Dayjs) {
+  const group = ctx.session?.group;
+
+  if (!group) {
+    await ctx.reply(ctx.i18n.t('group_not_found'));
+    return;
+  }
+
+  const schedule = await fetchSchedule(group, date);
+
+  await ctx.reply(getScheduleMessage(schedule, group));
+}
+
+/**
+ * Отправляет расписание на два дня
+ * @param {Context} ctx контекст
+ * @param {Dayjs} date дата (по умолчанию сегодня)
+ */
+async function sendSchedule(ctx: MyContext, date = dayjs()) {
+  const group = ctx.session?.group;
+  if (!group) {
+    ctx.reply(ctx.i18n.t('group_not_found'));
+    return;
+  }
+
+  const firstDate = getNextWorkDate(date);
+  const secondDate = getNextWorkDate(firstDate.add(1, 'day'));
+
+  const firstSchedule = await fetchSchedule(group, firstDate);
+  const secondSchedule = await fetchSchedule(group, secondDate);
+
+  await ctx.reply(getScheduleMessage(firstSchedule, group));
+  await ctx.reply(getScheduleMessage(secondSchedule, group));
+}
 
 export {scheduleComposer};

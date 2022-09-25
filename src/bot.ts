@@ -1,6 +1,4 @@
 import {Telegraf} from 'telegraf';
-import TelegrafI18n from 'telegraf-i18n';
-import path from 'path';
 import {MyContext} from './types/context.type';
 import {logComposer} from './composers/log.composer';
 import {chatComposer} from './composers/chat.composer';
@@ -9,6 +7,7 @@ import {mainComposer} from './composers/main.composer';
 import {subscribeComposer} from './composers/subscribe.composer';
 import {scheduleComposer} from './composers/schedule.composer';
 import {startComposer} from './composers/start.composer';
+import {i18n} from './i18n';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
@@ -37,18 +36,16 @@ const botCommands = [
 
 bot.telegram.setMyCommands(botCommands);
 
-const i18n = new TelegrafI18n({
-  defaultLanguage: 'ru',
-  directory: path.resolve(__dirname, 'locales'),
-});
 bot.use(i18n.middleware());
 
 bot.use(logComposer);
 bot.use(chatComposer);
 bot.use(groupComposer);
+
 bot.use(startComposer);
 bot.use(mainComposer);
 bot.use(subscribeComposer);
+
 bot.use(scheduleComposer);
 
 export default bot;

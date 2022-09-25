@@ -1,10 +1,7 @@
 import {Composer} from 'telegraf';
-import dayjs from 'dayjs';
 import {chats, groups} from '../models';
 import {
   getGroupFromString,
-  fetchSchedule,
-  getScheduleMessage,
 } from '../utils';
 import {MyContext} from '../types/context.type';
 
@@ -44,30 +41,6 @@ mainComposer.command('removedefault', async (ctx) => {
   }
 
   await ctx.reply(ctx.i18n.t('remove_group_fail'));
-});
-
-mainComposer.command('today', async (ctx) => {
-  const group = ctx.session?.group;
-
-  if (!group) {
-    return;
-  }
-
-  const schedule = await fetchSchedule(group, dayjs());
-
-  await ctx.reply(getScheduleMessage(schedule, group));
-});
-
-mainComposer.command('tomorrow', async (ctx) => {
-  const group = ctx.session?.group;
-
-  if (!group) {
-    return;
-  }
-
-  const schedule = await fetchSchedule(group, dayjs().add(1, 'day'));
-
-  await ctx.reply(getScheduleMessage(schedule, group));
 });
 
 export {mainComposer};
