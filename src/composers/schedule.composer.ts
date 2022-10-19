@@ -1,11 +1,7 @@
 import dayjs from 'dayjs';
 import {Composer} from 'telegraf';
 import {MyContext} from '../types/context.type';
-import {
-  fetchSchedule,
-  getNextWorkDate,
-  getScheduleMessage,
-} from '../utils';
+import {fetchSchedule, getNextWorkDate, getScheduleMessage} from '../utils';
 
 const scheduleComposer = new Composer<MyContext>();
 
@@ -23,8 +19,8 @@ scheduleComposer.command('tomorrow', async (ctx) => {
 
 scheduleComposer.on('text', async (ctx) => {
   if (
-    ctx.chat.type === 'private' && ctx.session?.messageHasGroup ||
-    ctx.message.text.includes('расписание')
+    (ctx.chat.type === 'private' && ctx.session?.messageHasGroup) ||
+    ctx.message.text.toLowerCase().includes('расписание')
   ) {
     await sendSchedule(ctx);
   }
