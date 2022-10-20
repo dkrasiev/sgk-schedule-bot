@@ -3,21 +3,22 @@ import dayjs, {Dayjs} from 'dayjs';
 import {groups} from './models';
 import {ChatDocument} from './models/chat.model';
 import {GroupDocument} from './models/group.model';
+import {LessonTime} from './types/lesson.type';
 import Schedule from './types/schedule.type';
 
 const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
 
-interface Times {
-  [key: string | number]: string;
+interface Collection<T> {
+  [key: string]: T;
 }
 
 /**
  * Преобразует номер пары в время пары
- * @param {string | number} num номер пары
+ * @param {string} num номер пары
  * @return {string} время пары
  */
-export function numToTime(num: string | number): string {
-  const times: Times = {
+export function numToTime(num: string): LessonTime {
+  const times: Collection<string> = {
     '1': '08:25-10:00',
     '2': '10:10-11:45',
     '3': '12:15-13:50',
@@ -40,7 +41,19 @@ export function numToTime(num: string | number): string {
     '7.1': '19:15-20:00',
     '7.2': '20:05-20:50',
   };
-  return times[num];
+
+  const selectedTime = times[num];
+
+  const [from, to] = selectedTime.split('-').map((time) => {
+    const date = dayjs();
+    const [hours, minutes] = time
+        .split(':')
+        .map((value) => Number.parseInt(value));
+
+    return date.set('hours', hours).set('minutes', minutes);
+  });
+
+  return {from, to};
 }
 
 /**
@@ -51,14 +64,14 @@ export function numToTime(num: string | number): string {
  */
 export async function fetchSchedule(
     group: GroupDocument,
-    date: Dayjs,
+    date: Dayjs
 ): Promise<Schedule> {
   const {data} = await axios.get<Schedule>(
       [
         'https://asu.samgk.ru/api/schedule',
         group.id,
         date.format('YYYY-MM-DD'),
-      ].join('/'),
+      ].join('/')
   );
 
   return data;
@@ -105,7 +118,7 @@ export async function removeSubscription(chat: ChatDocument) {
  * @return {GroupDocument | null} учебная группа
  */
 export async function getGroupFromString(
-    text: string,
+    text: string
 ): Promise<GroupDocument | null> {
   const regexResult = groupRegex.exec(text);
 
@@ -126,15 +139,23 @@ export async function getGroupFromString(
  */
 export function getScheduleMessage(
     schedule: Schedule,
-    group: GroupDocument,
+    group: GroupDocument
 ): string {
   if (!schedule) return 'Ошибка: не удалось получить расписание';
 
-  let message = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
+  const header = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
+  let message = header;
 
   if (schedule.lessons.length > 0) {
     for (const lesson of schedule.lessons) {
-      message += lesson.num + ' ' + numToTime(lesson.num) + '\n';
+      const {from, to} =
+        typeof lesson.num === 'string' ? numToTime(lesson.num) : lesson.num;
+
+      const time = `${from.format('HH:mm')}-${to.format(
+          'HH:mm'
+      )}`;
+
+      message += lesson.num + ' ' + time + '\n';
       message += lesson.title + '\n';
       message += lesson.teachername + '\n';
       message += lesson.cab + '\n\n';
