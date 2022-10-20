@@ -15,9 +15,10 @@ interface Collection<T> {
 /**
  * Преобразует номер пары в время пары
  * @param {string} num номер пары
+ * @param {number} offset смещение в минутах
  * @return {string} время пары
  */
-export function numToTime(num: string): LessonTime {
+export function numToTime(num: string, offset = 0): LessonTime {
   const times: Collection<string> = {
     '1': '08:25-10:00',
     '2': '10:10-11:45',
@@ -45,12 +46,13 @@ export function numToTime(num: string): LessonTime {
   const selectedTime = times[num];
 
   const [from, to] = selectedTime.split('-').map((time) => {
-    const date = dayjs();
     const [hours, minutes] = time
         .split(':')
         .map((value) => Number.parseInt(value));
 
-    return date.set('hours', hours).set('minutes', minutes);
+    return dayjs()
+        .hour(hours)
+        .minute(minutes + offset);
   });
 
   return {from, to};
@@ -64,14 +66,14 @@ export function numToTime(num: string): LessonTime {
  */
 export async function fetchSchedule(
     group: GroupDocument,
-    date: Dayjs
+    date: Dayjs,
 ): Promise<Schedule> {
   const {data} = await axios.get<Schedule>(
       [
         'https://asu.samgk.ru/api/schedule',
         group.id,
         date.format('YYYY-MM-DD'),
-      ].join('/')
+      ].join('/'),
   );
 
   return data;
@@ -118,7 +120,7 @@ export async function removeSubscription(chat: ChatDocument) {
  * @return {GroupDocument | null} учебная группа
  */
 export async function getGroupFromString(
-    text: string
+    text: string,
 ): Promise<GroupDocument | null> {
   const regexResult = groupRegex.exec(text);
 
@@ -139,21 +141,32 @@ export async function getGroupFromString(
  */
 export function getScheduleMessage(
     schedule: Schedule,
-    group: GroupDocument
+    group: GroupDocument,
 ): string {
   if (!schedule) return 'Ошибка: не удалось получить расписание';
 
   const header = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
   let message = header;
 
+  const [day, month, year] = schedule.date
+      .split('.')
+      .map((v) => Number.parseInt(v));
+
+  const isMonday =
+    dayjs()
+        .year(year)
+        .month(month - 1)
+        .date(day)
+        .day() === 1;
+
   if (schedule.lessons.length > 0) {
     for (const lesson of schedule.lessons) {
       const {from, to} =
-        typeof lesson.num === 'string' ? numToTime(lesson.num) : lesson.num;
+        typeof lesson.num === 'string' ?
+          numToTime(lesson.num, isMonday ? 45 : 0) :
+          lesson.num;
 
-      const time = `${from.format('HH:mm')}-${to.format(
-          'HH:mm'
-      )}`;
+      const time = `${from.format('HH:mm')}-${to.format('HH:mm')}`;
 
       message += lesson.num + ' ' + time + '\n';
       message += lesson.title + '\n';
