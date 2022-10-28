@@ -34,7 +34,7 @@ subscribe_success: |
   Вы подписались на обновления расписания группы ${group.name}
 subscribe_fail: |
   Укажите номер группы после команды
-  
+
   Пример команды:
   `/subscribe ИС-19-04`
 unsubscribe_success: |
@@ -45,7 +45,7 @@ set_group_success: |
   Установлена группа ${group.name}
 set_group_fail: |
   Укажите номер группы после команды
-  
+
   Пример команды:
   `/setgroup ИС-19-04`
 remove_group_success: |
@@ -56,4 +56,3 @@ schedule_fail: |
   Расписание не найдено
 schedule_not_found: |
   Расписания нет
-  

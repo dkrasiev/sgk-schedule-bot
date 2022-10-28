@@ -10,6 +10,6 @@ export type Lesson = {
 export type LessonTime = {
   from: Dayjs;
   to: Dayjs;
-}
+};
 
 export default Lesson;
