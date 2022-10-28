@@ -1,11 +1,7 @@
 import {Composer} from 'telegraf';
 import dayjs from 'dayjs';
 import {chats, groups} from '../models';
-import {
-  getNextWorkDate,
-  fetchSchedule,
-  removeSubscription,
-} from '../utils';
+import {getNextWorkDate, fetchSchedule, removeSubscription} from '../utils';
 import {MyContext} from '../types/context.type';
 
 const subscribeComposer = new Composer<MyContext>();

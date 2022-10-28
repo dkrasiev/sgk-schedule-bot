@@ -8,12 +8,39 @@
     "build": "tsc",
     "postbuild": "cp -r ./src/locales ./dist",
     "dev": "nodemon src/index.ts",
+    "test": "echo there will be tests",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
-    "deploy": "npx deploy-fn"
+    "prettier:write": "prettier --write ./src/**/*",
+    "deploy": "npx deploy-fn",
+    "prepare": "husky install"
   },
   "author": "Dmitry Krasiev",
   "license": "ISC",
+  "prettier": {
+    "bracketSpacing": false,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "endOfLine": "lf"
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "google"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "root": true
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
   "dependencies": {
     "axios": "^0.27.2",
     "dayjs": "^1.11.5",
@@ -29,7 +56,10 @@
     "@typescript-eslint/parser": "^5.38.0",
     "eslint": "^8.23.1",
     "eslint-config-google": "^0.14.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.3",
     "nodemon": "^2.0.19",
+    "prettier": "^2.7.1",
     "ts-node": "^10.9.1",
     "typegram": "^3.11.0",
     "typescript": "^4.8.3",

@@ -73,9 +73,7 @@ module.exports.update = async function() {
 
     const compareResult = compareSchedule(lastSchedule, newSchedule);
 
-    const isScheduleNew =
-      !compareResult &&
-      newSchedule?.lessons?.length;
+    const isScheduleNew = !compareResult && newSchedule?.lessons?.length;
 
     if (isScheduleNew) {
       log(group.name + ' расписание изменилось');

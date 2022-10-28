@@ -1,8 +1,6 @@
 import {Composer} from 'telegraf';
 import {chats, groups} from '../models';
-import {
-  getGroupFromString,
-} from '../utils';
+import {getGroupFromString} from '../utils';
 import {MyContext} from '../types/context.type';
 
 const mainComposer = new Composer<MyContext>();
