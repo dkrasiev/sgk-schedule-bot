@@ -24,6 +24,9 @@
     "endOfLine": "lf"
   },
   "eslintConfig": {
+    "env": {
+      "node": true
+    },
     "extends": [
       "eslint:recommended",
       "plugin:@typescript-eslint/recommended",
@@ -51,7 +54,7 @@
   },
   "devDependencies": {
     "@types/mongoose": "^5.11.97",
-    "@types/node": "^18.7.18",
+    "@types/node": "^18.11.7",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
     "eslint": "^8.23.1",
