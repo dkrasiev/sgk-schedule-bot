@@ -16,6 +16,11 @@
   },
   "author": "Dmitry Krasiev",
   "license": "ISC",
+  "prettier": {
+    "bracketSpacing": false,
+    "singleQuote": true,
+    "trailingComma": "all"
+  },
   "dependencies": {
     "axios": "^0.27.2",
     "dayjs": "^1.11.5",
