@@ -26,7 +26,7 @@ subscribeComposer.command('subscribe', async (ctx) => {
 
     await ctx.reply(ctx.i18n.t('subscribe_success', {group}));
   } else {
-    await ctx.reply(ctx.i18n.t('subscribe_fail'));
+    await ctx.replyWithMarkdownV2(ctx.i18n.t('subscribe_fail'));
   }
 });
 

@@ -26,7 +26,7 @@ const botCommands = [
   {command: 'schedule', description: 'Расписание на два дня'},
   {command: 'today', description: 'Расписание на сегодня'},
   {command: 'tomorrow', description: 'Расписание на завтра'},
-  {command: 'trigger', description: 'Добавить слово "триггер"'},
+  {command: 'trigger', description: 'Добавить или удалить триггер'},
   {command: 'groups', description: 'Показать все группы'},
   {command: 'setgroup', description: 'Выбрать группу по умолчанию'},
   {command: 'subscribe', description: 'Подписаться на обновления расписания'},

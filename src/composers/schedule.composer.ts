@@ -17,6 +17,15 @@ scheduleComposer.command('tomorrow', async (ctx) => {
   await sendShortSchedule(ctx, dayjs().add(1, 'day'));
 });
 
+scheduleComposer.on('text', async (ctx, next) => {
+  if (ctx.chat.type === 'private' && ctx.state.messageHasGroup === true) {
+    sendSchedule(ctx);
+    return;
+  }
+
+  next();
+});
+
 /**
  * Отправляет расписание на указанные день
  * @param {Context<MyContext>} ctx Context

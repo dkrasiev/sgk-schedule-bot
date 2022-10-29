@@ -24,7 +24,7 @@ mainComposer.command('setgroup', async (ctx) => {
     await chat.save();
     await ctx.reply(ctx.i18n.t('set_group_success', {group}));
   } else {
-    await ctx.reply(ctx.i18n.t('set_group_fail'));
+    await ctx.replyWithMarkdownV2(ctx.i18n.t('set_group_fail'));
   }
 });
 
