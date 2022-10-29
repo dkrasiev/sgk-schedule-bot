@@ -9,8 +9,8 @@ mainComposer.command('groups', async (ctx) => {
   const groupsArray = await groups.find();
 
   const groupsNameArray = groupsArray
-    .map((group) => group.name)
-    .sort((a, b) => a.localeCompare(b));
+      .map((group) => group.name)
+      .sort((a, b) => a.localeCompare(b));
 
   await ctx.reply(groupsNameArray.join('\n'));
 });

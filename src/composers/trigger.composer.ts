@@ -19,20 +19,21 @@ triggerComposer.command('trigger', async (ctx) => {
   if (triggerFromMessage && isTriggerNew) {
     chat.triggers?.push(triggerFromMessage);
     await chat.save();
-    await ctx.reply(`Trigger ${triggerFromMessage} added`);
+    await ctx.reply(ctx.i18n.t('trigger_added', {trigger: triggerFromMessage}));
   } else if (triggerFromMessage) {
     chat.triggers =
       chat.triggers?.filter((trigger: string) => {
         return trigger !== triggerFromMessage;
       }) || [];
     await chat.save();
-    await ctx.reply(`Trigger ${triggerFromMessage} deleted`);
+    await ctx.reply(ctx.i18n.t(
+        'trigger_deleted', {trigger: triggerFromMessage}));
   }
 
   await ctx.reply(
     chat.triggers?.length ?
-    `triggers: \n${chat.triggers.join('\n')}` :
-    'You don\'t have active triggers');
+    ctx.i18n.t('trigger_list', {triggers: chat.triggers.join('\n')}) :
+    ctx.i18n.t('trigger_list_not_found'));
 });
 
 triggerComposer.on('text', async (ctx, next) => {
