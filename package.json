@@ -13,7 +13,7 @@
     "lint:fix": "eslint ./src --fix",
     "prettier:write": "prettier --write ./src/**/*",
     "deploy": "npx deploy-fn",
-    "prepare": "husky install"
+    "prepare": "npx husky install"
   },
   "author": "Dmitry Krasiev",
   "license": "ISC",
