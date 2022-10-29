@@ -8,6 +8,7 @@ import {subscribeComposer} from './composers/subscribe.composer';
 import {scheduleComposer} from './composers/schedule.composer';
 import {startComposer} from './composers/start.composer';
 import {i18n} from './i18n';
+import triggerComposer from './composers/trigger.composer';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
@@ -25,6 +26,7 @@ const botCommands = [
   {command: 'schedule', description: 'Расписание на два дня'},
   {command: 'today', description: 'Расписание на сегодня'},
   {command: 'tomorrow', description: 'Расписание на завтра'},
+  {command: 'trigger', description: 'Добавить слово "триггер"'},
   {command: 'groups', description: 'Показать все группы'},
   {command: 'setgroup', description: 'Выбрать группу по умолчанию'},
   {command: 'subscribe', description: 'Подписаться на обновления расписания'},
@@ -45,6 +47,7 @@ bot.use(groupComposer);
 bot.use(startComposer);
 bot.use(mainComposer);
 bot.use(subscribeComposer);
+bot.use(triggerComposer);
 
 bot.use(scheduleComposer);
 

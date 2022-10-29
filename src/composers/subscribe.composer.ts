@@ -10,7 +10,7 @@ subscribeComposer.command('subscribe', async (ctx) => {
   if (!ctx.chat) return;
 
   const chat = await chats.findOne({id: ctx.chat.id});
-  const group = ctx.session?.group;
+  const group = ctx.state.group;
 
   if (group && chat) {
     const firstDate = getNextWorkDate(dayjs());

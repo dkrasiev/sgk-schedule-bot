@@ -5,7 +5,7 @@ import {GroupDocument} from '../models/group.model';
 
 export interface MyContext extends Context {
   i18n: I18n;
-  session: {
+  state: {
     group?: GroupDocument;
     chat?: ChatDocument;
     messageHasGroup?: boolean;

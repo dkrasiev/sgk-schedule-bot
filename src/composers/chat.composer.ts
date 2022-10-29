@@ -5,9 +5,12 @@ import {chats} from '../models';
 const chatComposer = new Composer<MyContext>();
 
 chatComposer.on('message', async (ctx, next) => {
-  if (!(await chats.findOne({id: ctx.chat.id}))) {
-    await chats.create({id: ctx.chat.id});
+  let chat = await chats.findOne({id: ctx.chat.id});
+  if (chat == null) {
+    chat = await chats.create({id: ctx.chat.id});
   }
+
+  ctx.state.chat = chat;
 
   next();
 });
