@@ -39,11 +39,11 @@ triggerComposer.command('trigger', async (ctx) => {
 
 triggerComposer.on('text', async (ctx, next) => {
   const chat = ctx.state.chat as ChatDocument;
-  const include = chat.triggers?.some((trigger: string) => {
+  const triggered = chat.triggers?.some((trigger: string) => {
     return ctx.message.text.split(/\s/m).includes(trigger);
   });
 
-  if (chat && include) {
+  if (chat && triggered) {
     await sendSchedule(ctx);
     return;
   }
