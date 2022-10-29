@@ -8,8 +8,8 @@ export type Lesson = {
 };
 
 export type LessonTime = {
-  from: Dayjs;
-  to: Dayjs;
+  start: Dayjs;
+  end: Dayjs;
 };
 
 export default Lesson;

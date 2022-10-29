@@ -1,61 +1,39 @@
 import axios from 'axios';
 import dayjs, {Dayjs} from 'dayjs';
+import {groupRegex, mondayTimes, times} from './constants';
 import {groups} from './models';
 import {ChatDocument} from './models/chat.model';
 import {GroupDocument} from './models/group.model';
 import {LessonTime} from './types/lesson.type';
 import Schedule from './types/schedule.type';
 
-const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
+/**
+ * Преобразует строку в LessnTime
+ * @param {string} time строка в формате HH:mm-HH:mm
+ * @return {LessonTime}
+ */
+export function convertToLessonTime(time: string) {
+  const [start, end] = time.split('-').map((time) => {
+    const [hours, minutes] = time.split(':').map((v) => +v);
 
-interface Collection<T> {
-  [key: string]: T;
+    return dayjs().hour(hours).minute(minutes);
+  });
+
+  return {start, end};
 }
 
 /**
  * Преобразует номер пары в время пары
  * @param {string} num номер пары
- * @param {number} offset смещение в минутах
+ * @param {boolean} isMonday использоваться ли расписание для понедельника
  * @return {string} время пары
  */
-export function numToTime(num: string, offset = 0): LessonTime {
-  const times: Collection<string> = {
-    '1': '08:25-10:00',
-    '2': '10:10-11:45',
-    '3': '12:15-13:50',
-    '4': '14:00-15:35',
-    '5': '15:45-17:20',
-    '6': '17:30-19:05',
-    '7': '19:15-20:50',
-    '1.1': '08:25-09:10',
-    '1.2': '09:15-10:00',
-    '2.1': '10:10-10:55',
-    '2.2': '11:00-11:45',
-    '3.1': '12:15-13:00',
-    '3.2': '13:05-13:50',
-    '4.1': '14:00-14:45',
-    '4.2': '14:50-15:35',
-    '5.1': '15:45-16:30',
-    '5.2': '16:35-17:20',
-    '6.1': '17:30-18:15',
-    '6.2': '18:20-19:05',
-    '7.1': '19:15-20:00',
-    '7.2': '20:05-20:50',
-  };
+export function numToTime(num: string, isMonday = false): LessonTime {
+  const selectedTime = isMonday ? mondayTimes[num] : times[num];
 
-  const selectedTime = times[num];
+  const lessonTime = convertToLessonTime(selectedTime);
 
-  const [from, to] = selectedTime.split('-').map((time) => {
-    const [hours, minutes] = time
-        .split(':')
-        .map((value) => Number.parseInt(value));
-
-    return dayjs()
-        .hour(hours)
-        .minute(minutes + offset);
-  });
-
-  return {from, to};
+  return lessonTime;
 }
 
 /**
@@ -161,12 +139,12 @@ export function getScheduleMessage(
 
   if (schedule.lessons.length > 0) {
     for (const lesson of schedule.lessons) {
-      const {from, to} =
+      const {start, end} =
         typeof lesson.num === 'string' ?
-          numToTime(lesson.num, isMonday ? 45 : 0) :
+          numToTime(lesson.num, isMonday) :
           lesson.num;
 
-      const time = `${from.format('HH:mm')}-${to.format('HH:mm')}`;
+      const time = `${start.format('HH:mm')}-${end.format('HH:mm')}`;
 
       message += lesson.num + ' ' + time + '\n';
       message += lesson.title + '\n';
