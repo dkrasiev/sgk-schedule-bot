@@ -40,7 +40,7 @@ triggerComposer.command('trigger', async (ctx) => {
 triggerComposer.on('text', async (ctx, next) => {
   const chat = ctx.state.chat as ChatDocument;
   const triggered = chat.triggers?.some((trigger: string) => {
-    return ctx.message.text.split(/\s/m).includes(trigger);
+    return ctx.message.text.toLowerCase().split(/\s/m).includes(trigger);
   });
 
   if (chat && triggered) {
