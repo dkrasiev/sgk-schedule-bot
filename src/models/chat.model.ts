@@ -12,11 +12,11 @@ export interface ChatDocument extends Document {
 }
 
 const ChatSchema = new Schema({
-  id: {type: Number, require: true},
-  defaultGroup: {type: Number, require: false},
-  triggers: [{type: String, require: false}],
+  id: Number,
+  defaultGroup: Number,
+  triggers: [String],
   subscription: {
-    groupId: {type: Number, require: false},
+    groupId: Number,
     lastSchedule: {
       date: String,
       lessons: [
