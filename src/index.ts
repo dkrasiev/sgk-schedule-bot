@@ -49,11 +49,7 @@ module.exports.update = async function() {
       chatsWithSubscription.map((chat) => chat.subscription.groupId),
   );
 
-  type Schedules = {
-    [key: number]: Schedule;
-  };
-
-  const schedules: Schedules = {};
+  const schedules: Map<number, Schedule> = new Map<number, Schedule>();
   for (const groupId of groupIds) {
     const group = await groups.findOne({id: groupId});
     if (!group || !groupId) return;
@@ -61,17 +57,18 @@ module.exports.update = async function() {
     const dateNext = getNextWorkDate(dayjs().add(1, 'day'));
     const schedule = await fetchSchedule(group, dateNext);
 
-    schedules[groupId] = schedule;
+    schedules.set(groupId, schedule);
   }
 
   for (const chat of chatsWithSubscription) {
     const group = await groups.findOne({id: chat.subscription.groupId}, '-_id');
     if (!group || !chat.subscription.groupId) return;
 
-    const newSchedule = schedules[chat.subscription.groupId];
+    const newSchedule = schedules.get(chat.subscription.groupId);
     const lastSchedule = chat.subscription.lastSchedule;
 
-    const compareResult = compareSchedule(lastSchedule, newSchedule);
+    const compareResult =
+      newSchedule && compareSchedule(lastSchedule, newSchedule);
 
     const isScheduleNew = !compareResult && newSchedule?.lessons?.length;
 
