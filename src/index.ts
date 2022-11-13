@@ -8,25 +8,27 @@ if (!process.env.MONGODB_URI) {
 }
 mongoose.connect(process.env.MONGODB_URI);
 
-import dayjs from 'dayjs';
+import dayjs, {Dayjs} from 'dayjs';
 
 import bot from './bot';
 import {chats, groups} from './models';
 import {
-  fetchSchedule,
   getNextWorkDate,
   log,
   compareSchedule,
   getScheduleMessage,
+  fetchManyGroups,
 } from './utils';
 import Schedule from './types/schedule.type';
+import {ChatDocument} from './models/chat.model';
+import {GroupDocument} from './models/group.model';
 
 /**
  * Обработка событий бота
  * @param {any} event http request
  * @return {any} http response
  */
-module.exports.handler = async function(event: any) {
+module.exports.handler = async function(event: any): Promise<any> {
   const message = JSON.parse(event.body);
   await bot.handleUpdate(message);
   return {
@@ -39,51 +41,59 @@ module.exports.handler = async function(event: any) {
  * Проверяет обновления расписания
  */
 module.exports.update = async function() {
-  log('checking schedule...');
+  log('start checking schedule');
+  const chatsWithSubscription = await chats.where('subscription.groupId').gt(0);
+  log('chats have been loaded');
+  const subscribedGroups = await groups.find({
+    id: {
+      $in: chatsWithSubscription.map(
+          (chat: ChatDocument) => chat.subscription.groupId,
+      ),
+    },
+  });
+  log('groups have been loaded');
 
-  const allChats = await chats.find();
-  const chatsWithSubscription = allChats.filter(
-      (chat) => chat.subscription.groupId,
+  log('fetching schedules...');
+  const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, 'day'));
+  const schedules: Map<number, Schedule> = await fetchManyGroups(
+      subscribedGroups.map((group: GroupDocument) => group.id),
+      nextDate,
   );
-  const groupIds = new Set<number | undefined>(
-      chatsWithSubscription.map((chat) => chat.subscription.groupId),
-  );
 
-  const schedules: Map<number, Schedule> = new Map<number, Schedule>();
-  for (const groupId of groupIds) {
-    const group = await groups.findOne({id: groupId});
-    if (!group || !groupId) return;
-
-    const dateNext = getNextWorkDate(dayjs().add(1, 'day'));
-    const schedule = await fetchSchedule(group, dateNext);
-
-    schedules.set(groupId, schedule);
-  }
-
+  log('compare schedules...');
   for (const chat of chatsWithSubscription) {
-    const group = await groups.findOne({id: chat.subscription.groupId}, '-_id');
-    if (!group || !chat.subscription.groupId) return;
+    const group = subscribedGroups.find(
+        (group) => group.id === chat.subscription.groupId,
+    );
+    if (!group || !chat.subscription.groupId) continue;
 
     const newSchedule = schedules.get(chat.subscription.groupId);
+    if (!newSchedule) continue;
+
     const lastSchedule = chat.subscription.lastSchedule;
 
-    const compareResult =
-      newSchedule && compareSchedule(lastSchedule, newSchedule);
+    const isEquals = compareSchedule(lastSchedule, newSchedule);
+    const isScheduleNew = isEquals === false && newSchedule.lessons.length;
 
-    const isScheduleNew = !compareResult && newSchedule?.lessons?.length;
+    try {
+      if (isScheduleNew) {
+        log(group.name + ' расписание изменилось');
 
-    if (isScheduleNew) {
-      log(group.name + ' расписание изменилось');
+        chat.subscription.lastSchedule = newSchedule;
+        await chat.save();
 
-      chat.subscription.lastSchedule = newSchedule;
-      await chat.save();
+        const message = getScheduleMessage(newSchedule, group);
 
-      const message = getScheduleMessage(newSchedule, group);
-
-      await bot.telegram.sendMessage(chat.id, 'Вышло новое расписание!');
-      await bot.telegram.sendMessage(chat.id, message);
-    } else {
-      log(group.name + ' расписание не изменилось');
+        await bot.telegram.sendMessage(chat.id, 'Вышло новое расписание!');
+        await bot.telegram.sendMessage(chat.id, message);
+      } else {
+        log(group.name + ' расписание не изменилось');
+      }
+    } catch (error) {
+      log('ошибка при отправки сообщения в ' + chat.id);
     }
   }
+  log('done');
 };
+
+module.exports.update();

@@ -29,6 +29,7 @@ const botCommands = [
   {command: 'trigger', description: 'Добавить или удалить триггер'},
   {command: 'groups', description: 'Показать все группы'},
   {command: 'setgroup', description: 'Выбрать группу по умолчанию'},
+  {command: 'removedefault', description: 'Удалить группу по умолчанию'},
   {command: 'subscribe', description: 'Подписаться на обновления расписания'},
   {
     command: 'unsubscribe',

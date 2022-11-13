@@ -37,6 +37,20 @@ export function numToTime(num: string, isMonday = false): LessonTime {
 }
 
 /**
+ * Создает ссылку до расписания
+ * @param {number} groupId group id
+ * @param {Dayjs} date date
+ * @return {string} schedule url
+ */
+function getScheduleUrl(groupId: number, date: Dayjs = dayjs()): string {
+  return [
+    'https://asu.samgk.ru/api/schedule',
+    groupId,
+    date.format('YYYY-MM-DD'),
+  ].join('/');
+}
+
+/**
  * Получает расписание
  * @param {GroupDocument} group группа
  * @param {Dayjs} date дата
@@ -44,17 +58,42 @@ export function numToTime(num: string, isMonday = false): LessonTime {
  */
 export async function fetchSchedule(
     group: GroupDocument,
-    date: Dayjs,
+    date: Dayjs = dayjs(),
 ): Promise<Schedule> {
-  const {data} = await axios.get<Schedule>(
-      [
-        'https://asu.samgk.ru/api/schedule',
-        group.id,
-        date.format('YYYY-MM-DD'),
-      ].join('/'),
-  );
+  const {data} = await axios.get<Schedule>(getScheduleUrl(group.id, date));
 
   return data;
+}
+
+/**
+ * Получает расписание для списка групп
+ * @param {number[]} groupIds
+ * @param {Dayjs} date
+ * @return {Schedule[]}
+ */
+export async function fetchManyGroups(
+    groupIds: number[],
+    date: Dayjs = dayjs(),
+): Promise<Map<number, Schedule>> {
+  const schedules = new Map<number, Schedule>();
+  const responses = await axios.all(
+      groupIds.map((groupId) =>
+        axios.get<Schedule>(getScheduleUrl(groupId, date)),
+      ),
+  );
+  const pattern = /schedule\/(.*)\//;
+
+  for (const response of responses) {
+    if (!response.config || !response.config.url) continue;
+
+    const match = response.config.url.match(pattern);
+    if (match == null) continue;
+
+    const groupId = +match[1];
+    schedules.set(groupId, response.data);
+  }
+
+  return schedules;
 }
 
 /**
