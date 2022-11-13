@@ -43,12 +43,14 @@
     "dayjs": "^1.11.5",
     "dotenv": "^16.0.2",
     "mongoose": "^6.6.1",
+    "node-cron": "^3.0.2",
     "telegraf": "^4.9.2",
     "telegraf-i18n": "^6.6.0"
   },
   "devDependencies": {
     "@types/mongoose": "^5.11.97",
     "@types/node": "^18.11.7",
+    "@types/node-cron": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
     "cross-env": "^7.0.3",

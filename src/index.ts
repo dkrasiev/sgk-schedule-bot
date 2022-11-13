@@ -5,6 +5,7 @@ import * as db from './db';
 db.connect();
 
 import dayjs, {Dayjs} from 'dayjs';
+import cron from 'node-cron';
 
 import bot from './bot';
 import {chats, groups} from './models';
@@ -92,9 +93,8 @@ module.exports.update = async function() {
   log('done');
 };
 
-// TODO: replace with node-cron
 if (process.env.LAUNCH) {
-  setInterval(() => {
+  cron.schedule('*/15 * * * *', () => {
     module.exports.update();
-  }, 15 * 60 * 1000);
+  });
 }

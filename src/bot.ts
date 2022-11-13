@@ -9,7 +9,7 @@ import {scheduleComposer} from './composers/schedule.composer';
 import {startComposer} from './composers/start.composer';
 import {i18n} from './i18n';
 import triggerComposer from './composers/trigger.composer';
-import { log } from './utils';
+import {log} from './utils';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
