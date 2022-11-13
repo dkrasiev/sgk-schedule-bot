@@ -1,12 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import mongoose from 'mongoose';
-if (!process.env.MONGODB_URI) {
-  console.log('MONGODB_URI required');
-  process.exit();
-}
-mongoose.connect(process.env.MONGODB_URI);
+import * as db from './db';
+db.connect();
 
 import dayjs, {Dayjs} from 'dayjs';
 
