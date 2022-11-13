@@ -9,17 +9,21 @@ import {scheduleComposer} from './composers/schedule.composer';
 import {startComposer} from './composers/start.composer';
 import {i18n} from './i18n';
 import triggerComposer from './composers/trigger.composer';
+import { log } from './utils';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
 if (!token) {
-  console.error('bot token required');
-  process.exit();
+  throw new Error('Bot token is required');
 }
 
 const bot = new Telegraf<MyContext>(token);
 
-if (!isProduction) bot.launch();
+if (!isProduction || process.env.LAUNCH) {
+  bot.launch().then(() => {
+    log('bot has been launched');
+  });
+}
 
 const botCommands = [
   {command: 'help', description: 'Помощь'},

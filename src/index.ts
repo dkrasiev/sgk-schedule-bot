@@ -92,4 +92,9 @@ module.exports.update = async function() {
   log('done');
 };
 
-module.exports.update();
+// TODO: replace with node-cron
+if (process.env.LAUNCH) {
+  setInterval(() => {
+    module.exports.update();
+  }, 15 * 60 * 1000);
+}

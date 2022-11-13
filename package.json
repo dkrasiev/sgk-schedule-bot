@@ -4,10 +4,10 @@
   "description": "SGK schedule bot for yandex cloud function",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
     "build": "tsc",
     "postbuild": "cp -r ./src/locales ./dist",
-    "dev": "nodemon src/index.ts",
+    "dev": "cross-env NODE_ENV=development nodemon src/index.ts",
     "test": "echo there will be tests",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
@@ -38,12 +38,6 @@
     ],
     "root": true
   },
-  "lint-staged": {
-    "*.ts": [
-      "prettier --write",
-      "eslint --fix"
-    ]
-  },
   "dependencies": {
     "axios": "^0.27.2",
     "dayjs": "^1.11.5",
@@ -57,6 +51,7 @@
     "@types/node": "^18.11.7",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.23.1",
     "eslint-config-google": "^0.14.0",
     "husky": "^8.0.0",
