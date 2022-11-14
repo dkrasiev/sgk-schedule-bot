@@ -2,7 +2,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import * as db from './db';
-db.connect();
+db.connect().then(() => {
+  log('Mongoose has been connected');
+});
 
 import dayjs, {Dayjs} from 'dayjs';
 import cron from 'node-cron';
@@ -20,24 +22,26 @@ import Schedule from './types/schedule.type';
 import {ChatDocument} from './models/chat.model';
 import {GroupDocument} from './models/group.model';
 
-/**
- * Обработка событий бота
- * @param {any} event http request
- * @return {any} http response
- */
-module.exports.handler = async function(event: any): Promise<any> {
-  const message = JSON.parse(event.body);
-  await bot.handleUpdate(message);
-  return {
-    statusCode: 200,
-    body: '',
-  };
-};
+// /**
+//  * Обработка событий бота
+//  * Используется для работы бота через вебхук (servreless)
+//  * @param {any} event http request
+//  * @return {any} http response
+//  * @deprecated use bot.launch();
+//  */
+// async function handleUpdates(event: any): Promise<any> {
+//   const message = JSON.parse(event.body);
+//   await bot.handleUpdate(message);
+//   return {
+//     statusCode: 200,
+//     body: '',
+//   };
+// }
 
 /**
  * Проверяет обновления расписания
  */
-module.exports.update = async function() {
+async function update() {
   log('start checking schedule');
   const chatsWithSubscription = await chats.where('subscription.groupId').gt(0);
   log('chats have been loaded');
@@ -91,10 +95,14 @@ module.exports.update = async function() {
     }
   }
   log('done');
-};
+}
 
 if (process.env.LAUNCH) {
+  bot.launch().then(() => {
+    log('Bot has been launched');
+  });
+
   cron.schedule('*/15 * * * *', () => {
-    module.exports.update();
+    update();
   });
 }
