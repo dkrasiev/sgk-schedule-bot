@@ -1,8 +1,10 @@
-welcome: |
-  Привет, ${name}!
+welcome =
+  Привет, { $name }!
   Чтобы узнать как я работаю, напиши /help
-help: |
-  *Справка по командам*
+
+# convert for html parse mode
+help =
+  {"*Справка по командам*"}
   /schedule \- скинуть расписание на два ближайших дня\. Срабатывает если в сообщении есть слово\-триггер
   /today \- скинуть расписание на сегодня
   /tomorrow \- скинуть расписание на завтра
@@ -11,13 +13,13 @@ help: |
   /setgroup \- позволяет выставить группу по умолчанию
   /subscribe \- скидывает расписание на завтра, если оно появится или изменится
   /unsubscribe \- отписаться от изменений расписания
-
-  *В каком формате писать номер группы?*
+  
+  {"*В каком формате писать номер группы?*"}
   Бот распознает следующие форматы:
   ис1904, ис\-19\-04, ис 19 04
   При этом регистр значения не имеет
-
-  *Как указать номер группы?*
+ 
+  {"*Как указать номер группы?*"}
   Для некоторых команд требуется указать номер группы в сообщении
 
   Чтобы каждый раз не писать номер группы, можно выбрать её по умолчанию с помощью команды /setgroup
@@ -29,44 +31,44 @@ help: |
   Примеры:
   `/today ис1904`
   `/setgroup ис1904`
-group_not_found: |
+group_not_found =
   Группа не найдена или Вы ничего не ввели
-subscribe_success: |
-  Вы подписались на обновления расписания группы ${group.name}
-subscribe_fail: |
+subscribe_success =
+  Вы подписались на обновления расписания группы { $name }
+subscribe_fail =
   Укажите номер группы после команды
 
   Пример:
   `/subscribe ИС-19-04`
-unsubscribe_success: |
-  Вы отписались от обновлений расписания группы ${group.name}
-unsubscribe_fail: |
+unsubscribe_success =
+  Вы отписались от обновлений расписания группы { $name }
+unsubscribe_fail =
   Вы не подписаны на обновления расписания
-set_group_success: |
-  Установлена группа ${group.name}
-set_group_fail: |
+set_group_success =
+  Установлена группа { $name }
+set_group_fail =
   Укажите номер группы после команды
 
   Пример:
   `/setgroup ИС-19-04`
-remove_group_success: |
+remove_group_success =
   Группа по умолчанию удалена
-remove_group_fail: |
+remove_group_fail =
   Группа по умолчанию не задана
-schedule_fail: |
+schedule_fail =
   Расписание не найдено
-schedule_not_found: |
+schedule_not_found =
   Расписания нет
-trigger_list: |
+trigger_list =
   Активные триггеры: 
-  ${triggers}
-trigger_list_not_found: |
+  { $triggers }
+trigger_list_not_found =
   Активных триггеров нет
-trigger_deleted: |
-  Триггер ${trigger} удален
-trigger_added: |
-  Триггер ${trigger} добавлен
-trigger_not_found: |
+trigger_deleted =
+  Триггер { $trigger } удален
+trigger_added =
+  Триггер { $trigger } добавлен
+trigger_not_found =
   Чтобы добавить/удалить триггер введите слово, которое хотите добавить/удалить
 
   Пример:

@@ -1,13 +1,14 @@
-import axios from 'axios';
-import dayjs, {Dayjs} from 'dayjs';
-import {Context, Telegraf} from 'telegraf';
-import {Update} from 'typegram';
-import {groupRegex, mondayTimes, times} from './constants';
-import {groups} from './models';
-import {ChatDocument, chats} from './models/chat.model';
-import {GroupDocument} from './models/group.model';
-import {LessonTime} from './types/lesson.type';
-import Schedule from './types/schedule.type';
+import { Bot } from "grammy";
+import axios from "axios";
+import dayjs, { Dayjs } from "dayjs";
+
+import { groupRegex, mondayTimes, times } from "./constants";
+import { groups } from "./models";
+import { ChatDocument, chats } from "./models/chat.model";
+import { GroupDocument } from "./models/group.model";
+import { MyContext } from "./types/context.type";
+import { LessonTime } from "./types/lesson.type";
+import Schedule from "./types/schedule.type";
 
 /**
  * Преобразует строку в LessnTime
@@ -15,13 +16,13 @@ import Schedule from './types/schedule.type';
  * @return {LessonTime}
  */
 export function convertToLessonTime(time: string) {
-  const [start, end] = time.split('-').map((time) => {
-    const [hours, minutes] = time.split(':').map((v) => +v);
+  const [start, end] = time.split("-").map((time) => {
+    const [hours, minutes] = time.split(":").map((v) => +v);
 
     return dayjs().hour(hours).minute(minutes);
   });
 
-  return {start, end};
+  return { start, end };
 }
 
 /**
@@ -46,10 +47,10 @@ export function numToTime(num: string, isMonday = false): LessonTime {
  */
 function getScheduleUrl(groupId: number, date: Dayjs = dayjs()): string {
   return [
-    'https://asu.samgk.ru/api/schedule',
+    "https://asu.samgk.ru/api/schedule",
     groupId,
-    date.format('YYYY-MM-DD'),
-  ].join('/');
+    date.format("YYYY-MM-DD"),
+  ].join("/");
 }
 
 /**
@@ -59,10 +60,10 @@ function getScheduleUrl(groupId: number, date: Dayjs = dayjs()): string {
  * @return {Schedule} расписание
  */
 export async function fetchSchedule(
-    group: GroupDocument,
-    date: Dayjs = dayjs(),
+  group: GroupDocument,
+  date: Dayjs = dayjs()
 ): Promise<Schedule> {
-  const {data} = await axios.get<Schedule>(getScheduleUrl(group.id, date));
+  const { data } = await axios.get<Schedule>(getScheduleUrl(group.id, date));
 
   return data;
 }
@@ -74,14 +75,14 @@ export async function fetchSchedule(
  * @return {Schedule[]}
  */
 export async function fetchManyGroups(
-    groupIds: number[],
-    date: Dayjs = dayjs(),
+  groupIds: number[],
+  date: Dayjs = dayjs()
 ): Promise<Map<number, Schedule>> {
   const schedules = new Map<number, Schedule>();
   const responses = await axios.all(
-      groupIds.map((groupId) =>
-        axios.get<Schedule>(getScheduleUrl(groupId, date)),
-      ),
+    groupIds.map((groupId) =>
+      axios.get<Schedule>(getScheduleUrl(groupId, date))
+    )
   );
   const pattern = /schedule\/(.*)\//;
 
@@ -106,10 +107,10 @@ export async function fetchManyGroups(
 export function getNextWorkDate(date: Dayjs): Dayjs {
   switch (date.day()) {
     case 0:
-      date = date.add(1, 'day');
+      date = date.add(1, "day");
       break;
     case 6:
-      date = date.add(2, 'day');
+      date = date.add(2, "day");
       break;
   }
 
@@ -139,13 +140,13 @@ export async function removeSubscription(chat: ChatDocument) {
  * @return {GroupDocument | null} учебная группа
  */
 export async function getGroupFromString(
-    text: string,
+  text: string
 ): Promise<GroupDocument | null> {
   const regexResult = groupRegex.exec(text);
 
   if (regexResult?.length) {
-    const groupName = regexResult.slice(1).join('-').toUpperCase();
-    const group = await groups.findOne({name: groupName});
+    const groupName = regexResult.slice(1).join("-").toUpperCase();
+    const group = await groups.findOne({ name: groupName });
     return group;
   }
 
@@ -159,41 +160,41 @@ export async function getGroupFromString(
  * @return {string} сообщение для пользователя
  */
 export function getScheduleMessage(
-    schedule: Schedule,
-    group: GroupDocument,
+  schedule: Schedule,
+  group: GroupDocument
 ): string {
-  if (!schedule) return 'Ошибка: не удалось получить расписание';
+  if (!schedule) return "Ошибка: не удалось получить расписание";
 
-  const header = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
+  const header = `${group?.name + "\n" || ""}${schedule.date}\n\n`;
   let message = header;
 
   const [day, month, year] = schedule.date
-      .split('.')
-      .map((v) => Number.parseInt(v));
+    .split(".")
+    .map((v) => Number.parseInt(v));
 
   const isMonday =
     dayjs()
-        .year(year)
-        .month(month - 1)
-        .date(day)
-        .day() === 1;
+      .year(year)
+      .month(month - 1)
+      .date(day)
+      .day() === 1;
 
   if (schedule.lessons.length > 0) {
     for (const lesson of schedule.lessons) {
-      const {start, end} =
-        typeof lesson.num === 'string' ?
-          numToTime(lesson.num, isMonday) :
-          lesson.num;
+      const { start, end } =
+        typeof lesson.num === "string"
+          ? numToTime(lesson.num, isMonday)
+          : lesson.num;
 
-      const time = `${start.format('HH:mm')}-${end.format('HH:mm')}`;
+      const time = `${start.format("HH:mm")}-${end.format("HH:mm")}`;
 
-      message += lesson.num + ' ' + time + '\n';
-      message += lesson.title + '\n';
-      message += lesson.teachername + '\n';
-      message += lesson.cab + '\n\n';
+      message += lesson.num + " " + time + "\n";
+      message += lesson.title + "\n";
+      message += lesson.teachername + "\n";
+      message += lesson.cab + "\n\n";
     }
   } else {
-    message += 'Расписания нет';
+    message += "Расписания нет";
   }
 
   return message;
@@ -228,38 +229,38 @@ export function compareSchedule(a: Schedule, b: Schedule) {
  * @param {string} message сообщение
  */
 export function log(message: string) {
-  const time = `[${dayjs().format('HH:mm:ss')}]`;
-  console.log([time, message].join(' '));
+  const time = `[${dayjs().format("HH:mm:ss")}]`;
+  console.log([time, message].join(" "));
 }
 
 /**
  * Проверяет обновления расписания
- * @param {Telegraf<T>} bot Telegram bot
+ * @param {Bot<T extends MyContext>} bot Telegram bot
  */
-export async function update<T extends Context<Update>>(bot: Telegraf<T>) {
-  log('start checking schedule');
-  const chatsWithSubscription = await chats.where('subscription.groupId').gt(0);
-  log('chats have been loaded');
+export async function update<T extends MyContext>(bot: Bot<T>) {
+  log("start checking schedule");
+  const chatsWithSubscription = await chats.where("subscription.groupId").gt(0);
+  log("chats have been loaded");
   const subscribedGroups = await groups.find({
     id: {
       $in: chatsWithSubscription.map(
-          (chat: ChatDocument) => chat.subscription.groupId,
+        (chat: ChatDocument) => chat.subscription.groupId
       ),
     },
   });
-  log('groups have been loaded');
+  log("groups have been loaded");
 
-  log('fetching schedules...');
-  const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, 'day'));
+  log("fetching schedules...");
+  const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, "day"));
   const schedules: Map<number, Schedule> = await fetchManyGroups(
-      subscribedGroups.map((group: GroupDocument) => group.id),
-      nextDate,
+    subscribedGroups.map((group: GroupDocument) => group.id),
+    nextDate
   );
 
-  log('compare schedules...');
+  log("compare schedules...");
   for (const chat of chatsWithSubscription) {
     const group = subscribedGroups.find(
-        (group) => group.id === chat.subscription.groupId,
+      (group) => group.id === chat.subscription.groupId
     );
     if (!group || !chat.subscription.groupId) continue;
 
@@ -273,21 +274,21 @@ export async function update<T extends Context<Update>>(bot: Telegraf<T>) {
 
     try {
       if (isScheduleNew) {
-        log(group.name + ' расписание изменилось');
+        log(group.name + " расписание изменилось");
 
         chat.subscription.lastSchedule = newSchedule;
         await chat.save();
 
         const message = getScheduleMessage(newSchedule, group);
 
-        await bot.telegram.sendMessage(chat.id, 'Вышло новое расписание!');
-        await bot.telegram.sendMessage(chat.id, message);
+        await bot.api.sendMessage(chat.id, "Вышло новое расписание!");
+        await bot.api.sendMessage(chat.id, message);
       } else {
-        log(group.name + ' расписание не изменилось');
+        log(group.name + " расписание не изменилось");
       }
     } catch (error) {
-      log('ошибка при отправки сообщения в ' + chat.id);
+      log("ошибка при отправки сообщения в " + chat.id);
     }
   }
-  log('done');
+  log("done");
 }

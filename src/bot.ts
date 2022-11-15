@@ -1,39 +1,48 @@
-import {Telegraf} from 'telegraf';
-import {i18n} from './i18n';
+import { Bot, session } from "grammy";
+import { I18n } from "@grammyjs/i18n";
+import { ISession, MongoDBAdapter } from "@grammyjs/storage-mongodb";
+import { MongoClient } from "mongodb";
 
-import {MyContext} from './types/context.type';
-import {botCommands} from './constants';
-import startComposer from './composers/start.composer';
-import triggerComposer from './composers/trigger.composer';
-import logComposer from './composers/log.composer';
-import chatComposer from './composers/chat.composer';
-import groupComposer from './composers/group.composer';
-import mainComposer from './composers/main.composer';
-import subscribeComposer from './composers/subscribe.composer';
-import scheduleComposer from './composers/schedule.composer';
+import path from "path";
 
-/**
- * Get telegram bot with specific token
- * @param {string} token bot token
- * @return {Telegraf<T>} telegram bot
- */
-export function createBot<T extends MyContext>(token: string): Telegraf<T> {
-  const bot = new Telegraf<T>(token);
+import { botCommands } from "./constants";
+import { MyContext } from "./types/context.type";
+import startComposer from "./composers/start.composer";
 
-  bot.telegram.setMyCommands(botCommands);
+const isProduction = process.env.NODE_ENV === "production";
+const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
 
-  bot.use(i18n.middleware());
-
-  bot.use(logComposer);
-  bot.use(chatComposer);
-  bot.use(groupComposer);
-
-  bot.use(startComposer);
-  bot.use(mainComposer);
-  bot.use(subscribeComposer);
-  bot.use(triggerComposer);
-
-  bot.use(scheduleComposer);
-
-  return bot;
+if (!token) {
+  throw new Error("Bot token is required");
 }
+
+if (!process.env.MONGODB_URI) {
+  throw new Error("MONGODB_URI required");
+}
+
+const client = new MongoClient(process.env.MONGODB_URI);
+client.connect();
+const db = client.db("test");
+const collection = db.collection<ISession>("users");
+
+const bot = new Bot<MyContext>(token);
+
+const i18n = new I18n({
+  defaultLocale: "ru",
+  useSession: true,
+  directory: path.resolve(__dirname, "locales"),
+});
+
+bot.api.setMyCommands(botCommands);
+
+bot.use(i18n);
+
+bot.use(
+  session({
+    storage: new MongoDBAdapter({ collection }),
+  })
+);
+
+bot.use(startComposer);
+
+export default bot;
