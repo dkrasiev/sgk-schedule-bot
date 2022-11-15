@@ -1,46 +1,55 @@
 import axios from 'axios';
 import dayjs, {Dayjs} from 'dayjs';
+import {Context, Telegraf} from 'telegraf';
+import {Update} from 'typegram';
+import {groupRegex, mondayTimes, times} from './constants';
 import {groups} from './models';
-import {ChatDocument} from './models/chat.model';
+import {ChatDocument, chats} from './models/chat.model';
 import {GroupDocument} from './models/group.model';
+import {LessonTime} from './types/lesson.type';
 import Schedule from './types/schedule.type';
 
-const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
+/**
+ * Преобразует строку в LessnTime
+ * @param {string} time строка в формате HH:mm-HH:mm
+ * @return {LessonTime}
+ */
+export function convertToLessonTime(time: string) {
+  const [start, end] = time.split('-').map((time) => {
+    const [hours, minutes] = time.split(':').map((v) => +v);
 
-interface Times {
-  [key: string | number]: string;
+    return dayjs().hour(hours).minute(minutes);
+  });
+
+  return {start, end};
 }
 
 /**
  * Преобразует номер пары в время пары
- * @param {string | number} num номер пары
+ * @param {string} num номер пары
+ * @param {boolean} isMonday использоваться ли расписание для понедельника
  * @return {string} время пары
  */
-export function numToTime(num: string | number): string {
-  const times: Times = {
-    '1': '08:25-10:00',
-    '2': '10:10-11:45',
-    '3': '12:15-13:50',
-    '4': '14:00-15:35',
-    '5': '15:45-17:20',
-    '6': '17:30-19:05',
-    '7': '19:15-20:50',
-    '1.1': '08:25-09:10',
-    '1.2': '09:15-10:00',
-    '2.1': '10:10-10:55',
-    '2.2': '11:00-11:45',
-    '3.1': '12:15-13:00',
-    '3.2': '13:05-13:50',
-    '4.1': '14:00-14:45',
-    '4.2': '14:50-15:35',
-    '5.1': '15:45-16:30',
-    '5.2': '16:35-17:20',
-    '6.1': '17:30-18:15',
-    '6.2': '18:20-19:05',
-    '7.1': '19:15-20:00',
-    '7.2': '20:05-20:50',
-  };
-  return times[num];
+export function numToTime(num: string, isMonday = false): LessonTime {
+  const selectedTime = isMonday ? mondayTimes[num] : times[num];
+
+  const lessonTime = convertToLessonTime(selectedTime);
+
+  return lessonTime;
+}
+
+/**
+ * Создает ссылку до расписания
+ * @param {number} groupId group id
+ * @param {Dayjs} date date
+ * @return {string} schedule url
+ */
+function getScheduleUrl(groupId: number, date: Dayjs = dayjs()): string {
+  return [
+    'https://asu.samgk.ru/api/schedule',
+    groupId,
+    date.format('YYYY-MM-DD'),
+  ].join('/');
 }
 
 /**
@@ -51,17 +60,42 @@ export function numToTime(num: string | number): string {
  */
 export async function fetchSchedule(
     group: GroupDocument,
-    date: Dayjs,
+    date: Dayjs = dayjs(),
 ): Promise<Schedule> {
-  const {data} = await axios.get<Schedule>(
-      [
-        'https://asu.samgk.ru/api/schedule',
-        group.id,
-        date.format('YYYY-MM-DD'),
-      ].join('/'),
-  );
+  const {data} = await axios.get<Schedule>(getScheduleUrl(group.id, date));
 
   return data;
+}
+
+/**
+ * Получает расписание для списка групп
+ * @param {number[]} groupIds
+ * @param {Dayjs} date
+ * @return {Schedule[]}
+ */
+export async function fetchManyGroups(
+    groupIds: number[],
+    date: Dayjs = dayjs(),
+): Promise<Map<number, Schedule>> {
+  const schedules = new Map<number, Schedule>();
+  const responses = await axios.all(
+      groupIds.map((groupId) =>
+        axios.get<Schedule>(getScheduleUrl(groupId, date)),
+      ),
+  );
+  const pattern = /schedule\/(.*)\//;
+
+  for (const response of responses) {
+    if (!response.config || !response.config.url) continue;
+
+    const match = response.config.url.match(pattern);
+    if (match == null) continue;
+
+    const groupId = +match[1];
+    schedules.set(groupId, response.data);
+  }
+
+  return schedules;
 }
 
 /**
@@ -130,11 +164,30 @@ export function getScheduleMessage(
 ): string {
   if (!schedule) return 'Ошибка: не удалось получить расписание';
 
-  let message = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
+  const header = `${group?.name + '\n' || ''}${schedule.date}\n\n`;
+  let message = header;
+
+  const [day, month, year] = schedule.date
+      .split('.')
+      .map((v) => Number.parseInt(v));
+
+  const isMonday =
+    dayjs()
+        .year(year)
+        .month(month - 1)
+        .date(day)
+        .day() === 1;
 
   if (schedule.lessons.length > 0) {
     for (const lesson of schedule.lessons) {
-      message += lesson.num + ' ' + numToTime(lesson.num) + '\n';
+      const {start, end} =
+        typeof lesson.num === 'string' ?
+          numToTime(lesson.num, isMonday) :
+          lesson.num;
+
+      const time = `${start.format('HH:mm')}-${end.format('HH:mm')}`;
+
+      message += lesson.num + ' ' + time + '\n';
       message += lesson.title + '\n';
       message += lesson.teachername + '\n';
       message += lesson.cab + '\n\n';
@@ -177,4 +230,64 @@ export function compareSchedule(a: Schedule, b: Schedule) {
 export function log(message: string) {
   const time = `[${dayjs().format('HH:mm:ss')}]`;
   console.log([time, message].join(' '));
+}
+
+/**
+ * Проверяет обновления расписания
+ * @param {Telegraf<T>} bot Telegram bot
+ */
+export async function update<T extends Context<Update>>(bot: Telegraf<T>) {
+  log('start checking schedule');
+  const chatsWithSubscription = await chats.where('subscription.groupId').gt(0);
+  log('chats have been loaded');
+  const subscribedGroups = await groups.find({
+    id: {
+      $in: chatsWithSubscription.map(
+          (chat: ChatDocument) => chat.subscription.groupId,
+      ),
+    },
+  });
+  log('groups have been loaded');
+
+  log('fetching schedules...');
+  const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, 'day'));
+  const schedules: Map<number, Schedule> = await fetchManyGroups(
+      subscribedGroups.map((group: GroupDocument) => group.id),
+      nextDate,
+  );
+
+  log('compare schedules...');
+  for (const chat of chatsWithSubscription) {
+    const group = subscribedGroups.find(
+        (group) => group.id === chat.subscription.groupId,
+    );
+    if (!group || !chat.subscription.groupId) continue;
+
+    const newSchedule = schedules.get(chat.subscription.groupId);
+    if (!newSchedule) continue;
+
+    const lastSchedule = chat.subscription.lastSchedule;
+
+    const isEquals = compareSchedule(lastSchedule, newSchedule);
+    const isScheduleNew = isEquals === false && newSchedule.lessons.length;
+
+    try {
+      if (isScheduleNew) {
+        log(group.name + ' расписание изменилось');
+
+        chat.subscription.lastSchedule = newSchedule;
+        await chat.save();
+
+        const message = getScheduleMessage(newSchedule, group);
+
+        await bot.telegram.sendMessage(chat.id, 'Вышло новое расписание!');
+        await bot.telegram.sendMessage(chat.id, message);
+      } else {
+        log(group.name + ' расписание не изменилось');
+      }
+    } catch (error) {
+      log('ошибка при отправки сообщения в ' + chat.id);
+    }
+  }
+  log('done');
 }

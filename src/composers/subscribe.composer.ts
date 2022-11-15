@@ -1,11 +1,7 @@
 import {Composer} from 'telegraf';
 import dayjs from 'dayjs';
 import {chats, groups} from '../models';
-import {
-  getNextWorkDate,
-  fetchSchedule,
-  removeSubscription,
-} from '../utils';
+import {getNextWorkDate, fetchSchedule, removeSubscription} from '../utils';
 import {MyContext} from '../types/context.type';
 
 const subscribeComposer = new Composer<MyContext>();
@@ -14,7 +10,7 @@ subscribeComposer.command('subscribe', async (ctx) => {
   if (!ctx.chat) return;
 
   const chat = await chats.findOne({id: ctx.chat.id});
-  const group = ctx.session?.group;
+  const group = ctx.state.group;
 
   if (group && chat) {
     const firstDate = getNextWorkDate(dayjs());
@@ -30,7 +26,7 @@ subscribeComposer.command('subscribe', async (ctx) => {
 
     await ctx.reply(ctx.i18n.t('subscribe_success', {group}));
   } else {
-    await ctx.reply(ctx.i18n.t('subscribe_fail'));
+    await ctx.replyWithMarkdownV2(ctx.i18n.t('subscribe_fail'));
   }
 });
 

@@ -1,8 +1,6 @@
 import {Composer} from 'telegraf';
 import {chats, groups} from '../models';
-import {
-  getGroupFromString,
-} from '../utils';
+import {getGroupFromString} from '../utils';
 import {MyContext} from '../types/context.type';
 
 const mainComposer = new Composer<MyContext>();
@@ -26,7 +24,7 @@ mainComposer.command('setgroup', async (ctx) => {
     await chat.save();
     await ctx.reply(ctx.i18n.t('set_group_success', {group}));
   } else {
-    await ctx.reply(ctx.i18n.t('set_group_fail'));
+    await ctx.replyWithMarkdownV2(ctx.i18n.t('set_group_fail'));
   }
 });
 

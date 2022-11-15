@@ -14,7 +14,7 @@ startComposer.start(async (ctx) => {
 });
 
 startComposer.help(async (ctx) => {
-  await ctx.replyWithMarkdown(
+  await ctx.replyWithMarkdownV2(
       ctx.i18n.t('help'),
       Markup.inlineKeyboard([
         {

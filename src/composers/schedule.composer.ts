@@ -17,13 +17,13 @@ scheduleComposer.command('tomorrow', async (ctx) => {
   await sendShortSchedule(ctx, dayjs().add(1, 'day'));
 });
 
-scheduleComposer.on('text', async (ctx) => {
-  if (
-    (ctx.chat.type === 'private' && ctx.session?.messageHasGroup) ||
-    ctx.message.text.toLowerCase().includes('расписание')
-  ) {
-    await sendSchedule(ctx);
+scheduleComposer.on('text', async (ctx, next) => {
+  if (ctx.chat.type === 'private' && ctx.state.messageHasGroup === true) {
+    sendSchedule(ctx);
+    return;
   }
+
+  next();
 });
 
 /**
@@ -32,7 +32,7 @@ scheduleComposer.on('text', async (ctx) => {
  * @param {dayj.Dayjs} date  Date
  */
 async function sendShortSchedule(ctx: MyContext, date: dayjs.Dayjs) {
-  const group = ctx.session?.group;
+  const group = ctx.state.group;
 
   if (!group) {
     await ctx.reply(ctx.i18n.t('group_not_found'));
@@ -49,8 +49,8 @@ async function sendShortSchedule(ctx: MyContext, date: dayjs.Dayjs) {
  * @param {Context} ctx контекст
  * @param {Dayjs} date дата (по умолчанию сегодня)
  */
-async function sendSchedule(ctx: MyContext, date = dayjs()) {
-  const group = ctx.session?.group;
+export async function sendSchedule(ctx: MyContext, date = dayjs()) {
+  const group = ctx.state.group;
   if (!group) {
     ctx.reply(ctx.i18n.t('group_not_found'));
     return;
