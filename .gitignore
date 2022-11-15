@@ -3,3 +3,4 @@ node_modules
 deploy.config.js
 .env
 dist
+ecosystem.config.js
