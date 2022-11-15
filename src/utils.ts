@@ -1,8 +1,10 @@
 import axios from 'axios';
 import dayjs, {Dayjs} from 'dayjs';
+import {Context, Telegraf} from 'telegraf';
+import {Update} from 'typegram';
 import {groupRegex, mondayTimes, times} from './constants';
 import {groups} from './models';
-import {ChatDocument} from './models/chat.model';
+import {ChatDocument, chats} from './models/chat.model';
 import {GroupDocument} from './models/group.model';
 import {LessonTime} from './types/lesson.type';
 import Schedule from './types/schedule.type';
@@ -228,4 +230,64 @@ export function compareSchedule(a: Schedule, b: Schedule) {
 export function log(message: string) {
   const time = `[${dayjs().format('HH:mm:ss')}]`;
   console.log([time, message].join(' '));
+}
+
+/**
+ * Проверяет обновления расписания
+ * @param {Telegraf<T>} bot Telegram bot
+ */
+export async function update<T extends Context<Update>>(bot: Telegraf<T>) {
+  log('start checking schedule');
+  const chatsWithSubscription = await chats.where('subscription.groupId').gt(0);
+  log('chats have been loaded');
+  const subscribedGroups = await groups.find({
+    id: {
+      $in: chatsWithSubscription.map(
+          (chat: ChatDocument) => chat.subscription.groupId,
+      ),
+    },
+  });
+  log('groups have been loaded');
+
+  log('fetching schedules...');
+  const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, 'day'));
+  const schedules: Map<number, Schedule> = await fetchManyGroups(
+      subscribedGroups.map((group: GroupDocument) => group.id),
+      nextDate,
+  );
+
+  log('compare schedules...');
+  for (const chat of chatsWithSubscription) {
+    const group = subscribedGroups.find(
+        (group) => group.id === chat.subscription.groupId,
+    );
+    if (!group || !chat.subscription.groupId) continue;
+
+    const newSchedule = schedules.get(chat.subscription.groupId);
+    if (!newSchedule) continue;
+
+    const lastSchedule = chat.subscription.lastSchedule;
+
+    const isEquals = compareSchedule(lastSchedule, newSchedule);
+    const isScheduleNew = isEquals === false && newSchedule.lessons.length;
+
+    try {
+      if (isScheduleNew) {
+        log(group.name + ' расписание изменилось');
+
+        chat.subscription.lastSchedule = newSchedule;
+        await chat.save();
+
+        const message = getScheduleMessage(newSchedule, group);
+
+        await bot.telegram.sendMessage(chat.id, 'Вышло новое расписание!');
+        await bot.telegram.sendMessage(chat.id, message);
+      } else {
+        log(group.name + ' расписание не изменилось');
+      }
+    } catch (error) {
+      log('ошибка при отправки сообщения в ' + chat.id);
+    }
+  }
+  log('done');
 }

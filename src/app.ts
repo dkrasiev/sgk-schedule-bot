@@ -1,108 +1,38 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import * as db from './db';
-db.connect().then(() => {
-  log('Mongoose has been connected');
-});
-
-import dayjs, {Dayjs} from 'dayjs';
+import mongoose from 'mongoose';
 import cron from 'node-cron';
 
-import bot from './bot';
-import {chats, groups} from './models';
-import {
-  getNextWorkDate,
-  log,
-  compareSchedule,
-  getScheduleMessage,
-  fetchManyGroups,
-} from './utils';
-import Schedule from './types/schedule.type';
-import {ChatDocument} from './models/chat.model';
-import {GroupDocument} from './models/group.model';
-
-// /**
-//  * Обработка событий бота
-//  * Используется для работы бота через вебхук (servreless)
-//  * @param {any} event http request
-//  * @return {any} http response
-//  * @deprecated use bot.launch();
-//  */
-// async function handleUpdates(event: any): Promise<any> {
-//   const message = JSON.parse(event.body);
-//   await bot.handleUpdate(message);
-//   return {
-//     statusCode: 200,
-//     body: '',
-//   };
-// }
+import {createBot} from './bot';
+import {log, update} from './utils';
+import {MyContext} from './types/context.type';
 
 /**
- * Проверяет обновления расписания
+ * start bot
  */
-async function update() {
-  log('start checking schedule');
-  const chatsWithSubscription = await chats.where('subscription.groupId').gt(0);
-  log('chats have been loaded');
-  const subscribedGroups = await groups.find({
-    id: {
-      $in: chatsWithSubscription.map(
-          (chat: ChatDocument) => chat.subscription.groupId,
-      ),
-    },
-  });
-  log('groups have been loaded');
-
-  log('fetching schedules...');
-  const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, 'day'));
-  const schedules: Map<number, Schedule> = await fetchManyGroups(
-      subscribedGroups.map((group: GroupDocument) => group.id),
-      nextDate,
-  );
-
-  log('compare schedules...');
-  for (const chat of chatsWithSubscription) {
-    const group = subscribedGroups.find(
-        (group) => group.id === chat.subscription.groupId,
-    );
-    if (!group || !chat.subscription.groupId) continue;
-
-    const newSchedule = schedules.get(chat.subscription.groupId);
-    if (!newSchedule) continue;
-
-    const lastSchedule = chat.subscription.lastSchedule;
-
-    const isEquals = compareSchedule(lastSchedule, newSchedule);
-    const isScheduleNew = isEquals === false && newSchedule.lessons.length;
-
-    try {
-      if (isScheduleNew) {
-        log(group.name + ' расписание изменилось');
-
-        chat.subscription.lastSchedule = newSchedule;
-        await chat.save();
-
-        const message = getScheduleMessage(newSchedule, group);
-
-        await bot.telegram.sendMessage(chat.id, 'Вышло новое расписание!');
-        await bot.telegram.sendMessage(chat.id, message);
-      } else {
-        log(group.name + ' расписание не изменилось');
-      }
-    } catch (error) {
-      log('ошибка при отправки сообщения в ' + chat.id);
-    }
+async function run() {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const token = isProduction ?
+    process.env.BOT_TOKEN :
+    process.env.BOT_TOKEN_TEST;
+  if (!token) {
+    throw new Error('Bot token is required');
   }
-  log('done');
-}
+  const bot = createBot<MyContext>(token);
+  await bot.launch();
+  log('Bot has been launched');
 
-if (process.env.LAUNCH) {
-  bot.launch().then(() => {
-    log('Bot has been launched');
-  });
+  const MONGODB_URI = process.env.MONGODB_URI;
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI required');
+  }
+  await mongoose.connect(MONGODB_URI);
+  log('Mongoose has been connected');
 
   cron.schedule('*/15 * * * *', () => {
-    update();
+    update<MyContext>(bot);
   });
 }
+
+run();

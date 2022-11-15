@@ -1,4 +1,6 @@
 import {Telegraf} from 'telegraf';
+import {i18n} from './i18n';
+
 import {MyContext} from './types/context.type';
 import {logComposer} from './composers/log.composer';
 import {chatComposer} from './composers/chat.composer';
@@ -7,52 +9,31 @@ import {mainComposer} from './composers/main.composer';
 import {subscribeComposer} from './composers/subscribe.composer';
 import {scheduleComposer} from './composers/schedule.composer';
 import {startComposer} from './composers/start.composer';
-import {i18n} from './i18n';
 import triggerComposer from './composers/trigger.composer';
+import {botCommands} from './constants';
 
-const isProduction = process.env.NODE_ENV === 'production';
-const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
-if (!token) {
-  throw new Error('Bot token is required');
+/**
+ * Get telegram bot with specific token
+ * @param {string} token bot token
+ * @return {Telegraf<T>} telegram bot
+ */
+export function createBot<T extends MyContext>(token: string): Telegraf<T> {
+  const bot = new Telegraf<T>(token);
+
+  bot.telegram.setMyCommands(botCommands);
+
+  bot.use(i18n.middleware());
+
+  bot.use(logComposer);
+  bot.use(chatComposer);
+  bot.use(groupComposer);
+
+  bot.use(startComposer);
+  bot.use(mainComposer);
+  bot.use(subscribeComposer);
+  bot.use(triggerComposer);
+
+  bot.use(scheduleComposer);
+
+  return bot;
 }
-
-const bot = new Telegraf<MyContext>(token);
-
-// if (!isProduction || process.env.LAUNCH) {
-//   bot.launch().then(() => {
-//     log('bot has been launched');
-//   });
-// }
-
-const botCommands = [
-  {command: 'help', description: 'Помощь'},
-  {command: 'schedule', description: 'Расписание на два дня'},
-  {command: 'today', description: 'Расписание на сегодня'},
-  {command: 'tomorrow', description: 'Расписание на завтра'},
-  {command: 'trigger', description: 'Добавить или удалить триггер'},
-  {command: 'groups', description: 'Показать все группы'},
-  {command: 'setgroup', description: 'Выбрать группу по умолчанию'},
-  {command: 'removedefault', description: 'Удалить группу по умолчанию'},
-  {command: 'subscribe', description: 'Подписаться на обновления расписания'},
-  {
-    command: 'unsubscribe',
-    description: 'Отписаться от обновлений расписания',
-  },
-];
-
-bot.telegram.setMyCommands(botCommands);
-
-bot.use(i18n.middleware());
-
-bot.use(logComposer);
-bot.use(chatComposer);
-bot.use(groupComposer);
-
-bot.use(startComposer);
-bot.use(mainComposer);
-bot.use(subscribeComposer);
-bot.use(triggerComposer);
-
-bot.use(scheduleComposer);
-
-export default bot;

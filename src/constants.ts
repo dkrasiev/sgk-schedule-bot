@@ -49,3 +49,19 @@ export const mondayTimes: Collection<string> = {
   '7.1': '20:05-20:50',
   '7.2': '21:00-21:45',
 };
+
+export const botCommands = [
+  {command: 'help', description: 'Помощь'},
+  {command: 'schedule', description: 'Расписание на два дня'},
+  {command: 'today', description: 'Расписание на сегодня'},
+  {command: 'tomorrow', description: 'Расписание на завтра'},
+  {command: 'trigger', description: 'Добавить или удалить триггер'},
+  {command: 'groups', description: 'Показать все группы'},
+  {command: 'setgroup', description: 'Выбрать группу по умолчанию'},
+  {command: 'removedefault', description: 'Удалить группу по умолчанию'},
+  {command: 'subscribe', description: 'Подписаться на обновления расписания'},
+  {
+    command: 'unsubscribe',
+    description: 'Отписаться от обновлений расписания',
+  },
+];
