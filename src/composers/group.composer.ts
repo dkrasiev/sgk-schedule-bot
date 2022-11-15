@@ -18,4 +18,4 @@ groupComposer.on('text', async (ctx, next) => {
   next();
 });
 
-export {groupComposer};
+export default groupComposer;

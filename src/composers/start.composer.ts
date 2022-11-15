@@ -25,4 +25,4 @@ startComposer.help(async (ctx) => {
   );
 });
 
-export {startComposer};
+export default startComposer;

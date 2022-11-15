@@ -15,4 +15,4 @@ chatComposer.on('message', async (ctx, next) => {
   next();
 });
 
-export {chatComposer};
+export default chatComposer;

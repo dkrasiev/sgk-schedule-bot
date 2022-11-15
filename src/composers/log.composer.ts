@@ -10,4 +10,4 @@ logComposer.on('text', async (ctx, next) => {
   next();
 });
 
-export {logComposer};
+export default logComposer;

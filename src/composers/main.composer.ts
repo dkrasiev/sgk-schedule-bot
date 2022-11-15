@@ -41,4 +41,4 @@ mainComposer.command('removedefault', async (ctx) => {
   await ctx.reply(ctx.i18n.t('remove_group_fail'));
 });
 
-export {mainComposer};
+export default mainComposer;

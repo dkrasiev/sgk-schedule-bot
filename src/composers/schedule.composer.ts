@@ -66,4 +66,4 @@ export async function sendSchedule(ctx: MyContext, date = dayjs()) {
   await ctx.reply(getScheduleMessage(secondSchedule, group));
 }
 
-export {scheduleComposer};
+export default scheduleComposer;

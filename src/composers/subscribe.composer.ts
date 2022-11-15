@@ -43,4 +43,4 @@ subscribeComposer.command('unsubscribe', async (ctx) => {
   }
 });
 
-export {subscribeComposer};
+export default subscribeComposer;
