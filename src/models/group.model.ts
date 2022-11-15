@@ -1,4 +1,4 @@
-import {Schema, model, Document} from 'mongoose';
+import { Schema, model, Document } from "mongoose";
 
 export interface GroupDocument extends Document {
   id: number;
@@ -10,4 +10,4 @@ const GroupSchema = new Schema({
   name: String,
 });
 
-export const groups = model<GroupDocument>('Group', GroupSchema);
+export const groups = model<GroupDocument>("Group", GroupSchema);

@@ -1,4 +1,4 @@
-import Lesson from './lesson.type';
+import Lesson from "./lesson.type";
 
 type Schedule = {
   date: string;

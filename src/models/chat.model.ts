@@ -1,5 +1,5 @@
-import {Schema, model, Document} from 'mongoose';
-import Schedule from '../types/schedule.type';
+import { Schema, model, Document } from "mongoose";
+import Schedule from "../types/schedule.type";
 
 export interface ChatDocument extends Document {
   id: number;
@@ -34,4 +34,4 @@ const ChatSchema = new Schema({
   },
 });
 
-export const chats = model<ChatDocument>('Chat', ChatSchema);
+export const chats = model<ChatDocument>("Chat", ChatSchema);
