@@ -1,13 +1,18 @@
 import { Bot, session } from "grammy";
 import { I18n } from "@grammyjs/i18n";
-import { ISession, MongoDBAdapter } from "@grammyjs/storage-mongodb";
-import { MongoClient } from "mongodb";
+import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
 
 import path from "path";
 
 import { botCommands } from "./constants";
-import { MyContext } from "./types/context.type";
+import { MyContext } from "./models/context.interface";
 import startComposer from "./composers/start.composer";
+import { chatsCollection } from "./db";
+import triggerComposer from "./composers/trigger.composer";
+import logComposer from "./composers/log.composer";
+import scheduleComposer from "./composers/schedule.composer";
+import subscribeComposer from "./composers/subscribe.composer";
+import miscComposer from "./composers/misc.composer";
 
 const isProduction = process.env.NODE_ENV === "production";
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
@@ -15,15 +20,6 @@ const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
 if (!token) {
   throw new Error("Bot token is required");
 }
-
-if (!process.env.MONGODB_URI) {
-  throw new Error("MONGODB_URI required");
-}
-
-const client = new MongoClient(process.env.MONGODB_URI);
-client.connect();
-const db = client.db("test");
-const collection = db.collection<ISession>("users");
 
 const bot = new Bot<MyContext>(token);
 
@@ -39,10 +35,23 @@ bot.use(i18n);
 
 bot.use(
   session({
-    storage: new MongoDBAdapter({ collection }),
+    initial: () => ({
+      defaultGroup: 0,
+      subscription: {
+        groupId: 0,
+        lastSchedule: undefined,
+      },
+      triggers: [],
+    }),
+    storage: new MongoDBAdapter({ collection: chatsCollection }),
   })
 );
 
+bot.use(logComposer);
+bot.use(miscComposer);
 bot.use(startComposer);
+bot.use(scheduleComposer);
+bot.use(subscribeComposer);
+bot.use(triggerComposer);
 
 export default bot;

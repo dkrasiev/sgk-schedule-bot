@@ -1,14 +1,8 @@
-import { Bot } from "grammy";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import dayjs, { Dayjs } from "dayjs";
 
-import { groupRegex, mondayTimes, times } from "./constants";
-import { groups } from "./models";
-import { ChatDocument, chats } from "./models/chat.model";
-import { GroupDocument } from "./models/group.model";
-import { MyContext } from "./types/context.type";
-import { LessonTime } from "./types/lesson.type";
-import Schedule from "./types/schedule.type";
+import { groupRegex, groupsApi, mondayTimes, times } from "./constants";
+import { Schedule, MyContext, Group, LessonTime } from "./models";
 
 /**
  * Преобразует строку в LessnTime
@@ -55,15 +49,15 @@ function getScheduleUrl(groupId: number, date: Dayjs = dayjs()): string {
 
 /**
  * Получает расписание
- * @param {GroupDocument} group группа
+ * @param {number} groupId id группы
  * @param {Dayjs} date дата
  * @return {Schedule} расписание
  */
 export async function fetchSchedule(
-  group: GroupDocument,
+  groupId: number,
   date: Dayjs = dayjs()
 ): Promise<Schedule> {
-  const { data } = await axios.get<Schedule>(getScheduleUrl(group.id, date));
+  const { data } = await axios.get<Schedule>(getScheduleUrl(groupId, date));
 
   return data;
 }
@@ -74,7 +68,7 @@ export async function fetchSchedule(
  * @param {Dayjs} date
  * @return {Schedule[]}
  */
-export async function fetchManyGroups(
+export async function fetchManySchedules(
   groupIds: number[],
   date: Dayjs = dayjs()
 ): Promise<Map<number, Schedule>> {
@@ -122,47 +116,43 @@ export function getNextWorkDate(date: Dayjs): Dayjs {
  * @param {ChatDocument} chat объект чата
  * @return {boolean} получилось ли отписаться
  */
-export async function removeSubscription(chat: ChatDocument) {
-  if (chat?.subscription?.groupId) {
-    chat.subscription = {
-      groupId: undefined,
-      lastSchedule: {} as Schedule,
+export async function removeSubscription(ctx: MyContext) {
+  if (ctx.session.subscription.groupId) {
+    ctx.session.subscription = {
+      groupId: 0,
+      lastSchedule: undefined,
     };
-    await chat.save();
     return true;
   }
+
   return false;
 }
 
 /**
  * Находит учебную группу в тексте и возвращает ее
  * @param {string} text текст
- * @return {GroupDocument | null} учебная группа
+ * @return {Group | null} учебная группа
  */
-export async function getGroupFromString(
-  text: string
-): Promise<GroupDocument | null> {
+export async function getGroupFromString(text: string) {
   const regexResult = groupRegex.exec(text);
 
-  if (regexResult?.length) {
+  if (regexResult) {
     const groupName = regexResult.slice(1).join("-").toUpperCase();
-    const group = await groups.findOne({ name: groupName });
+    const group = await getGroupByName(groupName);
+
     return group;
   }
 
-  return null;
+  return undefined;
 }
 
 /**
  * Получение сообщения для отправки пользователю
  * @param {Schedule} schedule объект расписания
- * @param {GroupDocument} group группа для которой расписание
+ * @param {Group} group группа для которой расписание
  * @return {string} сообщение для пользователя
  */
-export function getScheduleMessage(
-  schedule: Schedule,
-  group: GroupDocument
-): string {
+export function getScheduleMessage(schedule: Schedule, group: Group): string {
   if (!schedule) return "Ошибка: не удалось получить расписание";
 
   const header = `${group?.name + "\n" || ""}${schedule.date}\n\n`;
@@ -225,70 +215,142 @@ export function compareSchedule(a: Schedule, b: Schedule) {
 }
 
 /**
- * Вызывает console.log с добавлением времени в начало сообщения
- * @param {string} message сообщение
+ * Получить все группы
+ * @return массив всех групп
  */
-export function log(message: string) {
-  const time = `[${dayjs().format("HH:mm:ss")}]`;
-  console.log([time, message].join(" "));
+export async function getAllGroups(): Promise<Group[]> {
+  const response: AxiosResponse<Group[]> = await axios.get<Group[]>(groupsApi);
+  const groups: Group[] = response.data;
+
+  return groups;
 }
 
 /**
- * Проверяет обновления расписания
- * @param {Bot<T extends MyContext>} bot Telegram bot
+ * Получить группу по id
+ * @param {number} id id группы
+ * @return группа
  */
-export async function update<T extends MyContext>(bot: Bot<T>) {
-  log("start checking schedule");
-  const chatsWithSubscription = await chats.where("subscription.groupId").gt(0);
-  log("chats have been loaded");
-  const subscribedGroups = await groups.find({
-    id: {
-      $in: chatsWithSubscription.map(
-        (chat: ChatDocument) => chat.subscription.groupId
-      ),
-    },
-  });
-  log("groups have been loaded");
-
-  log("fetching schedules...");
-  const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, "day"));
-  const schedules: Map<number, Schedule> = await fetchManyGroups(
-    subscribedGroups.map((group: GroupDocument) => group.id),
-    nextDate
-  );
-
-  log("compare schedules...");
-  for (const chat of chatsWithSubscription) {
-    const group = subscribedGroups.find(
-      (group) => group.id === chat.subscription.groupId
-    );
-    if (!group || !chat.subscription.groupId) continue;
-
-    const newSchedule = schedules.get(chat.subscription.groupId);
-    if (!newSchedule) continue;
-
-    const lastSchedule = chat.subscription.lastSchedule;
-
-    const isEquals = compareSchedule(lastSchedule, newSchedule);
-    const isScheduleNew = isEquals === false && newSchedule.lessons.length;
-
-    try {
-      if (isScheduleNew) {
-        log(group.name + " расписание изменилось");
-
-        chat.subscription.lastSchedule = newSchedule;
-        await chat.save();
-
-        const message = getScheduleMessage(newSchedule, group);
-
-        await bot.api.sendMessage(chat.id, "Вышло новое расписание!");
-        await bot.api.sendMessage(chat.id, message);
-      } else {
-        log(group.name + " расписание не изменилось");
-      }
-    } catch (error) {
-      log("ошибка при отправки сообщения в " + chat.id);
-    }
-  }
-  log("done");
+export async function getGroupById(id: number) {
+  const groups = await getAllGroups();
+  return groups.find((group: Group) => group.id === id);
 }
+
+/**
+ * Получить группу по имени
+ * @param {string} name имя группы
+ * @return группа
+ */
+export async function getGroupByName(name: string) {
+  const groups = await getAllGroups();
+  return groups.find((group: Group) => group.name === name);
+}
+
+/**
+ * Отправляет расписание на указанные день
+ * @param {Context<MyContext>} ctx Context
+ * @param {dayj.Dayjs} date  Date
+ */
+export async function sendShortSchedule(ctx: MyContext, date: dayjs.Dayjs) {
+  const group = await getGroupById(ctx.session.defaultGroup);
+
+  if (!group) {
+    await ctx.reply(ctx.t("group_not_found"));
+    return;
+  }
+
+  const schedule = await fetchSchedule(group.id, date);
+
+  await ctx.reply(getScheduleMessage(schedule, group));
+}
+
+/**
+ * Отправляет расписание на два дня
+ * @param {Context} ctx контекст
+ * @param {Dayjs} date дата (по умолчанию сегодня)
+ */
+export async function sendSchedule(ctx: MyContext, date = dayjs()) {
+  const group = await getGroupById(ctx.session.defaultGroup);
+
+  if (!group) {
+    ctx.reply(ctx.t("group_not_found"));
+    return;
+  }
+
+  const firstDate = getNextWorkDate(date);
+  const secondDate = getNextWorkDate(firstDate.add(1, "day"));
+
+  const firstSchedule = await fetchSchedule(group.id, firstDate);
+  const secondSchedule = await fetchSchedule(group.id, secondDate);
+
+  await ctx.reply(getScheduleMessage(firstSchedule, group));
+  await ctx.reply(getScheduleMessage(secondSchedule, group));
+}
+
+/**
+ * Вызывает console.log с добавлением времени в начало сообщения
+ * @param {unknown} message сообщение
+ * @param {string} timeFormat формат времени. Передается в dayjs.format
+ */
+export function log(message: unknown, timeFormat = "HH:mm:ss") {
+  const time = `[${dayjs().format(timeFormat)}]`;
+
+  const log: string =
+    typeof message === "string"
+      ? message
+      : JSON.stringify(message, undefined, 2);
+
+  console.log([time, log].join(log.includes("\n") ? "\n" : " "));
+}
+
+// /**
+//  * Проверяет обновления расписания
+//  * @param {Bot<MyContext>} bot Telegram bot
+//  */
+// export async function update(bot: Bot<MyContext>) {
+// const filter = {
+//   value: { defaultGroup: { $gt: 0 } },
+// };
+// const chatsWithSubscription = await chatsCollection.find().toArray();
+// console.log(chatsWithSubscription);
+// for (const doc of chatsWithSubscription) {
+//   log(doc.value);
+// }
+// log("start checking schedule");
+// log("chats have been loaded");
+// const groups = await getAllGroups();
+// log("groups have been loaded");
+// log("fetching schedules...");
+// const nextDate: Dayjs = getNextWorkDate(dayjs().add(1, "day"));
+// const schedules: Map<number, Schedule> = await fetchManySchedules(
+//   Array.from(groups).map((group: Group) => group.id),
+//   nextDate
+// );
+// log("compare schedules...");
+// chatsWithSubscription
+//   .forEach(async (chat) => {
+//     const group = subscribedGroups.find(
+//       (group) => group.id === chat.subscription.groupId
+//     );
+//     if (!group || !chat.subscription.groupId) continue;
+//     const newSchedule = schedules.get(chat.subscription.groupId);
+//     if (!newSchedule) continue;
+//     const lastSchedule = chat.subscription.lastSchedule;
+//     const isEquals = compareSchedule(lastSchedule, newSchedule);
+//     const isScheduleNew = isEquals === false && newSchedule.lessons.length;
+//     try {
+//       if (isScheduleNew) {
+//         log(group.name + " расписание изменилось");
+//         chat.subscription.lastSchedule = newSchedule;
+//         await chat.save();
+//         const message = getScheduleMessage(newSchedule, group);
+//         await bot.api.sendMessage(chat.id, "Вышло новое расписание!");
+//         await bot.api.sendMessage(chat.id, message);
+//       } else {
+//         log(group.name + " расписание не изменилось");
+//       }
+//     } catch (error) {
+//       log("ошибка при отправки сообщения в " + chat.id);
+//     }
+//   })
+//   .then(() => log("done"));
+// }

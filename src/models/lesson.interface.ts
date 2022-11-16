@@ -1,15 +1,13 @@
 import { Dayjs } from "dayjs";
 
-export type Lesson = {
+export interface Lesson {
   num: string | LessonTime;
   title: string;
   teachername: string;
   cab: string;
-};
+}
 
-export type LessonTime = {
+export interface LessonTime {
   start: Dayjs;
   end: Dayjs;
-};
-
-export default Lesson;
+}
