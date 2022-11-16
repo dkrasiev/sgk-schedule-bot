@@ -19,7 +19,7 @@ startComposer.command("help", async (ctx) => {
       "По возникшим вопросам можно написать сюда",
       "https://t.me/dkrasiev"
     ),
-    parse_mode: "MarkdownV2",
+    parse_mode: "HTML",
   });
 });
 
