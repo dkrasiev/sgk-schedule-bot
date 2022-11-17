@@ -3,7 +3,7 @@ import { Bot } from "grammy";
 import { chatsCollection } from "../db";
 import { MongoSession, MyContext } from "../models";
 import { compareSchedule } from "./compare-schedule";
-import { getGroupById } from "./groups";
+import { getAllGroups } from "./groups";
 import { log } from "./log";
 import { getScheduleMessage } from "./messages";
 import { getManySchedules, getSchedule } from "./schedule";
@@ -45,12 +45,15 @@ export async function createSubscription(ctx: MyContext, groupId: number) {
  * @param {Bot<MyContext>} bot Telegram bot
  */
 export async function checkSchedule(bot: Bot<MyContext>) {
+  log("start checking schedule...");
+
   const chatsWithSubscription = (
     (await chatsCollection.find().toArray()) as {
       key: string;
       value: MongoSession;
     }[]
   ).filter((chat) => chat.value.subscription);
+  const groups = await getAllGroups();
 
   console.log(
     chatsWithSubscription.map((value) => value.value.subscription?.groupId)
@@ -65,7 +68,9 @@ export async function checkSchedule(bot: Bot<MyContext>) {
   for (const chat of chatsWithSubscription) {
     if (chat.value.subscription === undefined) return;
 
-    const group = await getGroupById(chat.value.subscription.groupId);
+    const group = groups.find(
+      (group) => group.id === chat.value.subscription?.groupId
+    );
 
     if (group === undefined) continue;
 

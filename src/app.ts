@@ -11,7 +11,10 @@ import bot from "./bot";
  * start the app
  */
 async function start() {
-  bot.start().catch(console.error);
+  bot.start().catch((e) => {
+    console.error(e.message);
+    return true;
+  });
   log("Bot has been started");
 
   // migration().then(() => console.log("migration complete"));
