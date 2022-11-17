@@ -11,8 +11,8 @@ if (!mongodbUri) {
   throw new Error("MONGODB_URI required");
 }
 
-const client = new MongoClient(mongodbUri);
-client.connect();
+export const mongoClient = new MongoClient(mongodbUri);
+mongoClient.connect();
 
-export const db = client.db(dbName);
+export const db = mongoClient.db(dbName);
 export const chatsCollection = db.collection<ISession>("chats");

@@ -7,12 +7,14 @@ export interface Subscription {
   lastSchedule?: Schedule;
 }
 
+export interface MongoSession {
+  defaultGroup: number;
+  triggers: string[];
+  subscription: Subscription;
+}
+
 export interface SessionData {
-  chat: {
-    defaultGroup: number;
-    triggers: string[];
-    subscription: Subscription;
-  };
+  chat: MongoSession;
   message: {
     groupId?: number;
   };
