@@ -91,8 +91,12 @@ export async function checkSchedule(bot: Bot<MyContext>) {
 
       const message = getScheduleMessage(newSchedule, group);
 
-      await bot.api.sendMessage(chat.key, "Вышло новое расписание!");
-      await bot.api.sendMessage(chat.key, message);
+      try {
+        await bot.api.sendMessage(chat.key, "Вышло новое расписание!");
+        await bot.api.sendMessage(chat.key, message);
+      } catch (e) {
+        console.error(e);
+      }
     } else {
       log(group.name + " расписание не изменилось");
     }
