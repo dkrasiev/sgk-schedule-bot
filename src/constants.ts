@@ -1,5 +1,7 @@
 import { Collection } from "./models/collection.interface";
 
+export const isProduction: boolean = process.env.NODE_ENV === "production";
+
 export const groupsApi = "https://mfc.samgk.ru/api/groups";
 
 export const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);

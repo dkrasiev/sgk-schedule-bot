@@ -4,7 +4,7 @@ import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
 
 import path from "path";
 
-import { botCommands } from "./constants";
+import { botCommands, isProduction } from "./constants";
 import { MyContext } from "./models/context.interface";
 import startComposer from "./composers/start.composer";
 import { chatsCollection } from "./db";
@@ -14,7 +14,6 @@ import scheduleComposer from "./composers/schedule.composer";
 import subscribeComposer from "./composers/subscribe.composer";
 import miscComposer from "./composers/misc.composer";
 
-const isProduction = process.env.NODE_ENV === "production";
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
 
 if (!token) {

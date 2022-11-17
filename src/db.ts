@@ -1,8 +1,12 @@
 import { ISession } from "@grammyjs/storage-mongodb";
 import { MongoClient } from "mongodb";
+import { isProduction } from "./constants";
 
 const mongodbUri = process.env.MONGODB_URI;
-const dbName = process.env.DATABASE_NAME;
+const dbName = isProduction
+  ? process.env.DATABASE_NAME
+  : process.env.DATABASE_NAME_TEST;
+
 if (!mongodbUri) {
   throw new Error("MONGODB_URI required");
 }
