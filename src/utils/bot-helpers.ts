@@ -82,7 +82,7 @@ export async function checkSchedule(bot: Bot<MyContext>) {
       log(group.name + " расписание изменилось");
 
       chat.value.subscription.lastSchedule = newSchedule;
-      await chatsCollection.updateOne({ key: chat.key }, chat);
+      await chatsCollection.updateOne({ key: chat.key }, { $set: chat });
 
       const message = getScheduleMessage(newSchedule, group);
 
