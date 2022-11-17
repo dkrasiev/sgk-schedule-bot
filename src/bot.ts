@@ -1,18 +1,17 @@
-import { Bot, session } from "grammy";
 import { I18n } from "@grammyjs/i18n";
 import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
-
+import { Bot, session } from "grammy";
 import path from "path";
 
-import { botCommands, isProduction } from "./constants";
-import { MyContext } from "./models/context.interface";
-import { chatsCollection } from "./db";
-import startComposer from "./composers/start.composer";
-import triggerComposer from "./composers/trigger.composer";
 import logComposer from "./composers/log.composer";
-import scheduleComposer from "./composers/schedule.composer";
-import subscribeComposer from "./composers/subscribe.composer";
 import miscComposer from "./composers/misc.composer";
+import scheduleComposer from "./composers/schedule.composer";
+import startComposer from "./composers/start.composer";
+import subscribeComposer from "./composers/subscribe.composer";
+import triggerComposer from "./composers/trigger.composer";
+import { botCommands, isProduction } from "./constants";
+import { chatsCollection } from "./db";
+import { MyContext } from "./models/context.interface";
 
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
 
