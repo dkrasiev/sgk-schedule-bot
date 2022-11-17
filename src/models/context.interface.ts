@@ -8,9 +8,14 @@ export interface Subscription {
 }
 
 export interface SessionData {
-  defaultGroup: number;
-  triggers: string[];
-  subscription: Subscription;
+  chat: {
+    defaultGroup: number;
+    triggers: string[];
+    subscription: Subscription;
+  };
+  message: {
+    groupId?: number;
+  };
 }
 
 export type MyContext = Context & I18nFlavor & SessionFlavor<SessionData>;

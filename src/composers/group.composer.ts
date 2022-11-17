@@ -1,17 +1,15 @@
-// import { Composer } from "grammy";
-// import { getGroupFromString } from "../utils";
-// import { MyContext } from "../models/context.interface";
+import { Composer } from "grammy";
+import { getGroupFromString } from "../utils";
+import { MyContext } from "../models/context.interface";
 
-// const groupComposer = new Composer<MyContext>();
+const groupComposer = new Composer<MyContext>();
 
-// groupComposer.on("message:text", async (ctx, next) => {
-//   const groupFromMessage = await getGroupFromString(ctx.message.text);
-//   const groupFromChat = await groups.findOne({ id: chat.defaultGroup });
+groupComposer.on("message:text", async (ctx, next) => {
+  const groupFromMessage = await getGroupFromString(ctx.message.text);
 
-//   ctx.session.group = groupFromMessage || groupFromChat || undefined;
-//   ctx.session.messageHasGroup = !!groupFromMessage;
+  ctx.session.message.groupId = groupFromMessage?.id;
 
-//   await next();
-// });
+  await next();
+});
 
-// export default groupComposer;
+export default groupComposer;

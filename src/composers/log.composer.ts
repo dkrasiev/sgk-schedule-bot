@@ -5,7 +5,7 @@ import { MyContext } from "../models/context.interface";
 const logComposer = new Composer<MyContext>();
 
 logComposer.on("message:text", async (ctx, next) => {
-  log(ctx.msg.text);
+  log(ctx.message.text);
 
   await next();
 });

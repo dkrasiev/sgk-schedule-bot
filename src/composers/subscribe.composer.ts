@@ -1,10 +1,11 @@
 import { Composer } from "grammy";
 import dayjs from "dayjs";
 import {
-  getNextWorkDate,
-  fetchSchedule,
   removeSubscription,
   getGroupById,
+  getNextWeekday,
+  getSchedule,
+  getGroupFromContext,
 } from "../utils";
 import { MyContext } from "../models/context.interface";
 
@@ -13,19 +14,19 @@ const subscribeComposer = new Composer<MyContext>();
 subscribeComposer.command("subscribe", async (ctx) => {
   if (!ctx.chat) return;
 
-  const group = await getGroupById(ctx.session.defaultGroup);
+  const group = await getGroupFromContext(ctx);
 
   if (!group) {
     await ctx.reply(ctx.t("subscribe_fail"), { parse_mode: "HTML" });
     return;
   }
 
-  const firstDate = getNextWorkDate(dayjs());
-  const secondDate = getNextWorkDate(firstDate);
+  const firstDate = getNextWeekday(dayjs());
+  const secondDate = getNextWeekday(firstDate);
 
-  const schedule = await fetchSchedule(group.id, secondDate);
+  const schedule = await getSchedule(group.id, secondDate);
 
-  ctx.session.subscription = {
+  ctx.session.chat.subscription = {
     groupId: group.id,
     lastSchedule: schedule,
   };
@@ -34,7 +35,7 @@ subscribeComposer.command("subscribe", async (ctx) => {
 });
 
 subscribeComposer.command("unsubscribe", async (ctx) => {
-  const group = await getGroupById(ctx.session.defaultGroup);
+  const group = await getGroupById(ctx.session.chat.defaultGroup);
   if (!group) return;
 
   const removeSubscriptionResult = await removeSubscription(ctx);

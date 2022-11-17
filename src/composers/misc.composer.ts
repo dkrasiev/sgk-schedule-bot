@@ -23,17 +23,17 @@ miscComposer.command("setgroup", async (ctx) => {
     return;
   }
 
-  ctx.session.defaultGroup = group.id;
+  ctx.session.chat.defaultGroup = group.id;
   await ctx.reply(ctx.t("set_group_success", { name: group.name }));
 });
 
 miscComposer.command("removedefault", async (ctx) => {
-  if (!ctx.session.defaultGroup) {
+  if (!ctx.session.chat.defaultGroup) {
     await ctx.reply(ctx.t("remove_group_fail"));
     return;
   }
 
-  ctx.session.defaultGroup = 0;
+  ctx.session.chat.defaultGroup = 0;
   await ctx.reply(ctx.t("remove_group_success"));
 });
 

@@ -10,13 +10,13 @@ triggerComposer.command("trigger", async (ctx) => {
     await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
   }
 
-  const isTriggerNew = ctx.session.triggers.includes(trigger) === false;
+  const isTriggerNew = ctx.session.chat.triggers.includes(trigger) === false;
 
   if (trigger && isTriggerNew) {
-    ctx.session.triggers.push(trigger);
+    ctx.session.chat.triggers.push(trigger);
     await ctx.reply(ctx.t("trigger_added", { trigger }));
   } else if (trigger) {
-    ctx.session.triggers = ctx.session.triggers.filter(
+    ctx.session.chat.triggers = ctx.session.chat.triggers.filter(
       (value: string) => value !== trigger
     );
 
@@ -24,16 +24,18 @@ triggerComposer.command("trigger", async (ctx) => {
   }
 
   const result =
-    ctx.session.triggers.length > 0
-      ? ctx.t("trigger_list", { triggers: ctx.session.triggers.join("\n") })
+    ctx.session.chat.triggers.length > 0
+      ? ctx.t("trigger_list", {
+          triggers: ctx.session.chat.triggers.join("\n"),
+        })
       : ctx.t("trigger_list_not_found");
 
   await ctx.reply(result);
 });
 
 triggerComposer.on("message:text", async (ctx, next) => {
-  const triggered = ctx.session.triggers.some((trigger: string) =>
-    ctx.msg.text.toLowerCase().split(/\s/m).includes(trigger)
+  const triggered = ctx.session.chat.triggers.some((trigger: string) =>
+    ctx.message.text.toLowerCase().split(/\s/m).includes(trigger)
   );
 
   if (triggered) {

@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { Composer } from "grammy";
 import { MyContext } from "../models/context.interface";
-import { getGroupFromString, sendSchedule, sendShortSchedule } from "../utils";
+import { sendSchedule, sendShortSchedule } from "../utils";
 
 const scheduleComposer = new Composer<MyContext>();
 
@@ -20,10 +20,10 @@ scheduleComposer.command("tomorrow", async (ctx) => {
 });
 
 scheduleComposer.on("message:text", async (ctx, next) => {
-  const group = await getGroupFromString(ctx.msg.text);
+  const groupId = ctx.session.message?.groupId;
 
-  if (ctx.chat.type === "private" && group) {
-    sendSchedule(ctx);
+  if (ctx.chat.type === "private" && groupId) {
+    await sendSchedule(ctx);
     return;
   }
 

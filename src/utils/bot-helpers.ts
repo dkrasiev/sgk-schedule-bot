@@ -6,8 +6,8 @@ import { MyContext } from "../models";
  * @return {boolean} Unsubscribe result
  */
 export async function removeSubscription(ctx: MyContext) {
-  if (ctx.session.subscription.groupId) {
-    ctx.session.subscription = {
+  if (ctx.session.chat.subscription.groupId) {
+    ctx.session.chat.subscription = {
       groupId: 0,
       lastSchedule: undefined,
     };

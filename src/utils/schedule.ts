@@ -11,10 +11,10 @@ import { getNextWeekday } from "./workdate";
  * @param {Context<MyContext>} ctx Bot context
  * @param {dayj.Dayjs} date Date
  */
-export async function sendShortSchedule(ctx: MyContext, date: dayjs.Dayjs) {
-  const group = await getGroupById(ctx.session.defaultGroup);
+export async function sendShortSchedule(ctx: MyContext, date = dayjs()) {
+  const group = await getGroupFromContext(ctx);
 
-  if (!group) {
+  if (group === undefined) {
     await ctx.reply(ctx.t("group_not_found"));
     return;
   }
@@ -30,9 +30,9 @@ export async function sendShortSchedule(ctx: MyContext, date: dayjs.Dayjs) {
  * @param {Dayjs} date Date
  */
 export async function sendSchedule(ctx: MyContext, date = dayjs()) {
-  const group = await getGroupById(ctx.session.defaultGroup);
+  const group = await getGroupFromContext(ctx);
 
-  if (!group) {
+  if (group === undefined) {
     ctx.reply(ctx.t("group_not_found"));
     return;
   }
@@ -48,6 +48,17 @@ export async function sendSchedule(ctx: MyContext, date = dayjs()) {
 }
 
 /**
+ * Get group from bot context
+ * @param {MyContext} ctx Bot context
+ * @returns Group
+ */
+export async function getGroupFromContext(ctx: MyContext) {
+  const groupId = ctx.session.message.groupId || ctx.session.chat.defaultGroup;
+
+  return await getGroupById(groupId);
+}
+
+/**
  * Fetch group schedule
  * @param {number} groupId Group id
  * @param {Dayjs} date Date
@@ -55,7 +66,7 @@ export async function sendSchedule(ctx: MyContext, date = dayjs()) {
  */
 export async function getSchedule(
   groupId: number,
-  date: Dayjs = dayjs()
+  date = dayjs()
 ): Promise<Schedule> {
   const { data } = await axios.get<Schedule>(getScheduleUrl(groupId, date));
 
@@ -68,7 +79,7 @@ export async function getSchedule(
  * @param {Dayjs} date Date
  * @return {Schedule[]} Array of groups
  */
-export async function fetchManySchedules(
+export async function getManySchedules(
   groupIds: number[],
   date = dayjs()
 ): Promise<Map<number, Schedule>> {

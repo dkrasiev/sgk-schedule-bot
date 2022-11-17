@@ -2,6 +2,7 @@ import { I18n } from "@grammyjs/i18n";
 import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
 import { Bot, session } from "grammy";
 import path from "path";
+import groupComposer from "./composers/group.composer";
 
 import logComposer from "./composers/log.composer";
 import miscComposer from "./composers/misc.composer";
@@ -31,27 +32,37 @@ bot.api.setMyCommands(botCommands);
 
 bot.use(i18n);
 
+const initialData = () => ({
+  defaultGroup: 0,
+  subscription: {
+    groupId: 0,
+    lastSchedule: undefined,
+  },
+  triggers: [],
+});
+
 bot.use(
   session({
-    initial: () => ({
-      defaultGroup: 0,
-      subscription: {
-        groupId: 0,
-        lastSchedule: undefined,
-      },
-      triggers: [],
-    }),
-    storage: new MongoDBAdapter({ collection: chatsCollection }),
+    type: "multi",
+    chat: {
+      initial: initialData,
+      storage: new MongoDBAdapter({ collection: chatsCollection }),
+    },
+    message: {
+      initial: () => ({}),
+    },
   })
 );
 
 bot.use(logComposer);
 
+bot.use(groupComposer);
+bot.use(miscComposer);
+
 bot.use(startComposer);
 
-bot.use(scheduleComposer);
 bot.use(subscribeComposer);
 bot.use(triggerComposer);
-bot.use(miscComposer);
+bot.use(scheduleComposer);
 
 export default bot;
