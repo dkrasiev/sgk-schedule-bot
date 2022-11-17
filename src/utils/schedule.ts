@@ -83,6 +83,8 @@ export async function getManySchedules(
   groupIds: number[],
   date = dayjs()
 ): Promise<Map<number, Schedule>> {
+  groupIds = Array.from(new Set(groupIds));
+
   const schedules = new Map<number, Schedule>();
   const responses = await axios.all(
     groupIds.map((groupId) =>

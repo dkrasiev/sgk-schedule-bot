@@ -2,11 +2,16 @@ import { Schedule } from "../models";
 
 /**
  * Compare two schedules
- * @param {Schedule} a First schedule
- * @param {Schedule} b Second schedule
+ * @param {Schedule | undefined} a First schedule
+ * @param {Schedule | undefined} b Second schedule
  * @return {boolean} Comparison result
  */
-export function compareSchedule(a: Schedule, b: Schedule) {
+export function compareSchedule(
+  a: Schedule | undefined,
+  b: Schedule | undefined
+) {
+  if (a === undefined || b === undefined) return false;
+
   if (a.date !== b.date) return false;
 
   if (a.lessons.length !== b.lessons.length) return false;

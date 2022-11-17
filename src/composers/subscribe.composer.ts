@@ -1,11 +1,9 @@
 import { Composer } from "grammy";
-import dayjs from "dayjs";
 import {
   removeSubscription,
   getGroupById,
-  getNextWeekday,
-  getSchedule,
   getGroupFromContext,
+  createSubscription,
 } from "../utils";
 import { MyContext } from "../models/context.interface";
 
@@ -21,15 +19,7 @@ subscribeComposer.command("subscribe", async (ctx) => {
     return;
   }
 
-  const firstDate = getNextWeekday(dayjs());
-  const secondDate = getNextWeekday(firstDate);
-
-  const schedule = await getSchedule(group.id, secondDate);
-
-  ctx.session.chat.subscription = {
-    groupId: group.id,
-    lastSchedule: schedule,
-  };
+  await createSubscription(ctx, group.id);
 
   await ctx.reply(ctx.t("subscribe_success", { name: group.name }));
 });

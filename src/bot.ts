@@ -34,10 +34,7 @@ bot.use(i18n);
 
 const initialData = () => ({
   defaultGroup: 0,
-  subscription: {
-    groupId: 0,
-    lastSchedule: undefined,
-  },
+  subscription: undefined,
   triggers: [],
 });
 

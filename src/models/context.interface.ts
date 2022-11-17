@@ -4,13 +4,13 @@ import { Schedule } from "./schedule.interface";
 
 export interface Subscription {
   groupId: number;
-  lastSchedule?: Schedule;
+  lastSchedule: Schedule;
 }
 
 export interface MongoSession {
   defaultGroup: number;
   triggers: string[];
-  subscription: Subscription;
+  subscription?: Subscription;
 }
 
 export interface SessionData {
