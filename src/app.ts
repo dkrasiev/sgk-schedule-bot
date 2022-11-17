@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import cron from "node-cron";
+// import cron from "node-cron";
 
-import { log, update } from "./utils";
+import { log } from "./utils";
 import bot from "./bot";
 
 /**
@@ -13,11 +13,11 @@ async function start() {
   bot.start();
   log("Bot has been started");
 
-  update(bot);
+  // update(bot);
 
-  cron.schedule("*/15 * * * *", () => {
-    update(bot);
-  });
+  // cron.schedule("*/15 * * * *", () => {
+  //   update(bot);
+  // });
 }
 
 start();

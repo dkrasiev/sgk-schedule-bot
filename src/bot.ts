@@ -6,8 +6,8 @@ import path from "path";
 
 import { botCommands, isProduction } from "./constants";
 import { MyContext } from "./models/context.interface";
-import startComposer from "./composers/start.composer";
 import { chatsCollection } from "./db";
+import startComposer from "./composers/start.composer";
 import triggerComposer from "./composers/trigger.composer";
 import logComposer from "./composers/log.composer";
 import scheduleComposer from "./composers/schedule.composer";
@@ -47,10 +47,12 @@ bot.use(
 );
 
 bot.use(logComposer);
-bot.use(miscComposer);
+
 bot.use(startComposer);
+
 bot.use(scheduleComposer);
 bot.use(subscribeComposer);
 bot.use(triggerComposer);
+bot.use(miscComposer);
 
 export default bot;
