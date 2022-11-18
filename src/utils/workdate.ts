@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 /**
  * Get next weekday
  * @param {Dayjs} date Weekday from this date
- * @return {Dayjs} Next weekday
+ * @returns {Dayjs} Next weekday
  */
 export function getNextWeekday(date = dayjs()) {
   switch (date.day()) {

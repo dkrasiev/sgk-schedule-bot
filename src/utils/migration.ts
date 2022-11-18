@@ -41,12 +41,9 @@ export async function migration() {
           value: {
             defaultGroup: oldUser.defaultGroup ?? 0,
             triggers: oldUser.triggers ?? [],
-            subscription: oldUser.subscription?.groupId
-              ? {
-                  groupId: oldUser.subscription.groupId,
-                  lastSchedule: oldUser.subscription.lastSchedule,
-                }
-              : undefined,
+            subscribedGroup: oldUser.subscription?.groupId
+              ? oldUser.subscription.groupId
+              : 0,
           } as MongoSession,
         },
       },

@@ -3,7 +3,6 @@ import {
   removeSubscription,
   getGroupById,
   getGroupFromContext,
-  createSubscription,
 } from "../utils";
 import { MyContext } from "../models/context.interface";
 
@@ -19,7 +18,7 @@ subscribeComposer.command("subscribe", async (ctx) => {
     return;
   }
 
-  await createSubscription(ctx, group.id);
+  ctx.session.chat.subscribedGroup = group.id;
 
   await ctx.reply(ctx.t("subscribe_success", { name: group.name }));
 });

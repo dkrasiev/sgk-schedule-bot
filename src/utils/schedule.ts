@@ -10,7 +10,7 @@ import { getNextWeekday } from "./workdate";
  * Send schedule for a day
  * @param {Context<MyContext>} ctx Bot context
  * @param {dayj.Dayjs} date Date
- * @return {Promise<boolean>} Result
+ * @returns {Promise<boolean>} Result
  */
 export async function sendShortSchedule(
   ctx: MyContext,
@@ -48,7 +48,7 @@ export async function sendSchedule(ctx: MyContext, date = dayjs()) {
 /**
  * Get group id from bot context
  * @param {MyContext} ctx Bot context
- * @return {number | undefined} Group id or undefiend
+ * @returns {number | undefined} Group id or undefiend
  */
 export function getGroupIdFromContext(ctx: MyContext) {
   return ctx.session.message.groupId || ctx.session.chat.defaultGroup;
@@ -57,7 +57,7 @@ export function getGroupIdFromContext(ctx: MyContext) {
 /**
  * Get group from bot context
  * @param {MyContext} ctx Bot context
- * @return Group
+ * @returns Group
  */
 export async function getGroupFromContext(ctx: MyContext) {
   const groupId = getGroupIdFromContext(ctx);
@@ -69,7 +69,7 @@ export async function getGroupFromContext(ctx: MyContext) {
  * Fetch group schedule
  * @param {number} groupId Group id
  * @param {Dayjs} date Date
- * @return {Schedule} Schedule
+ * @returns {Schedule} Schedule
  */
 export async function getSchedule(
   groupId: number,
@@ -84,7 +84,7 @@ export async function getSchedule(
  * Get schedule for many groups
  * @param {number[]} groupIds Group ids
  * @param {Dayjs} date Date
- * @return {Schedule[]} Array of groups
+ * @returns {Schedule[]} Array of groups
  */
 export async function getManySchedules(
   groupIds: number[],
@@ -92,12 +92,12 @@ export async function getManySchedules(
 ): Promise<Map<number, Schedule>> {
   groupIds = Array.from(new Set(groupIds));
 
-  const schedules = new Map<number, Schedule>();
-  const responses = await axios.all(
-    groupIds.map((groupId) =>
-      axios.get<Schedule>(getScheduleUrl(groupId, date))
-    )
+  const promises = groupIds.map((groupId) =>
+    axios.get<Schedule>(getScheduleUrl(groupId, date))
   );
+
+  const schedules = new Map<number, Schedule>();
+  const responses = await axios.all(promises);
   const pattern = /schedule\/(.*)\//;
 
   for (const response of responses) {
@@ -106,7 +106,7 @@ export async function getManySchedules(
     const match = response.config.url.match(pattern);
     if (match == null) continue;
 
-    const groupId = +match[1];
+    const groupId = Number(match[1]);
     schedules.set(groupId, response.data);
   }
 
@@ -117,21 +117,18 @@ export async function getManySchedules(
  * Get schedule url
  * @param {number} groupId Group id
  * @param {Dayjs} date Date
- * @return {string} URL
+ * @returns {string} URL
  */
 export function getScheduleUrl(groupId: number, date: Dayjs = dayjs()): string {
-  return [
-    "https://asu.samgk.ru/api/schedule",
-    groupId,
-    date.format("YYYY-MM-DD"),
-  ].join("/");
+  const dateString = date.format("YYYY-MM-DD");
+  return `https://asu.samgk.ru/api/schedule/${groupId}/${dateString}`;
 }
 
 /**
  * Transform lesson's number to lesson's time
  * @param {string} num Lesson's number
  * @param {boolean} isMonday Use monday schedule
- * @return {string} Lesson's time
+ * @returns {string} Lesson's time
  */
 export function numToTime(num: string, isMonday = false): LessonTime {
   const selectedTime = isMonday ? mondayTimes[num] : times[num];
@@ -144,7 +141,7 @@ export function numToTime(num: string, isMonday = false): LessonTime {
 /**
  * Transform string to lesson's time
  * @param {string} time String in format: HH:mm-HH:mm
- * @return {LessonTime} Lesson's time
+ * @returns {LessonTime} Lesson's time
  */
 export function convertToLessonTime(time: string) {
   const [start, end] = time.split("-").map((time) => {

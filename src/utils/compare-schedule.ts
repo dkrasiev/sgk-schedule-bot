@@ -4,7 +4,7 @@ import { Schedule } from "../models";
  * Compare two schedules
  * @param {Schedule | undefined} a First schedule
  * @param {Schedule | undefined} b Second schedule
- * @return {boolean} Comparison result
+ * @returns {boolean} True if schedules equals, otherways false
  */
 export function compareSchedule(
   a: Schedule | undefined,

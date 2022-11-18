@@ -1,16 +1,10 @@
 import { Context, SessionFlavor } from "grammy";
 import { I18nFlavor } from "@grammyjs/i18n";
-import { Schedule } from "./schedule.interface";
-
-export interface Subscription {
-  groupId: number;
-  lastSchedule: Schedule;
-}
 
 export interface MongoSession {
   defaultGroup: number;
   triggers: string[];
-  subscription?: Subscription;
+  subscribedGroup: number;
 }
 
 export interface SessionData {

@@ -32,17 +32,15 @@ bot.api.setMyCommands(botCommands);
 
 bot.use(i18n);
 
-const initialData = () => ({
-  defaultGroup: 0,
-  subscription: undefined,
-  triggers: [],
-});
-
 bot.use(
   session({
     type: "multi",
     chat: {
-      initial: initialData,
+      initial: () => ({
+        defaultGroup: 0,
+        subscribedGroup: 0,
+        triggers: [],
+      }),
       storage: new MongoDBAdapter({ collection: chatsCollection }),
     },
     message: {

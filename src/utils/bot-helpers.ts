@@ -1,22 +1,22 @@
 import dayjs from "dayjs";
 import { Bot } from "grammy";
-import { chatsCollection } from "../db";
-import { MongoSession, MyContext } from "../models";
+import { chatsCollection, scheduleCollection } from "../db";
+import { MongoSession, MyContext, Schedule } from "../models";
 import { compareSchedule } from "./compare-schedule";
 import { getAllGroups } from "./groups";
 import { log } from "./log";
 import { getScheduleMessage } from "./messages";
-import { getManySchedules, getSchedule } from "./schedule";
+import { getManySchedules } from "./schedule";
 import { getNextWeekday } from "./workdate";
 
 /**
  * Remove subscription
  * @param {MyContext} ctx Bot context
- * @return {boolean} Unsubscribe result
+ * @returns {boolean} Unsubscribe result
  */
 export async function removeSubscription(ctx: MyContext) {
-  if (ctx.session.chat.subscription) {
-    ctx.session.chat.subscription = undefined;
+  if (ctx.session.chat.subscribedGroup) {
+    ctx.session.chat.subscribedGroup = 0;
     return true;
   }
 
@@ -24,20 +24,73 @@ export async function removeSubscription(ctx: MyContext) {
 }
 
 /**
- * Subscribe chat to schedule updates
- * @param {MyContext} ctx Bot Context
- * @param groupId Group id
+ * Returns chats withSubscription
+ * @returns Array of chats with subscription
  */
-export async function createSubscription(ctx: MyContext, groupId: number) {
-  const firstDate = getNextWeekday(dayjs());
-  const secondDate = getNextWeekday(firstDate);
+async function getChatsWithSubscription() {
+  const chats = (await chatsCollection
+    .find({
+      "value.subscribedGroup": { $gt: 0 },
+    })
+    .toArray()) as { key: string; value: MongoSession }[];
 
-  const schedule = await getSchedule(groupId, secondDate);
+  return chats;
+}
 
-  ctx.session.chat.subscription = {
-    groupId,
-    lastSchedule: schedule,
-  };
+/**
+ * Get chat with subscription
+ * @param {number} groupId Group id
+ * @returns Array of chats with subscription to groupId
+ */
+async function getChatWithSubscription(groupId: number) {
+  const chats = await chatsCollection
+    .find({
+      "value.subscribedGroup": groupId,
+    })
+    .toArray();
+
+  return chats;
+}
+
+/**
+ * Get schedules that have updates
+ * @returns {Map<number, Schedule>} Updated schedules
+ */
+async function getUpdatedSchedules(date = dayjs()) {
+  const groupIds = (await getChatsWithSubscription()).map(
+    ({ value }) => value.subscribedGroup
+  ) as number[];
+
+  const newSchedules = await getManySchedules(groupIds, date);
+  const lastSchedules = await scheduleCollection
+    .find({ groupId: { $in: groupIds } })
+    .toArray();
+
+  // fill map
+  const updatedSchedules = new Map<number, Schedule>();
+  for (const [groupId, schedule] of newSchedules) {
+    // log("checking " + groupId);
+
+    const lastSchedule = lastSchedules.find(
+      (value) => value.groupId === groupId
+    )?.schedule;
+
+    const isEquals = compareSchedule(schedule, lastSchedule);
+
+    if (isEquals === false && schedule.lessons.length > 0) {
+      // add schedule to map
+      updatedSchedules.set(groupId, schedule);
+
+      // update db
+      await scheduleCollection.updateOne(
+        { groupId },
+        { $set: { groupId, schedule } },
+        { upsert: true }
+      );
+    }
+  }
+
+  return updatedSchedules;
 }
 
 /**
@@ -45,107 +98,35 @@ export async function createSubscription(ctx: MyContext, groupId: number) {
  * @param {Bot<MyContext>} bot Telegram bot
  */
 export async function checkSchedule(bot: Bot<MyContext>) {
-  log("start checking schedule...");
+  log("checking schedule...");
 
-  const chatsWithSubscription = (
-    (await chatsCollection.find().toArray()) as {
-      key: string;
-      value: MongoSession;
-    }[]
-  ).filter((chat) => chat.value.subscription);
   const groups = await getAllGroups();
 
-  console.log(
-    chatsWithSubscription.map((value) => value.value.subscription?.groupId)
-  );
+  const firstDate = getNextWeekday();
+  const secondDate = getNextWeekday(firstDate);
 
-  const schedules = await getManySchedules(
-    chatsWithSubscription.map(
-      (chat) => chat.value.subscription?.groupId
-    ) as number[]
-  );
+  const updatedSchedules = await getUpdatedSchedules(secondDate);
 
-  for (const chat of chatsWithSubscription) {
-    if (chat.value.subscription === undefined) return;
+  for (const [groupId, schedule] of updatedSchedules) {
+    // get group object
+    const group = groups.find((group) => group.id === groupId);
+    if (group === undefined) return;
 
-    const group = groups.find(
-      (group) => group.id === chat.value.subscription?.groupId
-    );
+    // get chat with subscription to groupId
+    const chats = await getChatWithSubscription(groupId);
 
-    if (group === undefined) continue;
+    log(`${groupId} updated and affected ${chats.length} chats`);
 
-    const oldSchedule = chat.value.subscription.lastSchedule;
-    const newSchedule = schedules.get(group.id);
+    const message =
+      "Вышло новое расписание!\n\n" + getScheduleMessage(schedule, group);
 
-    if (newSchedule === undefined) continue;
-
-    const isEquals = compareSchedule(oldSchedule, newSchedule);
-    const isScheduleNew =
-      isEquals === false && newSchedule && newSchedule.lessons.length > 0;
-
-    if (isScheduleNew) {
-      log(group.name + " расписание изменилось");
-
-      chat.value.subscription.lastSchedule = newSchedule;
-      await chatsCollection.updateOne({ key: chat.key }, { $set: chat });
-
-      const message = getScheduleMessage(newSchedule, group);
-
-      try {
-        await bot.api.sendMessage(chat.key, "Вышло новое расписание!");
-        await bot.api.sendMessage(chat.key, message);
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      log(group.name + " расписание не изменилось");
+    for (const { key } of chats) {
+      // send schedule
+      bot.api.sendMessage(key, message).catch(() => {
+        console.log("failed to send message to " + key);
+      });
     }
   }
 
-  // const filter = {
-  //   value: { defaultGroup: { $gt: 0 } },
-  // };
-  // const chatsWithSubscription = await chatsCollection.find().toArray();
-  // console.log(chatsWithSubscription);
-  // for (const doc of chatsWithSubscription) {
-  //   log(doc.value);
-  // }
-  // log("start checking schedule");
-  // log("chats have been loaded");
-  // const groups = await getAllGroups();
-  // log("groups have been loaded");
-  // log("fetching schedules...");
-  // const nextDate: Dayjs = getNextWorkday(dayjs().add(1, "day"));
-  // const schedules: Map<number, Schedule> = await fetchManySchedules(
-  //   Array.from(groups).map((group: Group) => group.id),
-  //   nextDate
-  // );
-  // log("compare schedules...");
-  // chatsWithSubscription
-  //   .forEach(async (chat) => {
-  //     const group = subscribedGroups.find(
-  //       (group) => group.id === chat.subscription.groupId
-  //     );
-  //     if (!group || !chat.subscription.groupId) continue;
-  //     const newSchedule = schedules.get(chat.subscription.groupId);
-  //     if (!newSchedule) continue;
-  //     const lastSchedule = chat.subscription.lastSchedule;
-  //     const isEquals = compareSchedule(lastSchedule, newSchedule);
-  //     const isScheduleNew = isEquals === false && newSchedule.lessons.length;
-  //     try {
-  //       if (isScheduleNew) {
-  //         log(group.name + " расписание изменилось");
-  //         chat.subscription.lastSchedule = newSchedule;
-  //         await chat.save();
-  //         const message = getScheduleMessage(newSchedule, group);
-  //         await bot.api.sendMessage(chat.id, "Вышло новое расписание!");
-  //         await bot.api.sendMessage(chat.id, message);
-  //       } else {
-  //         log(group.name + " расписание не изменилось");
-  //       }
-  //     } catch (error) {
-  //       log("ошибка при отправки сообщения в " + chat.id);
-  //     }
-  //   })
-  //   .then(() => log("done"));
+  log("done");
 }

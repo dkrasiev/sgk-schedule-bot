@@ -4,7 +4,7 @@ import { Group } from "../models";
 
 /**
  * Get all groups
- * @return Array of groups
+ * @returns Array of groups
  */
 export async function getAllGroups(): Promise<Group[]> {
   const response: AxiosResponse<Group[]> = await axios.get<Group[]>(groupsApi);
@@ -13,10 +13,21 @@ export async function getAllGroups(): Promise<Group[]> {
   return groups;
 }
 
+export async function getAllGroupsMap(): Promise<Map<number, string>> {
+  const groups = new Map();
+
+  const response: AxiosResponse<Group[]> = await axios.get<Group[]>(groupsApi);
+  for (const group of response.data) {
+    groups.set(group.id, group.name);
+  }
+
+  return groups;
+}
+
 /**
  * Get group by id
  * @param {number} id Group id
- * @return {Group | undefined} Group
+ * @returns {Group | undefined} Group
  */
 export async function getGroupById(id: number): Promise<Group | undefined> {
   const groups = await getAllGroups();
@@ -26,7 +37,7 @@ export async function getGroupById(id: number): Promise<Group | undefined> {
 /**
  * Get group by name
  * @param {string} name Group name
- * @return {Group | undefined} Group
+ * @returns {Group | undefined} Group
  */
 export async function getGroupByName(name: string): Promise<Group | undefined> {
   const groups = await getAllGroups();
@@ -36,7 +47,7 @@ export async function getGroupByName(name: string): Promise<Group | undefined> {
 /**
  * Find group in string
  * @param {string} text String to search in
- * @return {Group | undefined} Group
+ * @returns {Group | undefined} Group
  */
 export async function getGroupFromString(text: string, regex = groupRegex) {
   const regexResult = regex.exec(text);
