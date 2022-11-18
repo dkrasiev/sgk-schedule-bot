@@ -10,18 +10,23 @@ import { getNextWeekday } from "./workdate";
  * Send schedule for a day
  * @param {Context<MyContext>} ctx Bot context
  * @param {dayj.Dayjs} date Date
+ * @return {Promise<boolean>} Result
  */
-export async function sendShortSchedule(ctx: MyContext, date = dayjs()) {
+export async function sendShortSchedule(
+  ctx: MyContext,
+  date = dayjs()
+): Promise<boolean> {
   const group = await getGroupFromContext(ctx);
 
   if (group === undefined) {
     await ctx.reply(ctx.t("group_not_found"));
-    return;
+    return false;
   }
 
   const schedule = await getSchedule(group.id, date);
 
   await ctx.reply(getScheduleMessage(schedule, group));
+  return true;
 }
 
 /**
@@ -30,30 +35,32 @@ export async function sendShortSchedule(ctx: MyContext, date = dayjs()) {
  * @param {Dayjs} date Date
  */
 export async function sendSchedule(ctx: MyContext, date = dayjs()) {
-  const group = await getGroupFromContext(ctx);
-
-  if (group === undefined) {
-    ctx.reply(ctx.t("group_not_found"));
-    return;
-  }
-
   const firstDate = getNextWeekday(date);
   const secondDate = getNextWeekday(firstDate.add(1, "day"));
 
-  const firstSchedule = await getSchedule(group.id, firstDate);
-  const secondSchedule = await getSchedule(group.id, secondDate);
+  const sendScheduleResult = await sendShortSchedule(ctx, firstDate);
 
-  await ctx.reply(getScheduleMessage(firstSchedule, group));
-  await ctx.reply(getScheduleMessage(secondSchedule, group));
+  if (sendScheduleResult === true) {
+    await sendShortSchedule(ctx, secondDate);
+  }
+}
+
+/**
+ * Get group id from bot context
+ * @param {MyContext} ctx Bot context
+ * @return {number | undefined} Group id or undefiend
+ */
+export function getGroupIdFromContext(ctx: MyContext) {
+  return ctx.session.message.groupId || ctx.session.chat.defaultGroup;
 }
 
 /**
  * Get group from bot context
  * @param {MyContext} ctx Bot context
- * @returns Group
+ * @return Group
  */
 export async function getGroupFromContext(ctx: MyContext) {
-  const groupId = ctx.session.message.groupId || ctx.session.chat.defaultGroup;
+  const groupId = getGroupIdFromContext(ctx);
 
   return await getGroupById(groupId);
 }
