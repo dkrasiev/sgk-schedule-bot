@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@grammyjs/i18n": "^1.0.1",
+    "@grammyjs/runner": "^1.0.4",
     "@grammyjs/storage-mongodb": "^2.0.0",
     "axios": "^0.27.2",
     "dayjs": "^1.11.5",
