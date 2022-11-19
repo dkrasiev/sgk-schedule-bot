@@ -13,15 +13,19 @@ export async function getAllGroups(): Promise<Group[]> {
   return groups;
 }
 
+/**
+ * Get all groups as map
+ * @returns {Promise<Map<number, string>>} Map with group id as a key and group name as a property
+ */
 export async function getAllGroupsMap(): Promise<Map<number, string>> {
-  const groups = new Map();
+  const result = new Map();
 
-  const response: AxiosResponse<Group[]> = await axios.get<Group[]>(groupsApi);
-  for (const group of response.data) {
-    groups.set(group.id, group.name);
+  const groups = await getAllGroups();
+  for (const group of groups) {
+    result.set(group.id, group.name);
   }
 
-  return groups;
+  return result;
 }
 
 /**
