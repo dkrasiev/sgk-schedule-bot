@@ -1,6 +1,6 @@
 import { chatsCollection, connection } from "../db";
 import { MongoSession, Schedule } from "../interfaces";
-import { log } from "./log";
+import logger from "./logger";
 
 interface OldSchema {
   id: number;
@@ -21,15 +21,15 @@ export async function migration() {
 
   const oldUsers = from.find();
 
-  console.log(await from.countDocuments());
-  console.log(await to.countDocuments());
+  logger.info(await from.countDocuments());
+  logger.info(await to.countDocuments());
 
   while (await oldUsers.hasNext()) {
     const oldUser = await oldUsers.next();
 
     if (oldUser?.id === undefined) {
-      console.error("user not found");
-      console.log(oldUser);
+      logger.error("user not found");
+      logger.info(oldUser);
       continue;
     }
 
@@ -54,7 +54,7 @@ export async function migration() {
     );
 
     if (result.value?.key) {
-      log(result.value);
+      logger.info(result.value);
     }
   }
 }

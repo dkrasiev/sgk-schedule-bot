@@ -1,11 +1,11 @@
 import { Composer } from "grammy";
-import { log } from "../utils";
 import { MyContext } from "../interfaces/context.interface";
+import logger from "../utils/logger";
 
 const logComposer = new Composer<MyContext>();
 
 logComposer.on("message:text", async (ctx, next) => {
-  log(ctx.message.text);
+  logger.info(ctx.message.text);
 
   await next();
 });

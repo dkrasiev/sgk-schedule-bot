@@ -2,9 +2,9 @@ import dayjs from "dayjs";
 import { Bot } from "grammy";
 import { chatsCollection, scheduleCollection } from "../db";
 import { MongoSession, MyContext, Schedule } from "../interfaces";
+import logger from "./logger";
 import { compareSchedule } from "./compare-schedule";
 import { getAllGroups } from "./groups";
-import { log } from "./log";
 import { getScheduleMessage } from "./messages";
 import { getManySchedules } from "./schedule";
 import { getNextWeekday } from "./workdate";
@@ -69,8 +69,6 @@ async function getUpdatedSchedules(date = dayjs()) {
   // fill map
   const updatedSchedules = new Map<number, Schedule>();
   for (const [groupId, schedule] of newSchedules) {
-    // log("checking " + groupId);
-
     const lastSchedule = lastSchedules.find(
       (value) => value.groupId === groupId
     )?.schedule;
@@ -98,7 +96,8 @@ async function getUpdatedSchedules(date = dayjs()) {
  * @param {Bot<MyContext>} bot Telegram bot
  */
 export async function checkSchedule(bot: Bot<MyContext>) {
-  log("checking schedule...");
+  const profiler = logger.startTimer();
+  logger.info("checking schedule...");
 
   const groups = await getAllGroups();
 
@@ -115,7 +114,7 @@ export async function checkSchedule(bot: Bot<MyContext>) {
     // get chat with subscription to groupId
     const chats = await getChatWithSubscription(groupId);
 
-    log(`${groupId} updated and affected ${chats.length} chats`);
+    logger.info(`${groupId} updated and affected ${chats.length} chats`);
 
     const message =
       "Вышло новое расписание!\n\n" + getScheduleMessage(schedule, group);
@@ -123,10 +122,10 @@ export async function checkSchedule(bot: Bot<MyContext>) {
     for (const { key } of chats) {
       // send schedule
       bot.api.sendMessage(key, message).catch(() => {
-        console.log("failed to send message to " + key);
+        logger.error("failed to send message to " + key);
       });
     }
   }
 
-  log("done");
+  profiler.done({ message: "done" });
 }

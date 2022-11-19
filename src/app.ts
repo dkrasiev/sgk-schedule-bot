@@ -4,8 +4,9 @@ dotenv.config();
 import { run } from "@grammyjs/runner";
 import cron from "node-cron";
 
-import { checkSchedule, log } from "./utils";
+import { checkSchedule } from "./utils";
 import bot from "./bot";
+import logger from "./utils/logger";
 
 /**
  * start the app
@@ -14,8 +15,10 @@ async function start() {
   const runner = run(bot);
 
   if (runner.isRunning()) {
-    log("Bot is running");
+    logger.info("Bot is running");
   }
+
+  checkSchedule(bot);
 
   cron.schedule("*/15 * * * *", () => {
     checkSchedule(bot);
