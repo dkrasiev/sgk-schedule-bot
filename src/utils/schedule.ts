@@ -76,11 +76,10 @@ export async function getSchedule(
   groupId: number,
   date = dayjs()
 ): Promise<Schedule | null> {
-  const response = await axios
-    .get<Schedule>(getScheduleUrl(groupId, date))
-    .catch((e) => {
-      logger.error(e);
-    });
+  const url = getScheduleUrl(groupId, date);
+  const response = await axios.get<Schedule>(url).catch((e) => {
+    logger.error(`Cannot get schedule from ${url}`, e);
+  });
 
   if (response) {
     return response.data;
@@ -107,7 +106,7 @@ export async function getManySchedules(
 
   const schedules = new Map<number, Schedule>();
   const responses = await axios.all(promises).catch((e) => {
-    logger.error(e);
+    logger.error("Can't get schedules", e);
   });
   const pattern = /schedule\/(.*)\//;
 

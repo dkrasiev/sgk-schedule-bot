@@ -5,11 +5,26 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()],
   format: winston.format.combine(
     winston.format.colorize(),
-    winston.format.json(),
     winston.format.timestamp(),
-    winston.format.printf(({ level, message, timestamp }) => {
-      const time = dayjs(timestamp).format("HH:mm:ss.SSS");
-      return `[${time}] ${level}: ${message}`;
+    winston.format.printf(({ level, message, timestamp, start, ...meta }) => {
+      const time = `[${dayjs(timestamp).format("HH:mm:ss.SSS")}]`;
+      const output = [time, level];
+
+      if (start) {
+        const diff = dayjs(dayjs(start).diff());
+        const executionTime = diff.format("mm:ss.SSS");
+
+        output.push(executionTime);
+      }
+
+      output.push(message);
+
+      const url = meta.config?.url;
+      if (url) {
+        output.push(url);
+      }
+
+      return output.filter(Boolean).join(" ");
     })
   ),
 });

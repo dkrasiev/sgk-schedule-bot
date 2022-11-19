@@ -67,13 +67,12 @@ bot.use(scheduleComposer);
 
 bot.catch((error) => {
   const ctx = error.ctx;
-  logger.error(`Error while handling update ${ctx.update.update_id}:`);
+  logger.error(`Error while handling update ${ctx.update.update_id}`, error);
   const e = error.error;
   if (e instanceof GrammyError) {
-    logger.error("Error in request:", e.description);
+    logger.error("Error in request", e.description);
   } else if (e instanceof AxiosError) {
-    logger.error("Axios error:", e.status || e.code, e.message);
-    logger.error(e);
+    logger.error("Axios error", e);
     if (
       e.config.url?.includes("samgk") &&
       (e.code === "ETIMEDOUT" || e.status?.startsWith("5"))
@@ -81,9 +80,9 @@ bot.catch((error) => {
       ctx.reply("Сервис временно недоступен");
     }
   } else if (e instanceof HttpError) {
-    logger.error("Could not contact Telegram:", e);
+    logger.error("Could not contact Telegram", e);
   } else {
-    logger.error("Unknown error:", e);
+    logger.error("Unknown error", e);
   }
 });
 

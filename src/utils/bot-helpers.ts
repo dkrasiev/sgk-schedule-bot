@@ -97,6 +97,7 @@ async function getUpdatedSchedules(date = dayjs()) {
  */
 export async function checkSchedule(bot: Bot<MyContext>) {
   const profiler = logger.startTimer();
+  profiler.start;
   logger.info("checking schedule...");
 
   const groups = await getAllGroups();
@@ -127,5 +128,5 @@ export async function checkSchedule(bot: Bot<MyContext>) {
     }
   }
 
-  profiler.done({ message: "done" });
+  profiler.done({ message: "done", start: profiler.start });
 }

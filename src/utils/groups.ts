@@ -9,7 +9,7 @@ import logger from "./logger";
  */
 export async function getAllGroups(): Promise<Group[]> {
   const response = await axios.get<Group[]>(groupsApi).catch((e) => {
-    logger.error(e);
+    logger.error("Can't get groups", e);
   });
 
   if (response) {
