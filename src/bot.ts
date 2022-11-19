@@ -1,16 +1,17 @@
-import {Telegraf} from 'telegraf';
-import {i18n} from './i18n';
+import { Telegraf } from "telegraf";
+import { i18n } from "./i18n";
 
-import {MyContext} from './types/context.type';
-import {botCommands} from './constants';
-import startComposer from './composers/start.composer';
-import triggerComposer from './composers/trigger.composer';
-import logComposer from './composers/log.composer';
-import chatComposer from './composers/chat.composer';
-import groupComposer from './composers/group.composer';
-import mainComposer from './composers/main.composer';
-import subscribeComposer from './composers/subscribe.composer';
-import scheduleComposer from './composers/schedule.composer';
+import { MyContext } from "./types/context.type";
+import { botCommands } from "./constants";
+import startComposer from "./composers/start.composer";
+import triggerComposer from "./composers/trigger.composer";
+import logComposer from "./composers/log.composer";
+import chatComposer from "./composers/chat.composer";
+import groupComposer from "./composers/group.composer";
+import mainComposer from "./composers/main.composer";
+import subscribeComposer from "./composers/subscribe.composer";
+import scheduleComposer from "./composers/schedule.composer";
+import adminComposer from "./composers/admin.composer";
 
 /**
  * Get telegram bot with specific token
@@ -27,6 +28,8 @@ export function createBot<T extends MyContext>(token: string): Telegraf<T> {
   bot.use(logComposer);
   bot.use(chatComposer);
   bot.use(groupComposer);
+
+  bot.use(adminComposer);
 
   bot.use(startComposer);
   bot.use(mainComposer);
