@@ -1,5 +1,5 @@
 import { chatsCollection, connection } from "../db";
-import { MongoSession, Schedule } from "../models";
+import { MongoSession, Schedule } from "../interfaces";
 import { log } from "./log";
 
 interface OldSchema {

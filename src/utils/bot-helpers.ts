@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { Bot } from "grammy";
 import { chatsCollection, scheduleCollection } from "../db";
-import { MongoSession, MyContext, Schedule } from "../models";
+import { MongoSession, MyContext, Schedule } from "../interfaces";
 import { compareSchedule } from "./compare-schedule";
 import { getAllGroups } from "./groups";
 import { log } from "./log";

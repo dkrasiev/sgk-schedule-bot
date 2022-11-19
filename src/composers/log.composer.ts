@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 import { log } from "../utils";
-import { MyContext } from "../models/context.interface";
+import { MyContext } from "../interfaces/context.interface";
 
 const logComposer = new Composer<MyContext>();
 

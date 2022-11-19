@@ -1,7 +1,7 @@
 import { ISession } from "@grammyjs/storage-mongodb";
 import { MongoClient } from "mongodb";
 import { isProduction } from "./constants";
-import { ScheduleCollection } from "./models/schedule-collection.interface";
+import { ScheduleCollection } from "./interfaces/schedule-collection.interface";
 
 const mongodbUri = process.env.MONGODB_URI;
 const databaseName = isProduction

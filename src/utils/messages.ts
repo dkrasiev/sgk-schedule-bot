@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Group, Schedule } from "../models";
+import { Group, Schedule } from "../interfaces";
 import { numToTime } from "./schedule";
 
 /**

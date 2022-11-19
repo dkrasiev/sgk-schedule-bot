@@ -1,4 +1,4 @@
-import { Schedule } from "../models";
+import { Schedule } from "../interfaces";
 
 /**
  * Compare two schedules

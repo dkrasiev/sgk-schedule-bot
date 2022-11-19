@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 import { getAllGroups, getGroupFromString } from "../utils";
-import { MyContext } from "../models/context.interface";
+import { MyContext } from "../interfaces/context.interface";
 
 const miscComposer = new Composer<MyContext>();
 

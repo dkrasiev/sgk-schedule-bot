@@ -13,7 +13,7 @@ import subscribeComposer from "./composers/subscribe.composer";
 import triggerComposer from "./composers/trigger.composer";
 import { botCommands, isProduction } from "./constants";
 import { chatsCollection } from "./db";
-import { MyContext } from "./models/context.interface";
+import { MyContext } from "./interfaces/context.interface";
 
 const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
 

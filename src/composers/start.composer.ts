@@ -1,5 +1,5 @@
 import { Composer, InlineKeyboard } from "grammy";
-import { MyContext } from "../models/context.interface";
+import { MyContext } from "../interfaces/context.interface";
 
 const startComposer = new Composer<MyContext>();
 

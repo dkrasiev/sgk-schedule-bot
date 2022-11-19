@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { Composer } from "grammy";
-import { MyContext } from "../models/context.interface";
+import { MyContext } from "../interfaces/context.interface";
 import { sendSchedule, sendShortSchedule } from "../utils";
 
 const scheduleComposer = new Composer<MyContext>();

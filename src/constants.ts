@@ -1,4 +1,4 @@
-import { Collection } from "./models/collection.interface";
+import { Collection } from "./interfaces/collection.interface";
 
 export const isProduction: boolean = process.env.NODE_ENV === "production";
 

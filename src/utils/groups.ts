@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { groupRegex, groupsApi } from "../constants";
-import { Group } from "../models";
+import { Group } from "../interfaces";
 
 /**
  * Get all groups

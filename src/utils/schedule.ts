@@ -1,7 +1,7 @@
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { mondayTimes, times } from "../constants";
-import { LessonTime, MyContext, Schedule } from "../models";
+import { LessonTime, MyContext, Schedule } from "../interfaces";
 import { getGroupById } from "./groups";
 import { getScheduleMessage } from "./messages";
 import { getNextWeekday } from "./workdate";

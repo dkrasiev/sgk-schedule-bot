@@ -4,7 +4,7 @@ import {
   getGroupById,
   getGroupFromContext,
 } from "../utils";
-import { MyContext } from "../models/context.interface";
+import { MyContext } from "../interfaces/context.interface";
 
 const subscribeComposer = new Composer<MyContext>();
 
