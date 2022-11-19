@@ -5,7 +5,7 @@ import dayjs from "dayjs";
  * @param {unknown} message Message to pass to console.log
  * @param {string} timeFormat Date format for dayjs
  */
-export function log(message: unknown, timeFormat = "HH:mm:ss") {
+export function log(message: unknown, timeFormat = "HH:mm:ss.SSS") {
   const time = `[${dayjs().format(timeFormat)}]`;
 
   const log: string =
