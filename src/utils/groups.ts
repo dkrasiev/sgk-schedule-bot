@@ -1,16 +1,24 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { groupRegex, groupsApi } from "../constants";
 import { Group } from "../interfaces";
+import logger from "./logger";
 
 /**
  * Get all groups
  * @returns Array of groups
  */
 export async function getAllGroups(): Promise<Group[]> {
-  const response: AxiosResponse<Group[]> = await axios.get<Group[]>(groupsApi);
-  const groups: Group[] = response.data;
+  const response = await axios.get<Group[]>(groupsApi).catch((e) => {
+    logger.error(e);
+  });
 
-  return groups;
+  if (response) {
+    const groups = response.data;
+
+    return groups;
+  }
+
+  return [];
 }
 
 /**

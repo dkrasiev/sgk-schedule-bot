@@ -4,7 +4,7 @@ dotenv.config();
 import { run } from "@grammyjs/runner";
 import cron from "node-cron";
 
-import { checkSchedule } from "./utils";
+import { checkSchedule } from "./utils/bot-helpers";
 import bot from "./bot";
 import logger from "./utils/logger";
 

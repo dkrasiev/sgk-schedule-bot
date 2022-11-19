@@ -121,7 +121,7 @@ export async function checkSchedule(bot: Bot<MyContext>) {
 
     for (const { key } of chats) {
       // send schedule
-      bot.api.sendMessage(key, message).catch(() => {
+      await bot.api.sendMessage(key, message).catch(() => {
         logger.error("failed to send message to " + key);
       });
     }

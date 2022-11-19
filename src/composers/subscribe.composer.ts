@@ -1,10 +1,8 @@
 import { Composer } from "grammy";
-import {
-  removeSubscription,
-  getGroupById,
-  getGroupFromContext,
-} from "../utils";
 import { MyContext } from "../interfaces/context.interface";
+import { removeSubscription } from "../utils/bot-helpers";
+import { getGroupById } from "../utils/groups";
+import { getGroupFromContext } from "../utils/schedule";
 
 const subscribeComposer = new Composer<MyContext>();
 

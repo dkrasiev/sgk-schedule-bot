@@ -3,6 +3,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { mondayTimes, times } from "../constants";
 import { LessonTime, MyContext, Schedule } from "../interfaces";
 import { getGroupById } from "./groups";
+import logger from "./logger";
 import { getScheduleMessage } from "./messages";
 import { getNextWeekday } from "./workdate";
 
@@ -74,10 +75,18 @@ export async function getGroupFromContext(ctx: MyContext) {
 export async function getSchedule(
   groupId: number,
   date = dayjs()
-): Promise<Schedule> {
-  const { data } = await axios.get<Schedule>(getScheduleUrl(groupId, date));
+): Promise<Schedule | null> {
+  const response = await axios
+    .get<Schedule>(getScheduleUrl(groupId, date))
+    .catch((e) => {
+      logger.error(e);
+    });
 
-  return data;
+  if (response) {
+    return response.data;
+  }
+
+  return null;
 }
 
 /**
@@ -97,8 +106,12 @@ export async function getManySchedules(
   );
 
   const schedules = new Map<number, Schedule>();
-  const responses = await axios.all(promises);
+  const responses = await axios.all(promises).catch((e) => {
+    logger.error(e);
+  });
   const pattern = /schedule\/(.*)\//;
+
+  if (!responses) return schedules;
 
   for (const response of responses) {
     if (!response.config || !response.config.url) continue;

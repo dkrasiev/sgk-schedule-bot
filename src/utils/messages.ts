@@ -4,11 +4,14 @@ import { numToTime } from "./schedule";
 
 /**
  * Get schedule message for user
- * @param {Schedule} schedule Schedule
+ * @param {Schedule | null} schedule Schedule
  * @param {Group} group Group
  * @returns {string} Message for user
  */
-export function getScheduleMessage(schedule: Schedule, group: Group): string {
+export function getScheduleMessage(
+  schedule: Schedule | null,
+  group: Group
+): string {
   if (!schedule) return "Ошибка: не удалось получить расписание";
 
   const header = `${group?.name + "\n" || ""}${schedule.date}\n\n`;

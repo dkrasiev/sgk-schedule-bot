@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 import { MyContext } from "../interfaces/context.interface";
-import { sendSchedule } from "../utils";
+import { sendSchedule } from "../utils/schedule";
 
 const triggerComposer = new Composer<MyContext>();
 
