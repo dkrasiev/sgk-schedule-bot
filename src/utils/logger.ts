@@ -1,31 +1,38 @@
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import winston from "winston";
+
+dayjs.extend(duration);
 
 const logger = winston.createLogger({
   transports: [new winston.transports.Console()],
   format: winston.format.combine(
     winston.format.colorize(),
-    winston.format.timestamp(),
-    winston.format.printf(({ level, message, timestamp, start, ...meta }) => {
-      const time = `[${dayjs(timestamp).format("HH:mm:ss.SSS")}]`;
-      const output = [time, level];
+    winston.format.timestamp({
+      format: () => {
+        return `[${dayjs().format("HH:mm:ss.SSS")}]`;
+      },
+    }),
+    winston.format.printf(
+      ({ level, message, timestamp, durationMs, ...meta }) => {
+        const output = [timestamp, level];
 
-      if (start) {
-        const diff = dayjs(dayjs(start).diff());
-        const executionTime = diff.format("mm:ss.SSS");
+        output.push(message);
 
-        output.push(executionTime);
+        if (durationMs) {
+          const executionTime = dayjs.duration(durationMs).asSeconds();
+
+          output.push(`duration=${executionTime}`);
+        }
+
+        const url = meta.config?.url;
+        if (url) {
+          output.push(url);
+        }
+
+        return output.filter(Boolean).join(" ");
       }
-
-      output.push(message);
-
-      const url = meta.config?.url;
-      if (url) {
-        output.push(url);
-      }
-
-      return output.filter(Boolean).join(" ");
-    })
+    )
   ),
 });
 
