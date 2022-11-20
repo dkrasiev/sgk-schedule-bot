@@ -83,7 +83,7 @@ bot.catch((error) => {
     logger.error("Axios error", e);
 
     if (e.response?.status.toString().startsWith("5")) {
-      ctx.reply("Сервис временно недоступен");
+      ctx.reply("Сервис недоступен");
     }
   } else if (e instanceof HttpError) {
     logger.error("Could not contact Telegram", e);
