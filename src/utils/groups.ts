@@ -15,10 +15,21 @@ export const getAllGroups = cachePromise<Group[]>(fetchGroups());
  * Get all groups without caching
  * @returns {Promise<Group[]>} Array of groups
  */
-export async function fetchGroups() {
+export function fetchGroups(): Promise<Group[]> {
   return axios
     .get<Group[]>(groupsApi)
-    .then((response) => response.data)
+    .then((response) => {
+      const groups = response.data;
+      groups.forEach((group) => {
+        groupsCollection.updateOne(
+          { id: group.id },
+          { $set: group },
+          { upsert: true }
+        );
+      });
+
+      return groups;
+    })
     .catch((e) => {
       logger.error("Failed to get groups", e);
 
