@@ -12,6 +12,9 @@ const databaseName = isProduction
 if (!mongodbUri) {
   throw new Error("MONGODB_URI required");
 }
+if (!databaseName) {
+  throw new Error("Database name required");
+}
 
 export const connection = new MongoClient(mongodbUri);
 export const database = connection.db(databaseName);
