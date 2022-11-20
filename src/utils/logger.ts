@@ -17,17 +17,17 @@ const logger = winston.createLogger({
       ({ level, message, timestamp, durationMs, ...meta }) => {
         const output = [timestamp, level];
 
+        const url = meta.config?.url;
+        if (url) {
+          output.push(url);
+        }
+
         output.push(message);
 
         if (durationMs) {
           const executionTime = dayjs.duration(durationMs).asSeconds();
 
           output.push(`duration=${executionTime}`);
-        }
-
-        const url = meta.config?.url;
-        if (url) {
-          output.push(url);
         }
 
         return output.filter(Boolean).join(" ");

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { mondayTimes, times } from "../constants";
 import { LessonTime, MyContext, Schedule } from "../interfaces";
@@ -76,16 +76,18 @@ export async function getSchedule(
   groupId: number,
   date = dayjs()
 ): Promise<Schedule | null> {
-  const url = getScheduleUrl(groupId, date);
-  const response = await axios.get<Schedule>(url).catch((e) => {
-    logger.error(`Cannot get schedule from ${url}`, e);
-  });
+  try {
+    const url = getScheduleUrl(groupId, date);
+    const response = await axios.get<Schedule>(url);
 
-  if (response) {
     return response.data;
-  }
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      logger.error("Failed to get schedule", e);
+    }
 
-  return null;
+    return null;
+  }
 }
 
 /**
@@ -98,31 +100,35 @@ export async function getManySchedules(
   groupIds: number[],
   date = dayjs()
 ): Promise<Map<number, Schedule>> {
-  groupIds = Array.from(new Set(groupIds));
+  try {
+    groupIds = Array.from(new Set(groupIds));
 
-  const promises = groupIds.map((groupId) =>
-    axios.get<Schedule>(getScheduleUrl(groupId, date))
-  );
+    const promises = groupIds.map((groupId) =>
+      axios.get<Schedule>(getScheduleUrl(groupId, date))
+    );
 
-  const schedules = new Map<number, Schedule>();
-  const responses = await axios.all(promises).catch((e) => {
-    logger.error("Can't get schedules", e);
-  });
-  const pattern = /schedule\/(.*)\//;
+    const schedules = new Map<number, Schedule>();
+    const responses = await axios.all(promises);
+    const pattern = /schedule\/(.*)\//;
 
-  if (!responses) return schedules;
+    for (const response of responses) {
+      if (!response.config || !response.config.url) continue;
 
-  for (const response of responses) {
-    if (!response.config || !response.config.url) continue;
+      const match = response.config.url.match(pattern);
+      if (match == null) continue;
 
-    const match = response.config.url.match(pattern);
-    if (match == null) continue;
+      const groupId = Number(match[1]);
+      schedules.set(groupId, response.data);
+    }
 
-    const groupId = Number(match[1]);
-    schedules.set(groupId, response.data);
+    return schedules;
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      logger.error("Failed to get many schedules", e);
+    }
+
+    return new Map();
   }
-
-  return schedules;
 }
 
 /**

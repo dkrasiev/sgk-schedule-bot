@@ -123,7 +123,7 @@ export async function checkSchedule(bot: Bot<MyContext>) {
     for (const { key } of chats) {
       // send schedule
       await bot.api.sendMessage(key, message).catch(() => {
-        logger.error("failed to send message to " + key);
+        logger.error("Fail sending message to " + key);
       });
     }
   }
