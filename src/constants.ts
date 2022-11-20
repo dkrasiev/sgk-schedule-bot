@@ -1,6 +1,8 @@
-import { Collection } from "./types/collection.interface";
+import { Collection } from "./interfaces/collection.interface";
 
-export const admins: number[] = [748299957];
+export const isProduction: boolean = process.env.NODE_ENV === "production";
+
+export const groupsApi = "https://mfc.samgk.ru/api/groups";
 
 export const groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
 

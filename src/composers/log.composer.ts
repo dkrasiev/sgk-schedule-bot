@@ -1,13 +1,13 @@
-import { Composer } from "telegraf";
-import { log } from "../utils";
-import { MyContext } from "../types/context.type";
+import { Composer } from "grammy";
+import { MyContext } from "../interfaces/context.interface";
+import logger from "../utils/logger";
 
 const logComposer = new Composer<MyContext>();
 
-logComposer.on("text", async (ctx, next) => {
-  log(ctx.message.text);
+logComposer.on("message:text", async (ctx, next) => {
+  logger.info(ctx.message.text);
 
-  next();
+  await next();
 });
 
 export default logComposer;
