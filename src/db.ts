@@ -1,6 +1,7 @@
 import { ISession } from "@grammyjs/storage-mongodb";
 import { MongoClient } from "mongodb";
 import { isProduction } from "./constants";
+import { Group } from "./interfaces";
 import { ScheduleCollection } from "./interfaces/schedule-collection.interface";
 
 const mongodbUri = process.env.MONGODB_URI;
@@ -14,6 +15,11 @@ if (!mongodbUri) {
 
 export const connection = new MongoClient(mongodbUri);
 export const database = connection.db(databaseName);
-export const chatsCollection = database.collection<ISession>("chats");
+
 export const scheduleCollection =
   database.collection<ScheduleCollection>("schedule");
+export const groupsCollection = connection
+  .db("test")
+  .collection<Group>("groups");
+
+export const chatsCollection = database.collection<ISession>("chats");

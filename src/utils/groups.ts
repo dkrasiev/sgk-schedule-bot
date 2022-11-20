@@ -1,17 +1,34 @@
 import axios from "axios";
 import { groupRegex, groupsApi } from "../constants";
+import { groupsCollection } from "../db";
 import { Group } from "../interfaces";
+import logger from "./logger";
 
 /**
  * Get all groups
  * @returns Array of groups
  */
 export async function getAllGroups(): Promise<Group[]> {
-  const response = await axios.get<Group[]>(groupsApi);
+  try {
+    const response = await axios.get<Group[]>(groupsApi);
 
-  const groups = response.data;
+    const groups = response.data;
 
-  return groups;
+    // add or update groups
+    groups.forEach((group) => {
+      groupsCollection.updateOne(
+        { id: group.id },
+        { $set: group },
+        { upsert: true }
+      );
+    });
+
+    return groups;
+  } catch (e) {
+    logger.error("Failed to get groups", e);
+
+    return groupsCollection.find().toArray();
+  }
 }
 
 /**
