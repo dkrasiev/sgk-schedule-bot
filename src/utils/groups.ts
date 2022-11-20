@@ -2,33 +2,28 @@ import axios from "axios";
 import { groupRegex, groupsApi } from "../constants";
 import { groupsCollection } from "../db";
 import { Group } from "../interfaces";
+import { cachePromise } from "./cache-promise";
 import logger from "./logger";
 
 /**
- * Get all groups
- * @returns Array of groups
+ * Get all groups with caching
+ * @returns {Promise<Group[]>} Array of groups
  */
-export async function getAllGroups(): Promise<Group[]> {
-  try {
-    const response = await axios.get<Group[]>(groupsApi);
+export const getAllGroups = cachePromise<Group[]>(fetchGroups());
 
-    const groups = response.data;
+/**
+ * Get all groups without caching
+ * @returns {Promise<Group[]>} Array of groups
+ */
+export async function fetchGroups() {
+  return axios
+    .get<Group[]>(groupsApi)
+    .then((response) => response.data)
+    .catch((e) => {
+      logger.error("Failed to get groups", e);
 
-    // add or update groups
-    groups.forEach((group) => {
-      groupsCollection.updateOne(
-        { id: group.id },
-        { $set: group },
-        { upsert: true }
-      );
+      return groupsCollection.find().toArray();
     });
-
-    return groups;
-  } catch (e) {
-    logger.error("Failed to get groups", e);
-
-    return groupsCollection.find().toArray();
-  }
 }
 
 /**
