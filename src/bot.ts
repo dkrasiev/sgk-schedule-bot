@@ -35,7 +35,15 @@ bot.api.setMyCommands(botCommands);
 
 bot.use(i18n);
 
-bot.use(sequentialize((ctx) => ctx.chat?.id.toString()));
+bot.use(
+  sequentialize((ctx) => {
+    const chat = ctx.chat?.id.toString();
+    const user = ctx.from?.id.toString();
+
+    const chatIdentifier = [chat, user].join("");
+    return chatIdentifier;
+  })
+);
 
 bot.use(
   session({
@@ -73,10 +81,8 @@ bot.catch((error) => {
     logger.error("Error in request", e.description);
   } else if (e instanceof AxiosError) {
     logger.error("Axios error", e);
-    if (
-      e.config.url?.includes("samgk") &&
-      (e.code === "ETIMEDOUT" || e.status?.startsWith("5"))
-    ) {
+
+    if (e.response?.status.toString().startsWith("5")) {
       ctx.reply("Сервис временно недоступен");
     }
   } else if (e instanceof HttpError) {

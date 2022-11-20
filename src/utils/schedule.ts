@@ -3,7 +3,6 @@ import dayjs, { Dayjs } from "dayjs";
 import { mondayTimes, times } from "../constants";
 import { LessonTime, MyContext, Schedule } from "../interfaces";
 import { getGroupById } from "./groups";
-import logger from "./logger";
 import { getScheduleMessage } from "./messages";
 import { getNextWeekday } from "./workdate";
 
@@ -17,24 +16,17 @@ export async function sendShortSchedule(
   ctx: MyContext,
   date = dayjs()
 ): Promise<boolean> {
-  try {
-    const group = await getGroupFromContext(ctx);
+  const group = await getGroupFromContext(ctx);
 
-    if (group === undefined) {
-      await ctx.reply(ctx.t("group_not_found"));
-      return false;
-    }
-
-    const schedule = await getSchedule(group.id, date);
-
-    await ctx.reply(getScheduleMessage(schedule, group));
-    return true;
-  } catch (e) {
-    logger.error("Failed to send schedule", e);
-
-    await ctx.reply("Сервис временно недоступен");
+  if (group === undefined) {
+    await ctx.reply(ctx.t("group_not_found"));
     return false;
   }
+
+  const schedule = await getSchedule(group.id, date);
+
+  await ctx.reply(getScheduleMessage(schedule, group));
+  return true;
 }
 
 /**
