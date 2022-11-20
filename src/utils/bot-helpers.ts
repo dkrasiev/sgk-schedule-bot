@@ -109,23 +109,22 @@ export async function checkSchedule(bot: Bot<MyContext>) {
     const updatedSchedules = await getUpdatedSchedules(secondDate);
 
     for (const [groupId, schedule] of updatedSchedules) {
-      // get group object
       const group = groups.find((group) => group.id === groupId);
       if (group === undefined) return;
 
-      // get chat with subscription to groupId
       const chats = await getChatWithSubscription(groupId);
 
       logger.info(`${groupId} updated and affected ${chats.length} chats`);
 
-      const message =
-        "Вышло новое расписание!\n\n" + getScheduleMessage(schedule, group);
+      const scheduleMessage = getScheduleMessage(schedule, group);
 
       for (const { key } of chats) {
-        // send schedule
-        await bot.api.sendMessage(key, message).catch(() => {
+        try {
+          await bot.api.sendMessage(key, "Вышло новое расписание!");
+          await bot.api.sendMessage(key, scheduleMessage);
+        } catch (e) {
           logger.error("Fail sending message to " + key);
-        });
+        }
       }
     }
   } catch (e) {
