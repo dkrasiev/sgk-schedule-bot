@@ -16,10 +16,8 @@ if (!mongodbUri) {
 export const connection = new MongoClient(mongodbUri);
 export const database = connection.db(databaseName);
 
+export const chatsCollection = database.collection<ISession>("chats");
+
 export const scheduleCollection =
   database.collection<ScheduleCollection>("schedule");
-export const groupsCollection = connection
-  .db("test")
-  .collection<Group>("groups");
-
-export const chatsCollection = database.collection<ISession>("chats");
+export const groupsCollection = database.collection<Group>("groups");
