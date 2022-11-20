@@ -3,6 +3,7 @@ import { MongoClient } from "mongodb";
 import { isProduction } from "./constants";
 import { Group } from "./interfaces";
 import { ScheduleCollection } from "./interfaces/schedule-collection.interface";
+import logger from "./utils/logger";
 
 const mongodbUri = process.env.MONGODB_URI;
 const databaseName = isProduction
@@ -17,6 +18,11 @@ if (!databaseName) {
 }
 
 export const connection = new MongoClient(mongodbUri);
+connection.connect().then(() => {
+  logger.info("MongoDB connected");
+  logger.info(`Database name: ${databaseName}`);
+});
+
 export const database = connection.db(databaseName);
 
 export const chatsCollection = database.collection<ISession>("chats");
