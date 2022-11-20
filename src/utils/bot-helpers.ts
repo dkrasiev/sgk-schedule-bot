@@ -97,36 +97,40 @@ async function getUpdatedSchedules(date = dayjs()) {
  */
 export async function checkSchedule(bot: Bot<MyContext>) {
   const profiler = logger.startTimer();
-  profiler.start;
-  logger.info("checking schedule...");
 
-  const groups = await getAllGroups();
+  try {
+    logger.info("checking schedule...");
 
-  const firstDate = getNextWeekday();
-  const secondDate = getNextWeekday(firstDate);
+    const groups = await getAllGroups();
 
-  const updatedSchedules = await getUpdatedSchedules(secondDate);
+    const firstDate = getNextWeekday();
+    const secondDate = getNextWeekday(firstDate);
 
-  for (const [groupId, schedule] of updatedSchedules) {
-    // get group object
-    const group = groups.find((group) => group.id === groupId);
-    if (group === undefined) return;
+    const updatedSchedules = await getUpdatedSchedules(secondDate);
 
-    // get chat with subscription to groupId
-    const chats = await getChatWithSubscription(groupId);
+    for (const [groupId, schedule] of updatedSchedules) {
+      // get group object
+      const group = groups.find((group) => group.id === groupId);
+      if (group === undefined) return;
 
-    logger.info(`${groupId} updated and affected ${chats.length} chats`);
+      // get chat with subscription to groupId
+      const chats = await getChatWithSubscription(groupId);
 
-    const message =
-      "Вышло новое расписание!\n\n" + getScheduleMessage(schedule, group);
+      logger.info(`${groupId} updated and affected ${chats.length} chats`);
 
-    for (const { key } of chats) {
-      // send schedule
-      await bot.api.sendMessage(key, message).catch(() => {
-        logger.error("Fail sending message to " + key);
-      });
+      const message =
+        "Вышло новое расписание!\n\n" + getScheduleMessage(schedule, group);
+
+      for (const { key } of chats) {
+        // send schedule
+        await bot.api.sendMessage(key, message).catch(() => {
+          logger.error("Fail sending message to " + key);
+        });
+      }
     }
+  } catch (e) {
+    logger.error("Error while checking schedule", e);
+  } finally {
+    profiler.done({ message: "done", start: profiler.start });
   }
-
-  profiler.done({ message: "done", start: profiler.start });
 }

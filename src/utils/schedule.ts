@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { mondayTimes, times } from "../constants";
 import { LessonTime, MyContext, Schedule } from "../interfaces";
@@ -17,17 +17,24 @@ export async function sendShortSchedule(
   ctx: MyContext,
   date = dayjs()
 ): Promise<boolean> {
-  const group = await getGroupFromContext(ctx);
+  try {
+    const group = await getGroupFromContext(ctx);
 
-  if (group === undefined) {
-    await ctx.reply(ctx.t("group_not_found"));
+    if (group === undefined) {
+      await ctx.reply(ctx.t("group_not_found"));
+      return false;
+    }
+
+    const schedule = await getSchedule(group.id, date);
+
+    await ctx.reply(getScheduleMessage(schedule, group));
+    return true;
+  } catch (e) {
+    logger.error("Failed to send schedule", e);
+
+    await ctx.reply("Сервис временно недоступен");
     return false;
   }
-
-  const schedule = await getSchedule(group.id, date);
-
-  await ctx.reply(getScheduleMessage(schedule, group));
-  return true;
 }
 
 /**
@@ -76,18 +83,10 @@ export async function getSchedule(
   groupId: number,
   date = dayjs()
 ): Promise<Schedule | null> {
-  try {
-    const url = getScheduleUrl(groupId, date);
-    const response = await axios.get<Schedule>(url);
+  const url = getScheduleUrl(groupId, date);
+  const response = await axios.get<Schedule>(url);
 
-    return response.data;
-  } catch (e) {
-    if (e instanceof AxiosError) {
-      logger.error("Failed to get schedule", e);
-    }
-
-    return null;
-  }
+  return response.data;
 }
 
 /**
@@ -100,35 +99,27 @@ export async function getManySchedules(
   groupIds: number[],
   date = dayjs()
 ): Promise<Map<number, Schedule>> {
-  try {
-    groupIds = Array.from(new Set(groupIds));
+  groupIds = Array.from(new Set(groupIds));
 
-    const promises = groupIds.map((groupId) =>
-      axios.get<Schedule>(getScheduleUrl(groupId, date))
-    );
+  const promises = groupIds.map((groupId) =>
+    axios.get<Schedule>(getScheduleUrl(groupId, date))
+  );
 
-    const schedules = new Map<number, Schedule>();
-    const responses = await axios.all(promises);
-    const pattern = /schedule\/(.*)\//;
+  const schedules = new Map<number, Schedule>();
+  const responses = await axios.all(promises);
+  const pattern = /schedule\/(.*)\//;
 
-    for (const response of responses) {
-      if (!response.config || !response.config.url) continue;
+  for (const response of responses) {
+    if (!response.config || !response.config.url) continue;
 
-      const match = response.config.url.match(pattern);
-      if (match == null) continue;
+    const match = response.config.url.match(pattern);
+    if (match == null) continue;
 
-      const groupId = Number(match[1]);
-      schedules.set(groupId, response.data);
-    }
-
-    return schedules;
-  } catch (e) {
-    if (e instanceof AxiosError) {
-      logger.error("Failed to get many schedules", e);
-    }
-
-    return new Map();
+    const groupId = Number(match[1]);
+    schedules.set(groupId, response.data);
   }
+
+  return schedules;
 }
 
 /**
