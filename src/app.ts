@@ -18,8 +18,6 @@ async function start() {
     logger.info("Bot is running");
   }
 
-  checkSchedule(bot);
-
   cron.schedule("*/15 * * * *", () => {
     checkSchedule(bot);
   });

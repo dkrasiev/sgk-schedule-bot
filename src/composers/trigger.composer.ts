@@ -4,6 +4,14 @@ import { sendSchedule } from "../utils/schedule";
 
 const triggerComposer = new Composer<MyContext>();
 
+triggerComposer.use(async (ctx, next) => {
+  if (ctx.session.chat.triggers === undefined) {
+    ctx.session.chat.triggers = [];
+  }
+
+  await next();
+});
+
 triggerComposer.command("trigger", async (ctx) => {
   const trigger = ctx.msg.text.split(" ")[1]?.toLowerCase()?.trim();
   if (!trigger) {
