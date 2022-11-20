@@ -4,6 +4,7 @@ import { sendSchedule } from "../utils/schedule";
 
 const triggerComposer = new Composer<MyContext>();
 
+// todo: костыль - надо будет убрать
 triggerComposer.use(async (ctx, next) => {
   if (ctx.session.chat.triggers === undefined) {
     ctx.session.chat.triggers = [];
