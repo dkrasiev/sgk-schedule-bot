@@ -1,54 +1,49 @@
-import {Composer} from 'telegraf';
-import {ChatDocument} from '../models/chat.model';
-import {MyContext} from '../types/context.type';
-import {sendSchedule} from './schedule.composer';
+import { Composer } from "grammy";
+import { MyContext } from "../interfaces/context.interface";
+import { sendSchedule } from "../utils/schedule";
 
 const triggerComposer = new Composer<MyContext>();
 
-triggerComposer.command('trigger', async (ctx) => {
-  const chat = ctx.state.chat as ChatDocument;
-  const trigger = ctx.message.text.split(' ')[1]?.toLowerCase()?.trim();
-
-  if (chat == null) return;
-
-  const isTriggerNew = chat.triggers?.includes(trigger) === false;
-
+triggerComposer.command("trigger", async (ctx) => {
+  const trigger = ctx.msg.text.split(" ")[1]?.toLowerCase()?.trim();
   if (!trigger) {
-    await ctx.replyWithMarkdownV2(ctx.i18n.t('trigger_not_found'));
+    await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
   }
 
-  if (isTriggerNew && trigger) {
-    chat.triggers?.push(trigger);
-    await chat.save();
-    await ctx.reply(ctx.i18n.t('trigger_added', {trigger: trigger}));
+  const isTriggerNew = ctx.session.chat.triggers.includes(trigger) === false;
+
+  if (trigger && isTriggerNew) {
+    ctx.session.chat.triggers.push(trigger);
+    await ctx.reply(ctx.t("trigger_added", { trigger }));
   } else if (trigger) {
-    chat.triggers =
-      chat.triggers?.filter((value: string) => {
-        return value !== trigger;
-      }) || [];
-    await chat.save();
-    await ctx.reply(ctx.i18n.t('trigger_deleted', {trigger: trigger}));
+    ctx.session.chat.triggers = ctx.session.chat.triggers.filter(
+      (value: string) => value !== trigger
+    );
+
+    await ctx.reply(ctx.t("trigger_deleted", { trigger }));
   }
 
-  await ctx.reply(
-    chat.triggers?.length ?
-      ctx.i18n.t('trigger_list', {triggers: chat.triggers.join('\n')}) :
-      ctx.i18n.t('trigger_list_not_found'),
-  );
+  const result =
+    ctx.session.chat.triggers.length > 0
+      ? ctx.t("trigger_list", {
+          triggers: ctx.session.chat.triggers.join("\n"),
+        })
+      : ctx.t("trigger_list_not_found");
+
+  await ctx.reply(result);
 });
 
-triggerComposer.on('text', async (ctx, next) => {
-  const chat = ctx.state.chat as ChatDocument;
-  const triggered = chat.triggers?.some((trigger: string) => {
-    return ctx.message.text.toLowerCase().split(/\s/m).includes(trigger);
-  });
+triggerComposer.on("message:text", async (ctx, next) => {
+  const triggered = ctx.session.chat.triggers.some((trigger: string) =>
+    ctx.message.text.toLowerCase().split(/\s/m).includes(trigger)
+  );
 
-  if (chat && triggered) {
+  if (triggered) {
     await sendSchedule(ctx);
     return;
   }
 
-  next();
+  await next();
 });
 
 export default triggerComposer;

@@ -1,21 +1,15 @@
-import {Composer} from 'telegraf';
-import {getGroupFromString} from '../utils';
-import {chats, groups} from '../models';
-import {MyContext} from '../types/context.type';
+import { Composer } from "grammy";
+import { getGroupFromString } from "../utils/groups";
+import { MyContext } from "../interfaces/context.interface";
 
 const groupComposer = new Composer<MyContext>();
 
-groupComposer.on('text', async (ctx, next) => {
-  const chat = await chats.findOne({id: ctx.chat.id});
-  if (!chat) return;
-
+groupComposer.on("message:text", async (ctx, next) => {
   const groupFromMessage = await getGroupFromString(ctx.message.text);
-  const groupFromChat = await groups.findOne({id: chat.defaultGroup});
 
-  ctx.state.group = groupFromMessage || groupFromChat || undefined;
-  ctx.state.messageHasGroup = !!groupFromMessage;
+  ctx.session.message.groupId = groupFromMessage?.id;
 
-  next();
+  await next();
 });
 
-export {groupComposer};
+export default groupComposer;
