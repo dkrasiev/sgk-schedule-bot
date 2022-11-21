@@ -4,17 +4,11 @@ import { sendSchedule } from "../utils/schedule";
 
 const triggerComposer = new Composer<MyContext>();
 
-// todo: костыль - надо будет убрать
-triggerComposer.use(async (ctx, next) => {
-  if (ctx.session.chat.triggers === undefined) {
-    ctx.session.chat.triggers = [];
-  }
-
-  await next();
-});
-
 triggerComposer.command("trigger", async (ctx) => {
-  const trigger = ctx.msg.text.split(" ")[1]?.toLowerCase()?.trim();
+  const spaceIndex = ctx.msg.text.trim().indexOf(" ");
+  const trigger =
+    spaceIndex === -1 ? "" : ctx.msg.text.slice(spaceIndex).trim();
+
   if (!trigger) {
     await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
   }
