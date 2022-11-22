@@ -6,10 +6,7 @@ import { Schedule } from "../interfaces";
  * @param {Schedule | undefined} b Second schedule
  * @returns {boolean} True if schedules equals, otherways false
  */
-export function compareSchedule(
-  a: Schedule | undefined,
-  b: Schedule | undefined
-) {
+export function compareSchedule(a?: Schedule, b?: Schedule) {
   if (a === undefined || b === undefined) return false;
 
   if (a.date !== b.date) return false;

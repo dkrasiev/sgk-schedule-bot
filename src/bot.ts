@@ -1,9 +1,9 @@
+import path from "path";
 import { Bot, GrammyError, HttpError, session } from "grammy";
 import { I18n } from "@grammyjs/i18n";
 import { sequentialize } from "@grammyjs/runner";
 import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
 import { AxiosError } from "axios";
-import path from "path";
 
 import groupComposer from "./composers/group.composer";
 import logComposer from "./composers/log.composer";
@@ -12,12 +12,30 @@ import scheduleComposer from "./composers/schedule.composer";
 import startComposer from "./composers/start.composer";
 import subscribeComposer from "./composers/subscribe.composer";
 import triggerComposer from "./composers/trigger.composer";
-import { botCommands, isProduction } from "./constants";
+import logger from "./utils/logger";
 import { chatsCollection } from "./db";
 import { MyContext } from "./interfaces/context.interface";
-import logger from "./utils/logger";
+import { config } from "./config";
 
-const token = isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_TEST;
+const botCommands = [
+  { command: "help", description: "Помощь" },
+  { command: "schedule", description: "Расписание на два дня" },
+  { command: "today", description: "Расписание на сегодня" },
+  { command: "tomorrow", description: "Расписание на завтра" },
+  { command: "trigger", description: "Добавить или удалить триггер" },
+  { command: "groups", description: "Показать все группы" },
+  { command: "setgroup", description: "Выбрать группу по умолчанию" },
+  { command: "removedefault", description: "Удалить группу по умолчанию" },
+  { command: "subscribe", description: "Подписаться на обновления расписания" },
+  {
+    command: "unsubscribe",
+    description: "Отписаться от обновлений расписания",
+  },
+];
+
+const token = config.isProduction
+  ? process.env.BOT_TOKEN
+  : process.env.BOT_TOKEN_TEST;
 
 if (!token) {
   throw new Error("Bot token is required");
