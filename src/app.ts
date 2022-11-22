@@ -6,7 +6,7 @@ import { run } from "@grammyjs/runner";
 import bot from "./bot";
 import logger from "./utils/logger";
 import { subscriptionService } from "./utils/subscription.service";
-import { connection, databaseName, scheduleCollection } from "./db";
+import { connection, databaseName } from "./db";
 
 /**
  * start the app
@@ -20,13 +20,6 @@ async function start() {
     run(bot);
     logger.info("Bot is running");
   });
-
-  scheduleCollection
-    .updateMany({}, { $set: { "schedule.date": "" } })
-    .then((result) => {
-      console.log(result);
-      subscriptionService.checkSchedule(bot);
-    });
 
   subscriptionService.setCheckingBySchedule("*/15 * * * *", bot);
 }

@@ -6,6 +6,6 @@ export interface IConfig {
 
 export const config: IConfig = {
   groupApi: "https://mfc.samgk.ru/api/groups",
-  scheduleApi: "http://asu.samgk.ru//api/schedule",
+  scheduleApi: "http://asu.samgk.ru/api/schedule",
   isProduction: process.env.NODE_ENV === "production",
 };
