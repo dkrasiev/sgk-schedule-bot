@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { Group, Schedule } from "../interfaces";
-import { numToTime } from "./schedule";
+import { scheduleApi } from "./schedule-api";
 
 /**
  * Get schedule message for user
@@ -32,7 +32,7 @@ export function getScheduleMessage(
     for (const lesson of schedule.lessons) {
       const { start, end } =
         typeof lesson.num === "string"
-          ? numToTime(lesson.num, isMonday)
+          ? scheduleApi.numToTime(lesson.num, isMonday)
           : lesson.num;
 
       const time = `${start.format("HH:mm")}-${end.format("HH:mm")}`;
