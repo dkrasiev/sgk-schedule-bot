@@ -117,4 +117,4 @@ export class GroupApi {
   }
 }
 
-export const groupApi = new GroupApi(config.groupApi);
+export const groupApi = new GroupApi(config.groupsApi);

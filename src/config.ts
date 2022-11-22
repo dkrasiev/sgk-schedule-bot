@@ -1,11 +1,15 @@
 export interface IConfig {
-  groupApi: string;
+  groupsApi: string;
   scheduleApi: string;
+  teachersApi: string;
+  cabsApi: string;
   isProduction: boolean;
 }
 
 export const config: IConfig = {
-  groupApi: "https://mfc.samgk.ru/api/groups",
+  groupsApi: "https://mfc.samgk.ru/api/groups",
   scheduleApi: "http://asu.samgk.ru/api/schedule",
+  teachersApi: "http://asu.samgk.ru/api/teachers",
+  cabsApi: "http://asu.samgk.ru/api/cabs",
   isProduction: process.env.NODE_ENV === "production",
 };
