@@ -1,11 +1,11 @@
 import { ISession } from "@grammyjs/storage-mongodb";
 import { MongoClient } from "mongodb";
-import { isProduction } from "./constants";
+import { config } from "./config";
 import { Group } from "./interfaces";
 import { ScheduleCollection } from "./interfaces/schedule-collection.interface";
 
 const mongodbUri = process.env.MONGODB_URI;
-export const databaseName = isProduction
+export const databaseName = config.isProduction
   ? process.env.DATABASE_NAME
   : process.env.DATABASE_NAME_TEST;
 
