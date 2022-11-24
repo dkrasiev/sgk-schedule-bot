@@ -5,8 +5,9 @@ import { run } from "@grammyjs/runner";
 
 import bot from "./bot";
 import logger from "./utils/logger";
-import { subscriptionService } from "./utils/subscription.service";
+import { scheduleCheckerService } from "./utils/schedule-checker.service";
 import { connection, databaseName } from "./db";
+import { schedule } from "node-cron";
 
 /**
  * start the app
@@ -21,7 +22,9 @@ async function start() {
     logger.info("Bot is running");
   });
 
-  subscriptionService.setCheckingBySchedule("*/15 * * * *", bot);
+  scheduleCheckerService.checkSchedule(bot);
+
+  scheduleCheckerService.setCheckingBySchedule("*/15 * * * *", bot);
 }
 
 start();

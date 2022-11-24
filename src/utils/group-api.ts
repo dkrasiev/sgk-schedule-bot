@@ -35,7 +35,7 @@ export class GroupApi {
    * Get all groups with caching
    * @returns {Promise<Group[]>} Array of groups
    */
-  public getAllGroups = cachePromise<Group[]>(this.fetchGroups());
+  public getGroups = cachePromise<Group[]>(this.fetchGroups());
 
   /**
    * Get all groups as map
@@ -44,7 +44,7 @@ export class GroupApi {
   public async getAllGroupsMap(): Promise<Map<number, string>> {
     const result = new Map();
 
-    const groups = await this.getAllGroups();
+    const groups = await this.getGroups();
     for (const group of groups) {
       result.set(group.id, group.name);
     }
@@ -58,7 +58,7 @@ export class GroupApi {
    * @returns {Group | undefined} Group
    */
   public async getGroupById(id: number): Promise<Group | undefined> {
-    const groups = await this.getAllGroups();
+    const groups = await this.getGroups();
     return groups.find((group: Group) => group.id === id);
   }
 
@@ -68,7 +68,7 @@ export class GroupApi {
    * @returns {Group | undefined} Group
    */
   public async getGroupByName(name: string): Promise<Group | undefined> {
-    const groups = await this.getAllGroups();
+    const groups = await this.getGroups();
     return groups.find((group: Group) => group.name === name);
   }
 

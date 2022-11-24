@@ -6,12 +6,12 @@ import logger from "./logger";
 import { chatsCollection, scheduleCollection } from "../db";
 import { MongoSession, MyContext, Schedule } from "../interfaces";
 import { compareSchedule } from "./compare-schedule";
-import { groupApi } from "./groups-api";
+import { groupApi } from "./group-api";
 import { getScheduleMessage } from "./get-schedule-message";
 import { getNextWeekday } from "./workdate";
 import { scheduleApi } from "./schedule-api";
 
-export class SubscriptionService {
+export class ScheduleCheckerService {
   /**
    * Set schedule checking by cron expression
    * @param {string} cronExpression Cron expression
@@ -31,10 +31,10 @@ export class SubscriptionService {
     try {
       logger.info("checking schedule...");
 
-      const groups = await groupApi.getAllGroups();
+      const groups = await groupApi.getGroups();
 
       const firstDate = getNextWeekday();
-      const secondDate = getNextWeekday(firstDate);
+      const secondDate = getNextWeekday(firstDate.add(1, "day"));
 
       const updatedSchedules = await this.getUpdatedSchedules(secondDate);
 
@@ -102,10 +102,7 @@ export class SubscriptionService {
       ({ value }) => value.subscribedGroup
     ) as number[];
 
-    const newSchedules = await scheduleApi.getSchedulesForGroups(
-      groupIds,
-      date
-    );
+    const newSchedules = await scheduleApi.getManySchedules(groupIds, date);
     const lastSchedules = await scheduleCollection
       .find({ groupId: { $in: groupIds } })
       .toArray();
@@ -136,4 +133,4 @@ export class SubscriptionService {
   }
 }
 
-export const subscriptionService = new SubscriptionService();
+export const scheduleCheckerService = new ScheduleCheckerService();
