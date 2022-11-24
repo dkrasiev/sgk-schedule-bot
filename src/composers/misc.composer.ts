@@ -1,11 +1,11 @@
 import { Composer } from "grammy";
-import { groupApi } from "../utils/groups-api";
+import { groupApi } from "../utils/group-api";
 import { MyContext } from "../interfaces/context.interface";
 
 const miscComposer = new Composer<MyContext>();
 
 miscComposer.command("groups", async (ctx) => {
-  const groups = await groupApi.getAllGroups();
+  const groups = await groupApi.getGroups();
 
   const groupsNameArray = groups
     .filter((group) => group.name.length > 2)

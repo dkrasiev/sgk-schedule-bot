@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 
 import { MyContext } from "../interfaces";
 import { getScheduleMessage } from "./get-schedule-message";
-import { groupApi } from "./groups-api";
+import { groupApi } from "./group-api";
 import { scheduleApi } from "./schedule-api";
 import { getNextWeekday } from "./workdate";
 
@@ -37,7 +37,7 @@ export async function sendShortSchedule(
     return false;
   }
 
-  const schedule = await scheduleApi.getScheduleForGroup(group.id, date);
+  const schedule = await scheduleApi.getSchedule(group.id, date);
 
   await ctx.reply(getScheduleMessage(schedule, group));
   return true;

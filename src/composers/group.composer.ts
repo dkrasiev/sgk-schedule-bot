@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { groupApi } from "../utils/groups-api";
+import { groupApi } from "../utils/group-api";
 import { MyContext } from "../interfaces/context.interface";
 
 const groupComposer = new Composer<MyContext>();
