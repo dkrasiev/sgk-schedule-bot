@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
 import { MyContext } from "../interfaces/context.interface";
 import { removeSubscription } from "../utils/bot-helpers";
-import { groupApi } from "../utils/groups-api";
+import { groupApi } from "../utils/group-api";
 
 const subscribeComposer = new Composer<MyContext>();
 
