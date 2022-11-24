@@ -7,7 +7,6 @@ import bot from "./bot";
 import logger from "./utils/logger";
 import { scheduleCheckerService } from "./utils/schedule-checker.service";
 import { connection, databaseName } from "./db";
-import { schedule } from "node-cron";
 
 /**
  * start the app
@@ -21,8 +20,6 @@ async function start() {
     run(bot);
     logger.info("Bot is running");
   });
-
-  scheduleCheckerService.checkSchedule(bot);
 
   scheduleCheckerService.setCheckingBySchedule("*/15 * * * *", bot);
 }
