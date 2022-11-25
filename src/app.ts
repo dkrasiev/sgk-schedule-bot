@@ -5,7 +5,7 @@ import { run } from "@grammyjs/runner";
 
 import bot from "./bot";
 import logger from "./utils/logger";
-import { scheduleCheckerService } from "./utils/schedule-checker.service";
+import { scheduleCheckerService } from "./services/schedule-checker.service";
 import { connection, databaseName } from "./db";
 
 /**

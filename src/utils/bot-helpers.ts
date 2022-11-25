@@ -2,9 +2,9 @@ import dayjs from "dayjs";
 
 import { MyContext } from "../interfaces";
 import { getScheduleMessage } from "./get-schedule-message";
-import { groupApi } from "./group-api";
-import { scheduleApi } from "./schedule-api";
-import { getNextWeekday } from "./workdate";
+import { groupService } from "../services/group.service";
+import { scheduleService } from "./../services/schedule.service";
+import { getNextWeekday } from "./weekday";
 
 /**
  * Remove subscription
@@ -30,14 +30,14 @@ export async function sendShortSchedule(
   ctx: MyContext,
   date = dayjs()
 ): Promise<boolean> {
-  const group = await groupApi.getGroupFromContext(ctx);
+  const group = await groupService.getGroupFromContext(ctx);
 
   if (group === undefined) {
     await ctx.reply(ctx.t("group_not_found"));
     return false;
   }
 
-  const schedule = await scheduleApi.getSchedule(group.id, date);
+  const schedule = await scheduleService.getSchedule(group.id, date);
 
   await ctx.reply(getScheduleMessage(schedule, group));
   return true;

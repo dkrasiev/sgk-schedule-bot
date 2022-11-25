@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { config } from "../config";
 import { Schedule } from "../interfaces";
 
-export class ScheduleApi {
+export class ScheduleService {
   constructor(private api: string) {}
 
   /**
@@ -64,4 +64,4 @@ export class ScheduleApi {
   }
 }
 
-export const scheduleApi = new ScheduleApi(config.scheduleApi);
+export const scheduleService = new ScheduleService(config.scheduleApi);
