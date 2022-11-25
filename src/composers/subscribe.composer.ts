@@ -1,14 +1,14 @@
 import { Composer } from "grammy";
 import { MyContext } from "../interfaces/context.interface";
 import { removeSubscription } from "../utils/bot-helpers";
-import { groupApi } from "../utils/group-api";
+import { groupService } from "../services/group.service";
 
 const subscribeComposer = new Composer<MyContext>();
 
 subscribeComposer.command("subscribe", async (ctx) => {
   if (!ctx.chat) return;
 
-  const group = await groupApi.getGroupFromContext(ctx);
+  const group = await groupService.getGroupFromContext(ctx);
 
   if (!group) {
     await ctx.reply(ctx.t("subscribe_fail"), { parse_mode: "HTML" });
@@ -21,7 +21,7 @@ subscribeComposer.command("subscribe", async (ctx) => {
 });
 
 subscribeComposer.command("unsubscribe", async (ctx) => {
-  const group = await groupApi.getGroupById(ctx.session.chat.defaultGroup);
+  const group = await groupService.getGroupById(ctx.session.chat.defaultGroup);
   if (!group) return;
 
   const removeSubscriptionResult = await removeSubscription(ctx);

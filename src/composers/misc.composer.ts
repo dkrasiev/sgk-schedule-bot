@@ -1,11 +1,11 @@
 import { Composer } from "grammy";
-import { groupApi } from "../utils/group-api";
+import { groupService } from "../services/group.service";
 import { MyContext } from "../interfaces/context.interface";
 
 const miscComposer = new Composer<MyContext>();
 
 miscComposer.command("groups", async (ctx) => {
-  const groups = await groupApi.getGroups();
+  const groups = await groupService.getGroups();
 
   const groupsNameArray = groups
     .filter((group) => group.name.length > 2)
@@ -16,7 +16,7 @@ miscComposer.command("groups", async (ctx) => {
 });
 
 miscComposer.command("setgroup", async (ctx) => {
-  const group = await groupApi.findGroupInString(ctx.msg.text);
+  const group = await groupService.findGroupInString(ctx.msg.text);
 
   if (!group) {
     await ctx.reply(ctx.t("set_group_fail"), { parse_mode: "HTML" });

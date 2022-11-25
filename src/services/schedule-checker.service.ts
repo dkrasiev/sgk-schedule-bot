@@ -2,14 +2,14 @@ import dayjs from "dayjs";
 import cron from "node-cron";
 import { Bot } from "grammy";
 
-import logger from "./logger";
+import logger from "./../utils/logger";
 import { chatsCollection, scheduleCollection } from "../db";
 import { MongoSession, MyContext, Schedule } from "../interfaces";
-import { compareSchedule } from "./compare-schedule";
-import { groupApi } from "./group-api";
-import { getScheduleMessage } from "./get-schedule-message";
-import { getNextWeekday } from "./workdate";
-import { scheduleApi } from "./schedule-api";
+import { compareSchedule } from "./../utils/compare-schedule";
+import { groupService } from "../services/group.service";
+import { getScheduleMessage } from "./../utils/get-schedule-message";
+import { getNextWeekday } from "../utils/weekday";
+import { scheduleService } from "../services/schedule.service";
 
 export class ScheduleCheckerService {
   /**
@@ -31,7 +31,7 @@ export class ScheduleCheckerService {
     try {
       logger.info("checking schedule...");
 
-      const groups = await groupApi.getGroups();
+      const groups = await groupService.getGroups();
 
       const firstDate = getNextWeekday();
       const secondDate = getNextWeekday(firstDate.add(1, "day"));
@@ -102,7 +102,7 @@ export class ScheduleCheckerService {
       ({ value }) => value.subscribedGroup
     ) as number[];
 
-    const newSchedules = await scheduleApi.getManySchedules(groupIds, date);
+    const newSchedules = await scheduleService.getManySchedules(groupIds, date);
     const lastSchedules = await scheduleCollection
       .find({ groupId: { $in: groupIds } })
       .toArray();

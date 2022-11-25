@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { LessonTime } from "../interfaces";
-import { Collection } from "./../interfaces/collection.interface";
+import { Collection } from "../interfaces/collection.interface";
 
 /**
  * Transform lesson's number to lesson's time

@@ -1,12 +1,12 @@
 import axios from "axios";
 
-import logger from "./logger";
+import logger from "../utils/logger";
 import { config } from "../config";
 import { groupsCollection } from "../db";
 import { Group, MyContext } from "../interfaces";
-import { cachePromise } from "./cache-promise";
+import { cachePromise } from "../utils/cache-promise";
 
-export class GroupApi {
+export class GroupService {
   private groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
 
   constructor(private api: string) {}
@@ -117,4 +117,4 @@ export class GroupApi {
   }
 }
 
-export const groupApi = new GroupApi(config.groupsApi);
+export const groupService = new GroupService(config.groupsApi);
