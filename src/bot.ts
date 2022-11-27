@@ -15,6 +15,7 @@ import logger from "./helpers/logger";
 import { chatsCollection } from "./db";
 import { MyContext } from "./interfaces/context.interface";
 import { config } from "./config";
+import adminComposer from "./composers/admin.composer";
 
 const botCommands = [
   { command: "help", description: "Помощь" },
@@ -82,6 +83,7 @@ bot.use(
 bot.use(logComposer);
 
 bot.use(miscComposer);
+bot.use(adminComposer);
 
 bot.use(startComposer);
 
