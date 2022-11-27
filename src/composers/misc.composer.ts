@@ -17,11 +17,38 @@ miscComposer.command("groups", async (ctx) => {
   await ctx.reply(groupsNameArray.join("\n"));
 });
 
+miscComposer.command("teacher", async (ctx) => {
+  const argument =
+    ctx.message?.text && getArgument(ctx.message.text).toLowerCase();
+  if (!argument) {
+    await ctx.reply("Для поиска необходимо ввести запрос");
+
+    return;
+  }
+
+  const teachers = await teacherService.getAll();
+
+  const findedTeachers = teachers.filter((teacher) =>
+    teacher.name.toLowerCase().includes(argument)
+  );
+
+  if (findedTeachers.length === 0) {
+    await ctx.reply("По введенному запросы преподаватели не найдены");
+
+    return;
+  }
+
+  await ctx.reply(
+    "Найденные преподаватели:\n" +
+      findedTeachers.map((teacher) => teacher.name).join("\n")
+  );
+});
+
 miscComposer.command("setdefault", async (ctx) => {
   const argument = getArgument(ctx.message?.text ?? "");
 
   if (!argument) {
-    await ctx.reply("Введите номер группы или ФИО преподавателя");
+    await ctx.reply(ctx.t("set_default_fail"), { parse_mode: "HTML" });
 
     return;
   }
@@ -42,7 +69,7 @@ miscComposer.command("setdefault", async (ctx) => {
     return;
   }
 
-  await ctx.reply(ctx.t("set_default_fail"), { parse_mode: "HTML" });
+  await ctx.reply("По указанному запросу ничего не найдено");
 });
 
 miscComposer.command("removedefault", async (ctx) => {
