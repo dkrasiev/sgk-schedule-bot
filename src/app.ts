@@ -4,7 +4,7 @@ dotenv.config();
 import { run } from "@grammyjs/runner";
 
 import bot from "./bot";
-import logger from "./utils/logger";
+import logger from "./helpers/logger";
 import { scheduleCheckerService } from "./services/schedule-checker.service";
 import { connection, databaseName } from "./db";
 
@@ -18,7 +18,7 @@ async function start() {
     logger.info(`Database name: ${databaseName}`);
 
     run(bot);
-    logger.info("Bot is running");
+    bot.init().then(() => logger.info(`@${bot.botInfo.username} is running`));
   });
 
   scheduleCheckerService.setCheckingBySchedule("*/15 * * * *", bot);

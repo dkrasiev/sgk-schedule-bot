@@ -1,7 +1,10 @@
 import dayjs from "dayjs";
 import { Composer } from "grammy";
+
+import { sendSchedule, sendShortSchedule } from "../helpers/bot-helpers";
 import { MyContext } from "../interfaces/context.interface";
-import { sendSchedule, sendShortSchedule } from "../utils/bot-helpers";
+import { groupService } from "../services/group.service";
+import { teacherService } from "../services/teacher.service";
 
 const scheduleComposer = new Composer<MyContext>();
 
@@ -10,8 +13,7 @@ scheduleComposer.command("schedule", async (ctx) => {
 });
 
 scheduleComposer.command("today", async (ctx) => {
-  const date = dayjs();
-  await sendShortSchedule(ctx, date);
+  await sendShortSchedule(ctx);
 });
 
 scheduleComposer.command("tomorrow", async (ctx) => {
@@ -20,9 +22,10 @@ scheduleComposer.command("tomorrow", async (ctx) => {
 });
 
 scheduleComposer.on("message:text", async (ctx, next) => {
-  const groupId = ctx.session.message?.groupId;
+  const group = await groupService.findInText(ctx.message.text);
+  const teacher = await teacherService.findInText(ctx.message.text);
 
-  if (ctx.chat.type === "private" && groupId) {
+  if (ctx.chat.type === "private" && (group || teacher)) {
     await sendSchedule(ctx);
     return;
   }

@@ -2,20 +2,6 @@ import dayjs from "dayjs";
 import { LessonTime } from "../interfaces";
 import { Collection } from "../interfaces/collection.interface";
 
-/**
- * Transform lesson's number to lesson's time
- * @param {string} num Lesson's number
- * @param {boolean} isMonday Use monday schedule
- * @returns {string} Lesson's time
- */
-export function numToTime(num: string, isMonday = false): LessonTime {
-  const selectedTime = isMonday ? mondayTimes[num] : times[num];
-
-  const lessonTime = convertToLessonTime(selectedTime);
-
-  return lessonTime;
-}
-
 const times: Collection<string> = {
   "1": "08:25-10:00",
   "2": "10:10-11:45",
@@ -63,6 +49,20 @@ const mondayTimes: Collection<string> = {
   "7.1": "20:05-20:50",
   "7.2": "21:00-21:45",
 };
+
+/**
+ * Transform lesson's number to lesson's time
+ * @param {string} num Lesson's number
+ * @param {boolean} isMonday Use monday schedule
+ * @returns {string} Lesson's time
+ */
+export function numToTime(num: string, isMonday = false): LessonTime {
+  const selectedTime = isMonday ? mondayTimes[num] : times[num];
+
+  const lessonTime = convertToLessonTime(selectedTime);
+
+  return lessonTime;
+}
 
 /**
  * Transform string to lesson's time

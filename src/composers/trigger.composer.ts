@@ -1,25 +1,25 @@
 import { Composer } from "grammy";
+
 import { MyContext } from "../interfaces/context.interface";
-import { sendSchedule } from "../utils/bot-helpers";
+import { sendSchedule } from "../helpers/bot-helpers";
+import { getArgument } from "../helpers/get-argument";
 
 const triggerComposer = new Composer<MyContext>();
 
 triggerComposer.command("trigger", async (ctx) => {
-  const spaceIndex = ctx.msg.text.trim().indexOf(" ");
-  const trigger =
-    spaceIndex === -1 ? "" : ctx.msg.text.slice(spaceIndex).trim();
+  const trigger = getArgument(ctx.message?.text || "");
 
   if (!trigger) {
     await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
   }
 
-  const isTriggerNew = ctx.session.chat.triggers.includes(trigger) === false;
+  const isTriggerNew = ctx.session.triggers.includes(trigger) === false;
 
   if (trigger && isTriggerNew) {
-    ctx.session.chat.triggers.push(trigger);
+    ctx.session.triggers.push(trigger);
     await ctx.reply(ctx.t("trigger_added", { trigger }));
   } else if (trigger) {
-    ctx.session.chat.triggers = ctx.session.chat.triggers.filter(
+    ctx.session.triggers = ctx.session.triggers.filter(
       (value: string) => value !== trigger
     );
 
@@ -27,9 +27,9 @@ triggerComposer.command("trigger", async (ctx) => {
   }
 
   const result =
-    ctx.session.chat.triggers.length > 0
+    ctx.session.triggers.length > 0
       ? ctx.t("trigger_list", {
-          triggers: ctx.session.chat.triggers.join("\n"),
+          triggers: ctx.session.triggers.join("\n"),
         })
       : ctx.t("trigger_list_not_found");
 
@@ -37,7 +37,7 @@ triggerComposer.command("trigger", async (ctx) => {
 });
 
 triggerComposer.on("message:text", async (ctx, next) => {
-  const triggered = ctx.session.chat.triggers.some((trigger: string) =>
+  const triggered = ctx.session.triggers.some((trigger: string) =>
     ctx.message.text.toLowerCase().split(/\s/m).includes(trigger)
   );
 

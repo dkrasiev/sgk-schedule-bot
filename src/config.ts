@@ -1,12 +1,4 @@
-export interface IConfig {
-  groupsApi: string;
-  scheduleApi: string;
-  teachersApi: string;
-  cabsApi: string;
-  isProduction: boolean;
-}
-
-export const config: IConfig = {
+export const config = {
   groupsApi: "https://mfc.samgk.ru/api/groups",
   scheduleApi: "http://asu.samgk.ru/api/schedule",
   teachersApi: "http://asu.samgk.ru/api/teachers",

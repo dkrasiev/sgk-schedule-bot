@@ -12,7 +12,7 @@ startComposer.command("start", async (ctx) => {
 startComposer.command("help", async (ctx) => {
   await ctx.reply(ctx.t("help"), {
     reply_markup: new InlineKeyboard().url(
-      "По возникшим вопросам можно написать сюда",
+      "Предложения по улучшению можно написать сюда",
       "https://t.me/dkrasiev"
     ),
     parse_mode: "HTML",
