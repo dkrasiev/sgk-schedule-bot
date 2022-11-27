@@ -4,4 +4,5 @@ export const config = {
   teachersApi: "http://asu.samgk.ru/api/teachers",
   cabsApi: "http://asu.samgk.ru/api/cabs",
   isProduction: process.env.NODE_ENV === "production",
+  admins: [748299957],
 };
