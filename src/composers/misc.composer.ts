@@ -33,7 +33,7 @@ miscComposer.command("teacher", async (ctx) => {
   );
 
   if (findedTeachers.length === 0) {
-    await ctx.reply("По введенному запросы преподаватели не найдены");
+    await ctx.reply("По введенному запросу преподаватели не найдены");
 
     return;
   }
