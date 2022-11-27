@@ -2,8 +2,8 @@ import { Composer } from "grammy";
 
 import { MyContext } from "../interfaces";
 import { config } from "../config";
-import { broadcastMessage } from "../services/admin.service";
 import { getArgument } from "../helpers/get-argument";
+import { adminService } from "../services/admin.service";
 
 const adminComposer = new Composer<MyContext>();
 
@@ -21,7 +21,7 @@ adminComposer.command("broadcast", async (ctx, next) => {
     return;
   }
 
-  await broadcastMessage(message, ctx);
+  await adminService.broadcastMessage(message, ctx);
   await ctx.reply("Messages sent");
 });
 
