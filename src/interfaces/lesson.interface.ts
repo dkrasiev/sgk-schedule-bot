@@ -5,6 +5,7 @@ export interface Lesson {
   title: string;
   teachername: string;
   cab: string;
+  nameGroup?: string;
 }
 
 export interface LessonTime {

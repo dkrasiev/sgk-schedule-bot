@@ -7,11 +7,4 @@ export interface MongoSession {
   subscribedGroup: number;
 }
 
-export interface SessionData {
-  chat: MongoSession;
-  message: {
-    groupId?: number;
-  };
-}
-
-export type MyContext = Context & I18nFlavor & SessionFlavor<SessionData>;
+export type MyContext = Context & I18nFlavor & SessionFlavor<MongoSession>;

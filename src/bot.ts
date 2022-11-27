@@ -5,14 +5,13 @@ import { sequentialize } from "@grammyjs/runner";
 import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
 import { AxiosError } from "axios";
 
-import groupComposer from "./composers/group.composer";
 import logComposer from "./composers/log.composer";
 import miscComposer from "./composers/misc.composer";
 import scheduleComposer from "./composers/schedule.composer";
 import startComposer from "./composers/start.composer";
 import subscribeComposer from "./composers/subscribe.composer";
 import triggerComposer from "./composers/trigger.composer";
-import logger from "./utils/logger";
+import logger from "./helpers/logger";
 import { chatsCollection } from "./db";
 import { MyContext } from "./interfaces/context.interface";
 import { config } from "./config";
@@ -22,15 +21,21 @@ const botCommands = [
   { command: "schedule", description: "Расписание на два дня" },
   { command: "today", description: "Расписание на сегодня" },
   { command: "tomorrow", description: "Расписание на завтра" },
-  { command: "trigger", description: "Добавить или удалить триггер" },
-  { command: "groups", description: "Показать все группы" },
-  { command: "setgroup", description: "Выбрать группу по умолчанию" },
-  { command: "removedefault", description: "Удалить группу по умолчанию" },
+  {
+    command: "setdefault",
+    description: "Выбрать группу/преподавателя по умолчанию",
+  },
+  {
+    command: "removedefault",
+    description: "Удалить группу/преподавателя по умолчанию",
+  },
   { command: "subscribe", description: "Подписаться на обновления расписания" },
   {
     command: "unsubscribe",
     description: "Отписаться от обновлений расписания",
   },
+  { command: "groups", description: "Показать все группы" },
+  { command: "trigger", description: "Добавить или удалить триггер" },
 ];
 
 const token = config.isProduction
@@ -65,24 +70,17 @@ bot.use(
 
 bot.use(
   session({
-    type: "multi",
-    chat: {
-      initial: () => ({
-        defaultGroup: 0,
-        subscribedGroup: 0,
-        triggers: [],
-      }),
-      storage: new MongoDBAdapter({ collection: chatsCollection }),
-    },
-    message: {
-      initial: () => ({}),
-    },
+    initial: () => ({
+      defaultGroup: 0,
+      subscribedGroup: 0,
+      triggers: [],
+    }),
+    storage: new MongoDBAdapter({ collection: chatsCollection }),
   })
 );
 
 bot.use(logComposer);
 
-bot.use(groupComposer);
 bot.use(miscComposer);
 
 bot.use(startComposer);

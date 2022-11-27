@@ -2,14 +2,13 @@ import dayjs from "dayjs";
 import cron from "node-cron";
 import { Bot } from "grammy";
 
-import logger from "./../utils/logger";
+import logger from "./../helpers/logger";
 import { chatsCollection, scheduleCollection } from "../db";
 import { MongoSession, MyContext, Schedule } from "../interfaces";
-import { compareSchedule } from "./../utils/compare-schedule";
-import { groupService } from "../services/group.service";
-import { getScheduleMessage } from "./../utils/get-schedule-message";
-import { getNextWeekday } from "../utils/weekday";
-import { scheduleService } from "../services/schedule.service";
+import { compareSchedule } from "./../helpers/compare-schedule";
+import { groupService } from "./group.service";
+import { getScheduleMessage } from "./../helpers/get-schedule-message";
+import { getNextWeekday } from "../helpers/weekday";
 
 export class ScheduleCheckerService {
   /**
@@ -31,7 +30,7 @@ export class ScheduleCheckerService {
     try {
       logger.info("checking schedule...");
 
-      const groups = await groupService.getGroups();
+      const groups = await groupService.getAll();
 
       const firstDate = getNextWeekday();
       const secondDate = getNextWeekday(firstDate.add(1, "day"));
@@ -46,7 +45,7 @@ export class ScheduleCheckerService {
 
         logger.info(`${groupId} updated and affected ${chats.length} chats`);
 
-        const scheduleMessage = getScheduleMessage(schedule, group);
+        const scheduleMessage = getScheduleMessage(schedule, group.name);
 
         for (const { key } of chats) {
           try {
@@ -102,7 +101,7 @@ export class ScheduleCheckerService {
       ({ value }) => value.subscribedGroup
     ) as number[];
 
-    const newSchedules = await scheduleService.getManySchedules(groupIds, date);
+    const newSchedules = await groupService.getManySchedules(groupIds, date);
     const lastSchedules = await scheduleCollection
       .find({ groupId: { $in: groupIds } })
       .toArray();
