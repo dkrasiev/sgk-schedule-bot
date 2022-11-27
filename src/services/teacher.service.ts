@@ -58,7 +58,10 @@ export class TeacherService implements Api<Teacher, MyContext> {
           .join(" ");
       });
 
-      return teachers;
+      // filter Администратор, Методист и тд
+      return teachers.filter(
+        (teacher: Teacher) => teacher.name.split(" ").length > 1
+      );
     })
   );
 }
