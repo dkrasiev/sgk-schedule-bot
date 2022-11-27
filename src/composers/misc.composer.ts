@@ -21,7 +21,7 @@ miscComposer.command("teacher", async (ctx) => {
   const argument =
     ctx.message?.text && getArgument(ctx.message.text).toLowerCase();
   if (!argument) {
-    await ctx.reply("Для поиска необходимо ввести запрос/");
+    await ctx.reply(ctx.t("teacher_fail"), { parse_mode: "HTML" });
 
     return;
   }
@@ -33,19 +33,24 @@ miscComposer.command("teacher", async (ctx) => {
   );
 
   if (findedTeachers.length === 0) {
-    await ctx.reply("По введенному запросу преподаватели не найдены");
+    await ctx.reply(ctx.t("teacher_not_found"));
 
     return;
   }
 
   await ctx
     .reply(
-      "Найденные преподаватели:\n" +
-        findedTeachers.map((teacher) => teacher.name).join("\n")
+      ctx.t("teacher_found", {
+        teachers: findedTeachers.map((teacher) => teacher.name).join("\n"),
+      })
     )
     .catch((e) => {
-      if (e.description.includes("message is too long")) {
-        ctx.reply("Ошибка: найдено слишком много преподавателей");
+      if (
+        e.description &&
+        typeof e.description === "string" &&
+        e.description.includes("message is too long")
+      ) {
+        ctx.reply(ctx.t("teacher_too_many"));
       }
     });
 });
@@ -75,7 +80,7 @@ miscComposer.command("setdefault", async (ctx) => {
     return;
   }
 
-  await ctx.reply("По указанному запросу ничего не найдено");
+  await ctx.reply(ctx.t("set_default_not_found"));
 });
 
 miscComposer.command("removedefault", async (ctx) => {
