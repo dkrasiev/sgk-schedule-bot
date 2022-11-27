@@ -1,11 +1,13 @@
 import { Composer } from "grammy";
-import { groupApi } from "../utils/group-api";
+import { groupService } from "../services/group.service";
 import { MyContext } from "../interfaces/context.interface";
+import { teacherService } from "../services/teacher.service";
+import { getArgument } from "../helpers/get-argument";
 
 const miscComposer = new Composer<MyContext>();
 
 miscComposer.command("groups", async (ctx) => {
-  const groups = await groupApi.getGroups();
+  const groups = await groupService.getAll();
 
   const groupsNameArray = groups
     .filter((group) => group.name.length > 2)
@@ -15,26 +17,42 @@ miscComposer.command("groups", async (ctx) => {
   await ctx.reply(groupsNameArray.join("\n"));
 });
 
-miscComposer.command("setgroup", async (ctx) => {
-  const group = await groupApi.findGroupInString(ctx.msg.text);
+miscComposer.command("setdefault", async (ctx) => {
+  const argument = getArgument(ctx.message?.text ?? "");
 
-  if (!group) {
-    await ctx.reply(ctx.t("set_group_fail"), { parse_mode: "HTML" });
+  if (!argument) {
+    await ctx.reply("Введите номер группы или ФИО преподавателя");
+
     return;
   }
 
-  ctx.session.chat.defaultGroup = group.id;
-  await ctx.reply(ctx.t("set_group_success", { name: group.name }));
+  const group = await groupService.findInText(argument);
+  if (group) {
+    ctx.session.defaultGroup = group.id;
+    await ctx.reply(ctx.t("set_default_success", { name: group.name }));
+
+    return;
+  }
+
+  const teacher = await teacherService.findInText(argument);
+  if (teacher) {
+    ctx.session.defaultGroup = Number(teacher.id);
+    await ctx.reply(ctx.t("set_default_success", { name: teacher.name }));
+
+    return;
+  }
+
+  await ctx.reply(ctx.t("set_default_fail"), { parse_mode: "HTML" });
 });
 
 miscComposer.command("removedefault", async (ctx) => {
-  if (!ctx.session.chat.defaultGroup) {
-    await ctx.reply(ctx.t("remove_group_fail"));
+  if (ctx.session.defaultGroup) {
+    ctx.session.defaultGroup = 0;
+    await ctx.reply(ctx.t("remove_group_success"));
     return;
   }
 
-  ctx.session.chat.defaultGroup = 0;
-  await ctx.reply(ctx.t("remove_group_success"));
+  await ctx.reply(ctx.t("remove_group_fail"));
 });
 
 export default miscComposer;

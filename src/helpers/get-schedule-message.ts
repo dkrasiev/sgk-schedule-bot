@@ -1,20 +1,20 @@
 import dayjs from "dayjs";
-import { Group, Schedule } from "../interfaces";
+import { Schedule } from "../interfaces";
 import { numToTime } from "./lessons-utils";
 
 /**
  * Get schedule message for user
  * @param {Schedule | null} schedule Schedule
- * @param {Group} group Group
+ * @param {string} title Title
  * @returns {string} Message for user
  */
 export function getScheduleMessage(
   schedule: Schedule | null,
-  group: Group
+  title: string
 ): string {
   if (!schedule) return "Ошибка: не удалось получить расписание";
 
-  const header = `${group?.name + "\n" || ""}${schedule.date}\n\n`;
+  const header = `${title + "\n" || ""}${schedule.date}\n\n`;
   let message = header;
 
   if (schedule.lessons.length > 0) {
@@ -39,7 +39,15 @@ export function getScheduleMessage(
 
       message += lesson.num + " " + time + "\n";
       message += lesson.title + "\n";
-      message += lesson.teachername + "\n";
+
+      if (lesson.teachername) {
+        message += lesson.teachername + "\n";
+      }
+
+      if (lesson.nameGroup) {
+        message += lesson.nameGroup + "\n";
+      }
+
       message += lesson.cab + "\n\n";
     }
   } else {
