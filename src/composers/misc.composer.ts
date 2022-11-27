@@ -21,7 +21,7 @@ miscComposer.command("teacher", async (ctx) => {
   const argument =
     ctx.message?.text && getArgument(ctx.message.text).toLowerCase();
   if (!argument) {
-    await ctx.reply("Для поиска необходимо ввести запрос");
+    await ctx.reply("Для поиска необходимо ввести запрос/");
 
     return;
   }
@@ -38,10 +38,16 @@ miscComposer.command("teacher", async (ctx) => {
     return;
   }
 
-  await ctx.reply(
-    "Найденные преподаватели:\n" +
-      findedTeachers.map((teacher) => teacher.name).join("\n")
-  );
+  await ctx
+    .reply(
+      "Найденные преподаватели:\n" +
+        findedTeachers.map((teacher) => teacher.name).join("\n")
+    )
+    .catch((e) => {
+      if (e.description.includes("message is too long")) {
+        ctx.reply("Ошибка: найдено слишком много преподавателей");
+      }
+    });
 });
 
 miscComposer.command("setdefault", async (ctx) => {
