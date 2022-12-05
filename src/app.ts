@@ -31,7 +31,7 @@ async function start() {
     bot.init().then(() => logger.info(`@${bot.botInfo.username} is running`));
   });
 
-  scheduleCheckerService.setCheckingBySchedule("* */1 * * *", bot);
+  scheduleCheckerService.setCheckingBySchedule("*/60 * * * *", bot);
 }
 
 start();
