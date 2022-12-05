@@ -7,11 +7,21 @@ import bot from "./bot";
 import logger from "./helpers/logger";
 import { scheduleCheckerService } from "./services/schedule-checker.service";
 import { connection, databaseName } from "./db";
+import axios from "axios";
 
 /**
  * start the app
  */
 async function start() {
+  axios.interceptors.request.use((request) => {
+    request.headers = {
+      origin: "samgk.ru",
+      referer: "samgk.ru",
+    };
+
+    return request;
+  });
+
   logger.info("starting...");
   connection.connect().then(() => {
     logger.info("MongoDB connected");
@@ -21,7 +31,7 @@ async function start() {
     bot.init().then(() => logger.info(`@${bot.botInfo.username} is running`));
   });
 
-  scheduleCheckerService.setCheckingBySchedule("*/15 * * * *", bot);
+  scheduleCheckerService.setCheckingBySchedule("* */1 * * *", bot);
 }
 
 start();

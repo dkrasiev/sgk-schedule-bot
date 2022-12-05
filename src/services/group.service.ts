@@ -22,11 +22,7 @@ export class GroupService implements Api<Group, MyContext> {
   public async getSchedule(id: number, date = dayjs()): Promise<Schedule> {
     const url = this.getScheduleUrl(id, date);
 
-    return await axios
-      .get<Schedule>(url, {
-        headers: { origin: "asu.samgk.ru" },
-      })
-      .then((response) => response.data);
+    return await axios.get<Schedule>(url).then((response) => response.data);
   }
 
   /**

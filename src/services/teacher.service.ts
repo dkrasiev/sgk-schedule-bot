@@ -13,9 +13,7 @@ export class TeacherService implements Api<Teacher, MyContext> {
     const formatedDate = date.format("YYYY-MM-DD");
     const url = [this.scheduleApi, "teacher", formatedDate, id].join("/");
 
-    return axios
-      .get<Schedule>(url, { headers: { origin: "asu.samgk.ru" } })
-      .then((response) => response.data);
+    return axios.get<Schedule>(url).then((response) => response.data);
   }
 
   public async findInContext(ctx: MyContext) {
