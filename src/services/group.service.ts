@@ -33,13 +33,16 @@ export class GroupService implements Api<Group, MyContext> {
    */
   public async getManySchedules(
     ids: number[],
-    date = dayjs()
+    date = dayjs(),
+    ms = 0
   ): Promise<Map<number, Schedule>> {
     ids = Array.from(new Set(ids));
 
     const promises = ids.map((id) =>
       axios.get<Schedule>(this.getScheduleUrl(id, date))
     );
+
+    await this.sleep(ms);
 
     const schedules = new Map<number, Schedule>();
     const responses = await axios.all(promises);
@@ -160,6 +163,10 @@ export class GroupService implements Api<Group, MyContext> {
   private getScheduleUrl(id: number, date = dayjs()): string {
     const formatedDate = date.format("YYYY-MM-DD");
     return [this.scheduleApi, id, formatedDate].join("/");
+  }
+
+  private async sleep(ms: number) {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
   }
 }
 
