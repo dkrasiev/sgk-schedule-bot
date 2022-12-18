@@ -101,7 +101,11 @@ export class ScheduleCheckerService {
       ({ value }) => value.subscribedGroup
     ) as number[];
 
-    const newSchedules = await groupService.getManySchedules(groupIds, date);
+    const newSchedules = await groupService.getManySchedules(
+      groupIds,
+      date,
+      100
+    );
     const lastSchedules = await scheduleCollection
       .find({ groupId: { $in: groupIds } })
       .toArray();

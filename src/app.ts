@@ -15,8 +15,9 @@ import axios from "axios";
 async function start() {
   axios.interceptors.request.use((request) => {
     request.headers = {
-      origin: "samgk.ru",
-      referer: "samgk.ru",
+      ...request.headers,
+      origin: "http://samgk.ru",
+      referer: "http://samgk.ru/",
     };
 
     return request;
