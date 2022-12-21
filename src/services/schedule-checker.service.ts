@@ -104,7 +104,7 @@ export class ScheduleCheckerService {
     const newSchedules = await groupService.getManySchedules(
       groupIds,
       date,
-      100
+      1000
     );
     const lastSchedules = await scheduleCollection
       .find({ groupId: { $in: groupIds } })
