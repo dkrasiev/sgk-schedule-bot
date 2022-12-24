@@ -1,20 +1,12 @@
 import axios from "axios";
 import { config } from "../config";
-import { Teacher } from "../interfaces/teacher.interface";
+import { Teacher } from "../models/teacher.interface";
 import { cachePromise } from "../helpers/cache-promise";
-import { MyContext, Schedule } from "../interfaces";
-import { Api } from "../interfaces/api";
-import dayjs from "dayjs";
+import { MyContext } from "../models/my-context.type";
+import { Api } from "../models/api";
 
 export class TeacherService implements Api<Teacher, MyContext> {
-  constructor(private teachersApi: string, private scheduleApi: string) {}
-
-  public async getSchedule(id: string, date = dayjs()) {
-    const formatedDate = date.format("YYYY-MM-DD");
-    const url = [this.scheduleApi, "teacher", formatedDate, id].join("/");
-
-    return axios.get<Schedule>(url).then((response) => response.data);
-  }
+  constructor(private teachersApi: string) {}
 
   public async findInContext(ctx: MyContext) {
     const teacher =
@@ -66,7 +58,4 @@ export class TeacherService implements Api<Teacher, MyContext> {
   );
 }
 
-export const teacherService = new TeacherService(
-  config.teachersApi,
-  config.scheduleApi
-);
+export const teacherService = new TeacherService(config.api.teachers);

@@ -1,7 +1,5 @@
-import { Dayjs } from "dayjs";
 import { Context } from "grammy";
 import { Group } from "./group.interface";
-import { Schedule } from "./schedule.interface";
 import { Teacher } from "./teacher.interface";
 
 export interface Api<T extends Teacher | Group, K extends Context> {
@@ -10,5 +8,5 @@ export interface Api<T extends Teacher | Group, K extends Context> {
   findByName(name: string): Promise<T | undefined>;
   findInText(text: string): Promise<T | undefined>;
   findInContext(ctx: K): Promise<T | undefined>;
-  getSchedule(id: number | string, date: Dayjs): Promise<Schedule>;
+  // getSchedule(id: number | string, date: Dayjs): Promise<Schedule>;
 }

@@ -2,70 +2,17 @@ import axios from "axios";
 
 import logger from "../helpers/logger";
 import { config } from "../config";
-import { groupsCollection } from "../db";
-import { Group, MyContext, Schedule } from "../interfaces";
+import { Group } from "../models/group.interface";
+import { MyContext } from "../models/my-context.type";
 import { cachePromise } from "../helpers/cache-promise";
-import { Api } from "../interfaces/api";
-import dayjs from "dayjs";
+import { Api } from "../models/api";
+import { groups } from "../database";
 
 export class GroupService implements Api<Group, MyContext> {
   private groupRegex = new RegExp(/([А-я]{1,3})[\W]?(\d{2})[\W]?(\d{2})/);
 
-  constructor(private groupApi: string, private scheduleApi: string) {}
+  constructor(private groupApi: string) {}
 
-  /**
-   * Get schedule for the group
-   * @param {number} id Group id
-   * @param {Dayjs} date Date for schedule
-   * @returns {Schedule} Schedule
-   */
-  public async getSchedule(id: number, date = dayjs()): Promise<Schedule> {
-    const url = this.getScheduleUrl(id, date);
-
-    return await axios.get<Schedule>(url).then((response) => response.data);
-  }
-
-  /**
-   * Get many schedules for groups
-   * @param {number[]} ids Group ids
-   * @param {Dayjs} date Date for schedule
-   * @returns {Promise<Map<number, Schedule>>} Map with group id as key and schedule as value
-   */
-  public async getManySchedules(
-    ids: number[],
-    date = dayjs(),
-    ms = 0
-  ): Promise<Map<number, Schedule>> {
-    ids = Array.from(new Set(ids));
-
-    const promises = ids.map((id) =>
-      axios.get<Schedule>(this.getScheduleUrl(id, date))
-    );
-
-    await this.sleep(ms);
-
-    const schedules = new Map<number, Schedule>();
-    const responses = await axios.all(promises);
-    const pattern = /schedule\/(.*)\//;
-
-    for (const response of responses) {
-      if (!response.config || !response.config.url) continue;
-
-      const match = response.config.url.match(pattern);
-      if (match == null) continue;
-
-      const groupId = Number(match[1]);
-      schedules.set(groupId, response.data);
-    }
-
-    return schedules;
-  }
-
-  /**
-   * Get group from bot context
-   * @param {MyContext} ctx Bot context
-   * @returns {Promise<Group | undefined>} Group or undefined
-   */
   public async findInContext(ctx: MyContext) {
     const group =
       (ctx.message?.text && this.findInText(ctx.message.text)) ||
@@ -74,10 +21,6 @@ export class GroupService implements Api<Group, MyContext> {
     return group;
   }
 
-  /**
-   * Get all groups as map
-   * @returns {Promise<Map<number, string>>} Map with group id as a key and group name as a property
-   */
   public async getAllGroupsAsMap(): Promise<Map<number, string>> {
     const result = new Map();
 
@@ -89,32 +32,17 @@ export class GroupService implements Api<Group, MyContext> {
     return result;
   }
 
-  /**
-   * Get group by id
-   * @param {number} id Group id
-   * @returns {Group | undefined} Group
-   */
   public async findById(id: number): Promise<Group | undefined> {
     const groups = await this.getAll();
     return groups.find((group: Group) => group.id === id);
   }
 
-  /**
-   * Get group by name
-   * @param {string} name Group name. Example group name - ИС-19-04
-   * @returns {Group | undefined} Group
-   */
   public async findByName(name: string): Promise<Group | undefined> {
     const groups = await this.getAll();
     return groups.find((group: Group) => group.name === name);
   }
 
-  /**
-   * Get group from text
-   * @param {string} text String to search in
-   * @returns {Group | undefined} Group
-   */
-  public async findInText(text: string) {
+  public async findInText(text: string): Promise<Group | undefined> {
     const regexResult = this.groupRegex.exec(text);
 
     if (regexResult == null) {
@@ -127,50 +55,22 @@ export class GroupService implements Api<Group, MyContext> {
     return group;
   }
 
-  /**
-   * Get all groups with caching
-   * @returns {Promise<Group[]>} Array of groups
-   */
   public getAll = cachePromise<Group[]>(
     axios
       .get<Group[]>(this.groupApi)
-      .then((response) => {
-        const groups = response.data;
+      .then(({ data }) => {
+        data.forEach((group) =>
+          groups.updateOne({ id: group.id }, { $set: group }, { upsert: true })
+        );
 
-        groups.forEach((group) => {
-          groupsCollection.updateOne(
-            { id: group.id },
-            { $set: group },
-            { upsert: true }
-          );
-        });
-
-        return groups;
+        return data;
       })
       .catch((e) => {
         logger.error("Failed to get groups", e);
 
-        return groupsCollection.find().toArray();
+        return groups.find().toArray();
       })
   );
-
-  /**
-   * Get schedule url
-   * @param {number} id Group id
-   * @param {Dayjs} date Date
-   * @returns {string} URL
-   */
-  private getScheduleUrl(id: number, date = dayjs()): string {
-    const formatedDate = date.format("YYYY-MM-DD");
-    return [this.scheduleApi, id, formatedDate].join("/");
-  }
-
-  private async sleep(ms: number) {
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
-  }
 }
 
-export const groupService = new GroupService(
-  config.groupsApi,
-  config.scheduleApi
-);
+export const groupService = new GroupService(config.api.groups);

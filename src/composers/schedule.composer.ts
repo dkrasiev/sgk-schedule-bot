@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import { Composer } from "grammy";
 
 import { sendSchedule, sendShortSchedule } from "../helpers/bot-helpers";
-import { MyContext } from "../interfaces/context.interface";
+import { MyContext } from "../models/my-context.type";
 import { groupService } from "../services/group.service";
 import { teacherService } from "../services/teacher.service";
 

@@ -1,8 +1,10 @@
 import { Composer } from "grammy";
 import { groupService } from "../services/group.service";
-import { MyContext } from "../interfaces/context.interface";
+import { MyContext } from "../models/my-context.type";
 import { teacherService } from "../services/teacher.service";
 import { getArgument } from "../helpers/get-argument";
+import { cabinetsService } from "../services/cabinet.service";
+import { Cabinet } from "../models/cabinet.interface";
 
 const miscComposer = new Composer<MyContext>();
 
@@ -53,6 +55,27 @@ miscComposer.command("teacher", async (ctx) => {
         ctx.reply(ctx.t("teacher_too_many"));
       }
     });
+});
+
+miscComposer.command("cabinet", async (ctx) => {
+  const argument: string = ctx.msg.text.split(" ")[1];
+
+  if (!argument) {
+    await ctx.reply(ctx.t("cabinet_fail"), { parse_mode: "HTML" });
+    return;
+  }
+
+  const cabinets: Cabinet[] = await cabinetsService.findMany(argument);
+
+  if (cabinets.length === 0) {
+    await ctx.reply(ctx.t("cabinet_not_found"));
+    return;
+  }
+
+  const cabinetList: string = cabinets
+    .map((cabinet) => cabinet.name)
+    .join("\n");
+  await ctx.reply(ctx.t("cabinet_found", { cabinets: cabinetList }));
 });
 
 miscComposer.command("setdefault", async (ctx) => {

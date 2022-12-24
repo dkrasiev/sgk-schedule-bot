@@ -1,10 +1,5 @@
 import { Context, SessionFlavor } from "grammy";
 import { I18nFlavor } from "@grammyjs/i18n";
-
-export interface MongoSession {
-  defaultGroup: number;
-  triggers: string[];
-  subscribedGroup: number;
-}
+import { MongoSession } from "./mongo-session.interface";
 
 export type MyContext = Context & I18nFlavor & SessionFlavor<MongoSession>;

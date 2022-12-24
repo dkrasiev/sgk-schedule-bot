@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { Schedule } from "../interfaces";
-import { numToTime } from "./lessons-utils";
+import { Schedule } from "../models/schedule.interface";
+import { numToDurationModel } from "./lessons-utils";
 
 /**
  * Get schedule message for user
@@ -32,7 +32,7 @@ export function getScheduleMessage(
     for (const lesson of schedule.lessons) {
       const { start, end } =
         typeof lesson.num === "string"
-          ? numToTime(lesson.num, isMonday)
+          ? numToDurationModel(lesson.num, isMonday)
           : lesson.num;
 
       const time = `${start.format("HH:mm")}-${end.format("HH:mm")}`;

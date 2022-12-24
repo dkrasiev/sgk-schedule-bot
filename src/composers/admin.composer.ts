@@ -1,22 +1,21 @@
 import { Composer } from "grammy";
 
-import { MyContext } from "../interfaces";
-import { config } from "../config";
+import { MyContext } from "../models/my-context.type";
 import { getArgument } from "../helpers/get-argument";
 import { adminService } from "../services/admin.service";
+import { isAdmin } from "../helpers/is-admin";
 
 const adminComposer = new Composer<MyContext>();
 
 adminComposer.command("broadcast", async (ctx, next) => {
-  const isAdmin = ctx.from?.id && config.admins.includes(ctx.from.id);
-  if (!isAdmin) {
+  if (isAdmin(ctx.from?.username) === false) {
     await next();
     return;
   }
 
   const message = ctx.message?.text && getArgument(ctx.message.text);
   if (!message) {
-    ctx.reply("Messages not found");
+    ctx.reply("Message not found");
 
     return;
   }

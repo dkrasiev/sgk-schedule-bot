@@ -3,27 +3,21 @@ import cron from "node-cron";
 import { Bot } from "grammy";
 
 import logger from "./../helpers/logger";
-import { chatsCollection, scheduleCollection } from "../db";
-import { MongoSession, MyContext, Schedule } from "../interfaces";
 import { compareSchedule } from "./../helpers/compare-schedule";
 import { groupService } from "./group.service";
 import { getScheduleMessage } from "./../helpers/get-schedule-message";
 import { getNextWeekday } from "../helpers/weekday";
+import { scheduleService } from "./schedule.service";
+import { schedules, sessions } from "../database";
+import { MyContext } from "../models/my-context.type";
+import { MongoSession } from "../models/mongo-session.interface";
+import { Schedule } from "../models/schedule.interface";
 
 export class ScheduleCheckerService {
-  /**
-   * Set schedule checking by cron expression
-   * @param {string} cronExpression Cron expression
-   * @param {Bot<MyContext>} bot Telegram bot
-   */
   public setCheckingBySchedule(cronExpression: string, bot: Bot<MyContext>) {
     cron.schedule(cronExpression, () => this.checkSchedule(bot));
   }
 
-  /**
-   * Check schedule and send updates
-   * @param {Bot<MyContext>} bot Telegram bot
-   */
   public async checkSchedule(bot: Bot<MyContext>) {
     const profiler = logger.startTimer();
 
@@ -63,12 +57,8 @@ export class ScheduleCheckerService {
     }
   }
 
-  /**
-   * Returns chats withSubscription
-   * @returns Array of chats with subscription
-   */
   private async getChatsWithSubscription() {
-    const chats = (await chatsCollection
+    const chats = (await sessions
       .find({
         "value.subscribedGroup": { $gt: 0 },
       })
@@ -77,13 +67,8 @@ export class ScheduleCheckerService {
     return chats;
   }
 
-  /**
-   * Get chats with subscription to specified group
-   * @param {number} groupId Group id
-   * @returns Array of chats with subscription to specified group
-   */
   private async getChatsWithSubscriptionToGroup(groupId: number) {
-    const chats = await chatsCollection
+    const chats = await sessions
       .find({
         "value.subscribedGroup": groupId,
       })
@@ -92,21 +77,38 @@ export class ScheduleCheckerService {
     return chats;
   }
 
-  /**
-   * Get schedules that have updates
-   * @returns {Map<number, Schedule>} Updated schedules
-   */
-  private async getUpdatedSchedules(date = dayjs()) {
+  private async getManySchedules(
+    ids: number[],
+    date = dayjs(),
+    delay = 0
+  ): Promise<Map<number, Schedule>> {
+    const schedules = new Map<number, Schedule>();
+
+    for (const id of ids) {
+      const schedule: Schedule = await scheduleService.group(id, date);
+
+      schedules.set(id, schedule);
+      logger.info(id);
+
+      await this.sleep(delay);
+    }
+
+    return schedules;
+  }
+
+  private async sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(() => resolve(), ms));
+  }
+
+  private async getUpdatedSchedules(
+    date = dayjs()
+  ): Promise<Map<number, Schedule>> {
     const groupIds = (await this.getChatsWithSubscription()).map(
       ({ value }) => value.subscribedGroup
     ) as number[];
 
-    const newSchedules = await groupService.getManySchedules(
-      groupIds,
-      date,
-      1000
-    );
-    const lastSchedules = await scheduleCollection
+    const newSchedules = await this.getManySchedules(groupIds, date, 3000);
+    const lastSchedules = await schedules
       .find({ groupId: { $in: groupIds } })
       .toArray();
 
@@ -124,7 +126,7 @@ export class ScheduleCheckerService {
         updatedSchedules.set(groupId, schedule);
 
         // update db
-        await scheduleCollection.updateOne(
+        await schedules.updateOne(
           { groupId },
           { $set: { groupId, schedule } },
           { upsert: true }

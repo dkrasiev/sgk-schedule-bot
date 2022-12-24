@@ -11,11 +11,11 @@ import scheduleComposer from "./composers/schedule.composer";
 import startComposer from "./composers/start.composer";
 import subscribeComposer from "./composers/subscribe.composer";
 import triggerComposer from "./composers/trigger.composer";
-import logger from "./helpers/logger";
-import { chatsCollection } from "./db";
-import { MyContext } from "./interfaces/context.interface";
-import { config } from "./config";
 import adminComposer from "./composers/admin.composer";
+import logger from "./helpers/logger";
+import { config } from "./config";
+import { sessions } from "./database";
+import { MyContext } from "./models/my-context.type";
 
 const botCommands = [
   { command: "help", description: "Помощь" },
@@ -36,6 +36,7 @@ const botCommands = [
     description: "Отписаться от обновлений расписания",
   },
   { command: "teacher", description: "Поиск по преподавателям" },
+  { command: "teacher", description: "Поиск по кабинетам" },
   { command: "groups", description: "Показать все группы" },
   { command: "trigger", description: "Добавить или удалить триггер" },
 ];
@@ -60,15 +61,7 @@ bot.api.setMyCommands(botCommands);
 
 bot.use(i18n);
 
-bot.use(
-  sequentialize((ctx) => {
-    const chat = ctx.chat?.id.toString();
-    const user = ctx.from?.id.toString();
-
-    const chatIdentifier = [chat, user].join("");
-    return chatIdentifier;
-  })
-);
+bot.use(sequentialize((ctx) => `${ctx.chat?.id}${ctx.from?.id}`));
 
 bot.use(
   session({
@@ -77,7 +70,7 @@ bot.use(
       subscribedGroup: 0,
       triggers: [],
     }),
-    storage: new MongoDBAdapter({ collection: chatsCollection }),
+    storage: new MongoDBAdapter({ collection: sessions }),
   })
 );
 

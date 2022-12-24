@@ -1,8 +1,20 @@
+const isProduction: boolean = process.env.NODE_ENV === "production";
+
+const databaseName: string =
+  (isProduction ? process.env.DB_NAME : process.env.DB_NAME_TEST) || "";
+
 export const config = {
-  groupsApi: "https://mfc.samgk.ru/api/groups",
-  scheduleApi: "http://asu.samgk.ru/api/schedule",
-  teachersApi: "http://asu.samgk.ru/api/teachers",
-  cabsApi: "http://asu.samgk.ru/api/cabs",
-  isProduction: process.env.NODE_ENV === "production",
-  admins: [748299957],
+  api: {
+    groups: "https://mfc.samgk.ru/api/groups",
+    schedule: "http://asu.samgk.ru/api/schedule",
+    teachers: "http://asu.samgk.ru/api/teachers",
+    cabinets: "http://asu.samgk.ru/api/cabs",
+  },
+  dateFormat: "YYYY-MM-DD",
+  isProduction,
+  admins: ["dkrasiev"],
+  database: {
+    uri: process.env.MONGODB_URI || "localhost",
+    name: databaseName || "",
+  },
 };
