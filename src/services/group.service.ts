@@ -71,6 +71,19 @@ export class GroupService implements Api<Group, MyContext> {
         return groups.find().toArray();
       })
   );
+
+  public async findMany(query: string): Promise<Group[]> {
+    const groups: Group[] = await this.getAll();
+
+    return groups.filter(({ name }) => this.search(name, query));
+  }
+
+  private search(first: string, second: string): boolean {
+    first = first.toLowerCase().trim();
+    second = second.toLowerCase().trim();
+
+    return first.includes(second);
+  }
 }
 
 export const groupService = new GroupService(config.api.groups);

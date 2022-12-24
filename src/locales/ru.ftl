@@ -34,7 +34,7 @@ help =
   <code>/today ис1904</code>
   <code>/setdefault ис1904</code>
 
-group_not_found =
+schedule_object_not_found =
   Группа/преподаватель не найдена/найден или Вы ничего не ввели
 
 subscribe_success =
@@ -96,7 +96,7 @@ teacher_fail =
 
   Пример:
   <code>/teacher ТЕКСТ_ЗАПРОСА</code>
-teacher_to_many =
+teacher_too_many =
   Ошибка: найдено слишком много преподавателей
 
 cabinet_found = 
@@ -104,8 +104,10 @@ cabinet_found =
   { $cabinets }
 cabinet_not_found = 
   По введенному запросу кабинеты не найдены
-cabinet_fail =
-  Для поиска необходимо ввести запрос
 
-  Пример:
-  <code>/cabinet ТЕКСТ_ЗАПРОСА</code>
+groups_found =
+  Найденные кабинеты:
+  { $groups }
+groups_not_found =
+  Найденные кабинеты:
+  { $groups }

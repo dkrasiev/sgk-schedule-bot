@@ -39,6 +39,12 @@ export class TeacherService implements Api<Teacher, MyContext> {
     return teachers.find((teacher) => teacher.id === id);
   }
 
+  public async findMany(query: string): Promise<Teacher[]> {
+    const teachers: Teacher[] = await this.getAll();
+
+    return teachers.filter(({ name }) => this.search(name, query));
+  }
+
   public getAll = cachePromise(
     axios.get<Teacher[]>(this.teachersApi).then((response) => {
       const teachers = response.data;
@@ -56,6 +62,13 @@ export class TeacherService implements Api<Teacher, MyContext> {
       );
     })
   );
+
+  private search(first: string, second: string): boolean {
+    first = first.toLowerCase().trim();
+    second = second.toLowerCase().trim();
+
+    return first.includes(second);
+  }
 }
 
 export const teacherService = new TeacherService(config.api.teachers);

@@ -59,7 +59,7 @@ export async function sendShortSchedule(
     }
   }
 
-  await ctx.reply(ctx.t("group_not_found"));
+  await ctx.reply(ctx.t("schedule_object_not_found"));
   return false;
 }
 
