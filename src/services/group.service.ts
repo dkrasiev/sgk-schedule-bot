@@ -58,12 +58,17 @@ export class GroupService implements Api<Group, MyContext> {
   public getAll = cachePromise<Group[]>(
     axios
       .get<Group[]>(this.groupApi)
-      .then(({ data }) => {
-        data.forEach((group) =>
+      .then(({ data }): Group[] => {
+        const result: Group[] = data
+          .sort((a, b) => a.name.localeCompare(b.name))
+          // remove group with name "--"
+          .slice(1);
+
+        result.forEach((group) =>
           groups.updateOne({ id: group.id }, { $set: group }, { upsert: true })
         );
 
-        return data;
+        return result;
       })
       .catch((e) => {
         logger.error("Failed to get groups", e);

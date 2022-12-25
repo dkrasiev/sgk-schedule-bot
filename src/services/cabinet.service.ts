@@ -1,7 +1,9 @@
 import axios from "axios";
 
 import { config } from "../config";
+import { cabinets } from "../database";
 import { cachePromise } from "../helpers/cache-promise";
+import logger from "../helpers/logger";
 import { Api } from "../models/api";
 import { Cabinet } from "../models/cabinet.interface";
 import { Collection } from "../models/collection.interface";
@@ -38,15 +40,32 @@ export class CabinetsService implements Api<Cabinet, MyContext> {
     return cabinets.find((cabinet) => cabinet.id === id);
   }
 
-  public getAll = cachePromise(
-    axios.get<Collection<string>>(this.api).then(({ data }) =>
-      Object.entries(data).map(
-        ([id, name]: [string, string]): Cabinet => ({
-          id,
-          name,
-        })
-      )
-    )
+  public getAll: () => Promise<Cabinet[]> = cachePromise(
+    axios
+      .get<Collection<string>>(this.api)
+      .then(({ data }): Cabinet[] => {
+        const result: Cabinet[] = Object.entries(data).map(
+          ([id, name]: [string, string]): Cabinet => ({
+            id,
+            name,
+          })
+        );
+
+        result.forEach((cabinet: Cabinet) =>
+          cabinets.updateOne(
+            { id: cabinet.id },
+            { $set: cabinet },
+            { upsert: true }
+          )
+        );
+
+        return result;
+      })
+      .catch((e): Promise<Cabinet[]> => {
+        logger.error("Failed to get cabinets", e);
+
+        return cabinets.find().toArray();
+      })
   );
 
   private search(first: string, second: string): boolean {
