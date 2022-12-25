@@ -29,7 +29,7 @@ Promise.all([connection.connect(), bot.init()])
 
     run(bot);
 
-    scheduleCheckerService.setCheckingBySchedule("*/60 * * * *", bot);
+    scheduleCheckerService.setCheckingBySchedule("*/30 * * * *", bot);
     // scheduleCheckerService.checkSchedule(bot);
   })
   .catch((e) => console.error(e));

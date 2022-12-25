@@ -88,7 +88,6 @@ export class ScheduleCheckerService {
       const schedule: Schedule = await scheduleService.group(id, date);
 
       schedules.set(id, schedule);
-      logger.info(id);
 
       await this.sleep(delay);
     }

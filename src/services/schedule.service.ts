@@ -27,8 +27,6 @@ export class ScheduleService {
   ): Promise<Schedule> {
     const url: string = this.getUrlByType(id, date, type);
 
-    console.log(url);
-
     const { data } = await axios.get<Schedule>(url);
 
     return data;
