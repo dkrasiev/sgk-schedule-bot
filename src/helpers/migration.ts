@@ -1,5 +1,6 @@
-import { chatsCollection, connection } from "../db";
-import { MongoSession, Schedule } from "../interfaces";
+import { connection, sessions } from "../database";
+import { MongoSession } from "../models/mongo-session.interface";
+import { Schedule } from "../models/schedule.interface";
 import logger from "./logger";
 
 interface OldSchema {
@@ -17,7 +18,7 @@ export async function migration() {
     throw new Error("mongodb uri not found");
 
   const from = connection.db("test").collection<OldSchema>("chats");
-  const to = chatsCollection;
+  const to = sessions;
 
   const oldUsers = from.find();
 

@@ -1,5 +1,6 @@
-import { Group, MyContext } from "../interfaces";
-import { Teacher } from "../interfaces/teacher.interface";
+import { Group } from "../models/group.interface";
+import { MyContext } from "../models/my-context.type";
+import { Teacher } from "../models/teacher.interface";
 import { groupService } from "../services/group.service";
 import { teacherService } from "../services/teacher.service";
 import { getArgument } from "./get-argument";

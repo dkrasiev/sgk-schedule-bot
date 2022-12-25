@@ -12,6 +12,7 @@ help =
   /subscribe - отправляет уведомление об изменении расписания
   /unsubscribe - отписаться от изменений расписания
   /teacher - поиск по преподавателям
+  /teacher - поиск по кабинетам
   /groups - показать список всех групп
   /trigger - добавить или удалить слово в список "триггеров"
   
@@ -33,7 +34,7 @@ help =
   <code>/today ис1904</code>
   <code>/setdefault ис1904</code>
 
-group_not_found =
+schedule_object_not_found =
   Группа/преподаватель не найдена/найден или Вы ничего не ввели
 
 subscribe_success =
@@ -95,5 +96,18 @@ teacher_fail =
 
   Пример:
   <code>/teacher ТЕКСТ_ЗАПРОСА</code>
-teacher_to_many =
+teacher_too_many =
   Ошибка: найдено слишком много преподавателей
+
+cabinet_found = 
+  Найденные кабинеты:
+  { $cabinets }
+cabinet_not_found = 
+  По введенному запросу кабинеты не найдены
+
+groups_found =
+  Найденные кабинеты:
+  { $groups }
+groups_not_found =
+  Найденные кабинеты:
+  { $groups }

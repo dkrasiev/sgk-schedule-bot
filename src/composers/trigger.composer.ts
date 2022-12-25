@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 
-import { MyContext } from "../interfaces/context.interface";
+import { MyContext } from "../models/my-context.type";
 import { sendSchedule } from "../helpers/bot-helpers";
 import { getArgument } from "../helpers/get-argument";
 

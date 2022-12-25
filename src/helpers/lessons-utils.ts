@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { LessonTime } from "../interfaces";
-import { Collection } from "../interfaces/collection.interface";
+import { DurationModel } from "../models/duration-model.interface";
+import { Collection } from "../models/collection.interface";
 
 const times: Collection<string> = {
   "1": "08:25-10:00",
@@ -50,13 +50,10 @@ const mondayTimes: Collection<string> = {
   "7.2": "21:00-21:45",
 };
 
-/**
- * Transform lesson's number to lesson's time
- * @param {string} num Lesson's number
- * @param {boolean} isMonday Use monday schedule
- * @returns {string} Lesson's time
- */
-export function numToTime(num: string, isMonday = false): LessonTime {
+export function numToDurationModel(
+  num: string,
+  isMonday = false
+): DurationModel {
   const selectedTime = isMonday ? mondayTimes[num] : times[num];
 
   const lessonTime = convertToLessonTime(selectedTime);
@@ -64,11 +61,6 @@ export function numToTime(num: string, isMonday = false): LessonTime {
   return lessonTime;
 }
 
-/**
- * Transform string to lesson's time
- * @param {string} time String in format: HH:mm-HH:mm
- * @returns {LessonTime} Lesson's time
- */
 function convertToLessonTime(time: string) {
   const [start, end] = time.split("-").map((time) => {
     const [hours, minutes] = time.split(":").map((v) => +v);

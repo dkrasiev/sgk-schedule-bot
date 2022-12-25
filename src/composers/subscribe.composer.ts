@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { MyContext } from "../interfaces/context.interface";
+import { MyContext } from "../models/my-context.type";
 import { groupService } from "../services/group.service";
 
 const subscribeComposer = new Composer<MyContext>();

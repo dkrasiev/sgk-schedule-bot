@@ -1,11 +1,5 @@
-import { Schedule } from "../interfaces";
+import { Schedule } from "../models/schedule.interface";
 
-/**
- * Compare two schedules
- * @param {Schedule | undefined} a First schedule
- * @param {Schedule | undefined} b Second schedule
- * @returns {boolean} True if schedules equals, otherways false
- */
 export function compareSchedule(a?: Schedule, b?: Schedule) {
   if (a === undefined || b === undefined) return false;
 
