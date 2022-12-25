@@ -36,7 +36,7 @@ const botCommands = [
     description: "Отписаться от обновлений расписания",
   },
   { command: "teacher", description: "Поиск по преподавателям" },
-  { command: "teacher", description: "Поиск по кабинетам" },
+  { command: "cabinet", description: "Поиск по кабинетам" },
   { command: "groups", description: "Показать все группы" },
   { command: "trigger", description: "Добавить или удалить триггер" },
 ];
