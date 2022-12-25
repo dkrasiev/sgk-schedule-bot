@@ -4,9 +4,11 @@ import { Teacher } from "../models/teacher.interface";
 import { cachePromise } from "../helpers/cache-promise";
 import { MyContext } from "../models/my-context.type";
 import { Api } from "../models/api";
+import { teachers } from "../database";
+import logger from "../helpers/logger";
 
 export class TeacherService implements Api<Teacher, MyContext> {
-  constructor(private teachersApi: string) {}
+  constructor(private api: string) {}
 
   public async findInContext(ctx: MyContext) {
     const teacher =
@@ -45,22 +47,37 @@ export class TeacherService implements Api<Teacher, MyContext> {
     return teachers.filter(({ name }) => this.search(name, query));
   }
 
-  public getAll = cachePromise(
-    axios.get<Teacher[]>(this.teachersApi).then((response) => {
-      const teachers = response.data;
+  public getAll: () => Promise<Teacher[]> = cachePromise<Teacher[]>(
+    axios
+      .get<Teacher[]>(this.api)
+      .then(({ data }): Teacher[] => {
+        const result: Teacher[] = data
+          .map((teacher: Teacher): Teacher => {
+            const name = teacher.name
+              .split(" ")
+              .filter((v) => v)
+              .join(" ");
 
-      teachers.forEach((teacher: Teacher) => {
-        teacher.name = teacher.name
-          .split(" ")
-          .filter((v) => v)
-          .join(" ");
-      });
+            return { ...teacher, name };
+          })
+          // filter Администратор, Методист и тд
+          .filter((teacher: Teacher) => teacher.name.split(" ").length > 1);
 
-      // filter Администратор, Методист и тд
-      return teachers.filter(
-        (teacher: Teacher) => teacher.name.split(" ").length > 1
-      );
-    })
+        result.forEach((teacher: Teacher) =>
+          teachers.updateOne(
+            { id: teacher.id },
+            { $set: teacher },
+            { upsert: true }
+          )
+        );
+
+        return result;
+      })
+      .catch((e): Promise<Teacher[]> => {
+        logger.error("Failed to get teachers", e);
+
+        return teachers.find().toArray();
+      })
   );
 
   private search(first: string, second: string): boolean {
