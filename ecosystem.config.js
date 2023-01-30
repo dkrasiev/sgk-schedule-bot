@@ -3,7 +3,6 @@ module.exports = {
     {
       name: "sgk-schedule-bot",
       script: "dist/app.js",
-      cwd: "/root/sgk-schedule-bot",
       env: {
         NODE_ENV: "production",
       },
@@ -12,7 +11,6 @@ module.exports = {
     {
       name: "sgk-schedule-bot:schedule-checker",
       script: "dist/schedule-checker.js",
-      cwd: "/root/sgk-schedule-bot",
       env: {
         NODE_ENV: "production",
       },
