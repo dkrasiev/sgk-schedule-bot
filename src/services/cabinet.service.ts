@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../axios";
 
 import { config } from "../config";
 import { cabinets } from "../database";
@@ -19,7 +19,7 @@ export class CabinetsService implements Api<Cabinet, MyContext> {
   }
 
   public async findInContext(ctx: MyContext): Promise<Cabinet | undefined> {
-    return undefined;
+    throw new Error("Method not implemented");
   }
 
   public async findInText(text: string): Promise<Cabinet | undefined> {

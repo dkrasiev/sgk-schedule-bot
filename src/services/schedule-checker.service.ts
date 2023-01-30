@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import cron from "node-cron";
 import { Bot } from "grammy";
 
 import logger from "./../helpers/logger";
@@ -14,13 +13,7 @@ import { MongoSession } from "../models/mongo-session.interface";
 import { Schedule } from "../models/schedule.interface";
 
 export class ScheduleCheckerService {
-  public setCheckingBySchedule(cronExpression: string, bot: Bot<MyContext>) {
-    cron.schedule(cronExpression, () => this.checkSchedule(bot));
-  }
-
   public async checkSchedule(bot: Bot<MyContext>) {
-    const profiler = logger.startTimer();
-
     try {
       logger.info("checking schedule...");
 
@@ -34,6 +27,8 @@ export class ScheduleCheckerService {
       for (const [groupId, schedule] of updatedSchedules) {
         const group = groups.find((group) => group.id === groupId);
         if (group === undefined) return;
+
+        logger.profile(group.name);
 
         const chats = await this.getChatsWithSubscriptionToGroup(groupId);
 
@@ -49,11 +44,11 @@ export class ScheduleCheckerService {
             logger.error("Fail sending message to " + key);
           }
         }
+
+        logger.profile(group.name);
       }
     } catch (e) {
       logger.error("Error while checking schedule", e);
-    } finally {
-      profiler.done({ message: "done", start: profiler.start });
     }
   }
 

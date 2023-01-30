@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 const isProduction: boolean = process.env.NODE_ENV === "production";
 
 const databaseName: string =
