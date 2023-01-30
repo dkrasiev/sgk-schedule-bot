@@ -1,7 +1,11 @@
-import { run } from "@grammyjs/runner";
+import dotenv from "dotenv";
+dotenv.config();
+
+import cron from 'node-cron';
 
 import bot from "./bot";
 import logger from "./helpers/logger";
+import { scheduleCheckerService } from "./services/schedule-checker.service";
 import { connection } from "./database";
 import { config } from "./config";
 
@@ -12,6 +16,6 @@ Promise.all([connection.connect(), bot.init()])
     logger.info(`Database name: ${config.database.name}`);
     logger.info(`Bot username: @${bot.botInfo.username}`);
 
-    run(bot);
+    cron.schedule("*/60 * * * *", () => scheduleCheckerService.checkSchedule(bot));
   })
   .catch((e) => console.error(e));

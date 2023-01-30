@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../axios";
 import { config } from "../config";
 import { Teacher } from "../models/teacher.interface";
 import { cachePromise } from "../helpers/cache-promise";

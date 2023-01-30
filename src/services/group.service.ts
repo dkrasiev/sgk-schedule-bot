@@ -1,5 +1,4 @@
-import axios from "axios";
-
+import axios from "../axios";
 import logger from "../helpers/logger";
 import { config } from "../config";
 import { Group } from "../models/group.interface";

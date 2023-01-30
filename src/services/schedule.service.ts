@@ -1,6 +1,6 @@
-import axios from "axios";
 import dayjs from "dayjs";
 
+import axios from "../axios";
 import { config } from "../config";
 import { Schedule } from "../models/schedule.interface";
 import { ScheduleType } from "../models/schedule.enum";
