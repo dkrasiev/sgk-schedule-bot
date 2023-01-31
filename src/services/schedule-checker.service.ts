@@ -16,8 +16,7 @@ export class ScheduleCheckerService {
   public async checkSchedule(bot: Bot<MyContext>) {
     try {
       logger.info("checking schedule...");
-
-      const groups = await groupService.getAll();
+      logger.profile("checking schedule");
 
       const firstDate = getNextWeekday();
       const secondDate = getNextWeekday(firstDate.add(1, "day"));
@@ -25,30 +24,32 @@ export class ScheduleCheckerService {
       const updatedSchedules = await this.getUpdatedSchedules(secondDate);
 
       for (const [groupId, schedule] of updatedSchedules) {
-        const group = groups.find((group) => group.id === groupId);
+        const group = await groupService.findById(groupId);
         if (group === undefined) return;
 
         logger.profile(group.name);
 
         const chats = await this.getChatsWithSubscriptionToGroup(groupId);
 
-        logger.info(`${groupId} updated and affected ${chats.length} chats`);
+        logger.info(`Schedule for ${group.name} updated`);
+        logger.info(`Affected chats: ${chats.length}`);
 
         const scheduleMessage = getScheduleMessage(schedule, group.name);
 
         for (const { key } of chats) {
-          try {
-            await bot.api.sendMessage(key, "Вышло новое расписание!");
-            await bot.api.sendMessage(key, scheduleMessage);
-          } catch (e) {
-            logger.error("Fail sending message to " + key);
-          }
+          logger.info(`Sending schedule to ${key}`);
+          bot.api
+            .sendMessage(key, "Вышло новое расписание!")
+            .then(() => bot.api.sendMessage(key, scheduleMessage))
+            .catch(() => logger.error("Fail sending message to " + key));
         }
 
         logger.profile(group.name);
       }
     } catch (e) {
       logger.error("Error while checking schedule", e);
+    } finally {
+      logger.profile("Checking schedule");
     }
   }
 
