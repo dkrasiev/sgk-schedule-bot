@@ -1,10 +1,16 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const isProduction: boolean = process.env.NODE_ENV === "production";
+const {
+  NODE_ENV,
+  DB_NAME,
+  DB_NAME_TEST,
+  MONGODB_URI,
+  BOT_TOKEN,
+  BOT_TOKEN_TEST,
+} = process.env;
 
-const databaseName: string =
-  (isProduction ? process.env.DB_NAME : process.env.DB_NAME_TEST) || "";
+const isProduction: boolean = NODE_ENV === "production";
 
 export const config = {
   api: {
@@ -17,7 +23,8 @@ export const config = {
   isProduction,
   admins: ["dkrasiev"],
   database: {
-    uri: process.env.MONGODB_URI || "localhost",
-    name: databaseName || "",
+    uri: MONGODB_URI || "localhost",
+    name: isProduction ? DB_NAME : DB_NAME_TEST,
   },
+  botToken: isProduction ? BOT_TOKEN : BOT_TOKEN_TEST,
 };

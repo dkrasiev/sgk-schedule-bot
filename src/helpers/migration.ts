@@ -1,5 +1,5 @@
-import { connection, sessions } from "../database";
-import { MongoSession } from "../models/mongo-session.interface";
+import { mongoClient, sessions } from "../database";
+import { MySession } from "../models/my-session.interface";
 import { Schedule } from "../models/schedule.interface";
 import logger from "./logger";
 
@@ -17,7 +17,7 @@ export async function migration() {
   if (process.env.MONGODB_URI === undefined)
     throw new Error("mongodb uri not found");
 
-  const from = connection.db("test").collection<OldSchema>("chats");
+  const from = mongoClient.db("test").collection<OldSchema>("chats");
   const to = sessions;
 
   const oldUsers = from.find();
@@ -45,7 +45,7 @@ export async function migration() {
             subscribedGroup: oldUser.subscription?.groupId
               ? oldUser.subscription.groupId
               : 0,
-          } as MongoSession,
+          } as MySession,
         },
       },
       {
