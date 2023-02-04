@@ -14,9 +14,9 @@ import { scheduleService } from "./schedule.service";
 
 export class ScheduleCheckerService {
   public async checkSchedule(bot: Bot<MyContext>) {
+    logger.profile("checking schedule");
     try {
       logger.info("checking schedule...");
-      logger.profile("checking schedule");
 
       const firstDate = getNextWeekday();
       const secondDate = getNextWeekday(firstDate.add(1, "day"));
@@ -49,7 +49,7 @@ export class ScheduleCheckerService {
     } catch (e) {
       logger.error("Error while checking schedule", e);
     } finally {
-      logger.profile("Checking schedule");
+      logger.profile("checking schedule");
     }
   }
 

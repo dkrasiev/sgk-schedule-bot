@@ -79,9 +79,9 @@ bot.catch(({ ctx, error }) => {
   logger.error(`Error while handling update ${ctx.update.update_id}`, error);
 
   if (error instanceof AxiosError) {
-    if (error.response?.status.toString().startsWith("5")) {
-      ctx.reply("Сервис недоступен");
-    }
+    const status = error.response?.status || 200;
+
+    if (status >= 500) ctx.reply("Расписание недоступно");
   }
 });
 

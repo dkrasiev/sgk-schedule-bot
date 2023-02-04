@@ -10,9 +10,10 @@ module.exports = {
     },
     {
       name: "sgk-schedule-bot:schedule-checker",
-      script: "dist/schedule-checker.js",
+      script: "dist/app.js",
       env: {
         NODE_ENV: "production",
+        START_SCHEDULE_CHECKER: "true",
       },
       post_update: ["npm install", "npm run build"],
     },

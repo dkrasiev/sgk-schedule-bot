@@ -8,6 +8,7 @@ const {
   MONGODB_URI,
   BOT_TOKEN,
   BOT_TOKEN_TEST,
+  START_SCHEDULE_CHECKER
 } = process.env;
 
 const isProduction: boolean = NODE_ENV === "production";
@@ -27,4 +28,5 @@ export const config = {
     name: isProduction ? DB_NAME : DB_NAME_TEST,
   },
   botToken: isProduction ? BOT_TOKEN : BOT_TOKEN_TEST,
+  isScheduleChecker: START_SCHEDULE_CHECKER === 'true',
 };
