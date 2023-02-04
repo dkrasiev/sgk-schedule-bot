@@ -12,7 +12,7 @@ export function getScheduleMessage(
   schedule: Schedule | null,
   title: string
 ): string {
-  if (!schedule) return "Ошибка: не удалось получить расписание";
+  if (!schedule) return "Не удалось получить расписание";
 
   const header = `${title + "\n" || ""}${schedule.date}\n\n`;
   let message = header;
