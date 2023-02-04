@@ -1,16 +1,16 @@
 import dayjs from "dayjs";
 import { Bot } from "grammy";
 
-import logger from "./../helpers/logger";
-import { compareSchedule } from "./../helpers/compare-schedule";
-import { groupService } from "./group.service";
-import { getScheduleMessage } from "./../helpers/get-schedule-message";
-import { getNextWeekday } from "../helpers/weekday";
-import { scheduleService } from "./schedule.service";
 import { schedules, sessions } from "../database";
+import { getNextWeekday } from "../helpers/weekday";
+import { MySession } from "../models/my-session.interface";
 import { MyContext } from "../models/my-context.type";
-import { MongoSession } from "../models/mongo-session.interface";
 import { Schedule } from "../models/schedule.interface";
+import { compareSchedule } from "./../helpers/compare-schedule";
+import { getScheduleMessage } from "./../helpers/get-schedule-message";
+import logger from "./../helpers/logger";
+import { groupService } from "./group.service";
+import { scheduleService } from "./schedule.service";
 
 export class ScheduleCheckerService {
   public async checkSchedule(bot: Bot<MyContext>) {
@@ -37,10 +37,10 @@ export class ScheduleCheckerService {
         const scheduleMessage = getScheduleMessage(schedule, group.name);
 
         for (const { key } of chats) {
-          logger.info(`Sending schedule to ${key}`);
           bot.api
             .sendMessage(key, "Вышло новое расписание!")
             .then(() => bot.api.sendMessage(key, scheduleMessage))
+            .then(() => logger.info(`Schedule sended to ${key}`))
             .catch(() => logger.error("Fail sending message to " + key));
         }
 
@@ -54,11 +54,11 @@ export class ScheduleCheckerService {
   }
 
   private async getChatsWithSubscription() {
-    const chats = (await sessions
+    const chats: { key: string; value: MySession }[] = (await sessions
       .find({
         "value.subscribedGroup": { $gt: 0 },
       })
-      .toArray()) as { key: string; value: MongoSession }[];
+      .toArray()) as { key: string; value: MySession }[];
 
     return chats;
   }
@@ -75,8 +75,7 @@ export class ScheduleCheckerService {
 
   private async getManySchedules(
     ids: number[],
-    date = dayjs(),
-    delay = 0
+    date = dayjs()
   ): Promise<Map<number, Schedule>> {
     const schedules = new Map<number, Schedule>();
 
@@ -84,15 +83,9 @@ export class ScheduleCheckerService {
       const schedule: Schedule = await scheduleService.group(id, date);
 
       schedules.set(id, schedule);
-
-      await this.sleep(delay);
     }
 
     return schedules;
-  }
-
-  private async sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(() => resolve(), ms));
   }
 
   private async getUpdatedSchedules(
@@ -102,7 +95,7 @@ export class ScheduleCheckerService {
       ({ value }) => value.subscribedGroup
     ) as number[];
 
-    const newSchedules = await this.getManySchedules(groupIds, date, 3000);
+    const newSchedules = await this.getManySchedules(groupIds, date);
     const lastSchedules = await schedules
       .find({ groupId: { $in: groupIds } })
       .toArray();
@@ -116,7 +109,7 @@ export class ScheduleCheckerService {
 
       const isEquals = compareSchedule(schedule, lastSchedule);
 
-      if (isEquals === false && schedule.lessons.length > 0) {
+      if (isEquals === false && schedule.lessons?.length > 0) {
         // add schedule to map
         updatedSchedules.set(groupId, schedule);
 

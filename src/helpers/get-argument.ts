@@ -4,16 +4,16 @@
  * @returns Text after command
  */
 export const getArgument = (text: string): string => {
-  const spaceIndex = text.trim().indexOf(" ");
+  try {
+    const spaceIndex = text.trim().indexOf(" ");
 
-  if (spaceIndex === -1) {
+    return text
+      .slice(spaceIndex)
+      .split(" ")
+      .map((v) => v.trim())
+      .filter((v) => v)
+      .join(" ");
+  } catch {
     return "";
   }
-
-  return text
-    .slice(spaceIndex)
-    .split(" ")
-    .map((v) => v.trim())
-    .filter((v) => v)
-    .join(" ");
 };

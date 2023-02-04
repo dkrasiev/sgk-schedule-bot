@@ -7,18 +7,10 @@ import { Group } from "./models/group.interface";
 import { ScheduleCollection } from "./models/schedule-collection.interface";
 import { Teacher } from "./models/teacher.interface";
 
-const uri: string = config.database.uri;
-const name: string = config.database.name;
-
-if (!uri) {
-  throw new Error("DB_URI required");
-}
-if (!name) {
-  throw new Error("DB_NAME required");
-}
-
-export const connection = new MongoClient(uri);
-export const database = connection.db(name);
+export const mongoClient = new MongoClient(config.database.uri, {
+  directConnection: true,
+});
+export const database = mongoClient.db(config.database.name);
 
 export const sessions = database.collection<ISession>("sessions");
 export const schedules = database.collection<ScheduleCollection>("schedule");

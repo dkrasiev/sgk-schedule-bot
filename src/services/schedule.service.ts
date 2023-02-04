@@ -4,6 +4,7 @@ import axios from "../axios";
 import { config } from "../config";
 import { Schedule } from "../models/schedule.interface";
 import { ScheduleType } from "../models/schedule.enum";
+import logger from "../helpers/logger";
 
 export class ScheduleService {
   constructor(private scheduleApi: string, private dateFormat: string) {}
@@ -54,6 +55,8 @@ export class ScheduleService {
         url += `/cabs/${formatedDate}/cabNum/${id}`;
         break;
     }
+
+    logger.debug(url);
 
     return url;
   }
