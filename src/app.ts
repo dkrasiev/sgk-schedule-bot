@@ -1,17 +1,27 @@
 import { run } from "@grammyjs/runner";
+import cron from "node-cron";
 
 import bot from "./bot";
-import logger from "./helpers/logger";
-import { connection } from "./database";
 import { config } from "./config";
+import { mongoClient } from "./database";
+import logger from "./helpers/logger";
+import { scheduleCheckerService } from "./services/schedule-checker.service";
 
 logger.info("starting...");
 
-Promise.all([connection.connect(), bot.init()])
+Promise.all([mongoClient.connect(), bot.init()])
   .then(async () => {
-    logger.info(`Database name: ${config.database.name}`);
-    logger.info(`Bot username: @${bot.botInfo.username}`);
+    logger.info(`database name: ${config.database.name}`);
+    logger.info(`bot username: @${bot.botInfo.username}`);
 
-    run(bot);
+    if (config.isScheduleChecker) {
+      scheduleCheckerService.checkSchedule(bot);
+
+      cron.schedule("*/60 * * * *", () =>
+        scheduleCheckerService.checkSchedule(bot)
+      );
+    } else {
+      run(bot);
+    }
   })
-  .catch((e) => console.error(e));
+  .catch(console.error);
