@@ -7,9 +7,7 @@ export class AdminService {
     const chats = await sessions.find().toArray();
 
     for (const chat of chats) {
-      ctx.api
-        .sendMessage(chat.key, message, { parse_mode: "HTML" })
-        .catch(logger.error);
+      ctx.api.sendMessage(chat.key, message).catch(logger.error);
     }
   }
 }

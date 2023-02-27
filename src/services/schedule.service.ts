@@ -55,8 +55,6 @@ export class ScheduleService {
         break;
     }
 
-    console.log(url);
-
     return url;
   }
 }

@@ -41,7 +41,7 @@ export class ScheduleCheckerService {
             .sendMessage(key, "Вышло новое расписание!")
             .then(() => bot.api.sendMessage(key, scheduleMessage))
             .then(() => logger.info(`Schedule sended to ${key}`))
-            .catch(() => logger.error("Fail sending message to " + key));
+            .catch(logger.error);
         }
 
         logger.profile(group.name);

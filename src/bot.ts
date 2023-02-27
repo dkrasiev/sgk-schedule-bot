@@ -1,6 +1,8 @@
 import { I18n } from "@grammyjs/i18n";
 import { sequentialize } from "@grammyjs/runner";
 import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
+import { parseMode } from "@grammyjs/parse-mode";
+import { autoRetry } from "@grammyjs/auto-retry";
 import { AxiosError } from "axios";
 import { Bot, session } from "grammy";
 import path from "path";
@@ -50,6 +52,9 @@ const i18n = new I18n({
 });
 
 bot.api.setMyCommands(botCommands);
+
+bot.api.config.use(parseMode('HTML'));
+bot.api.config.use(autoRetry());
 
 bot.use(i18n);
 bot.use(sequentialize((ctx) => `${ctx.chat?.id}${ctx.from?.id}`));
