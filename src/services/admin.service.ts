@@ -1,5 +1,5 @@
 import { sessions } from "../database";
-import logger from "../helpers/logger";
+import logger from "../utils/logger";
 import { MyContext } from "../models/my-context.type";
 
 export class AdminService {

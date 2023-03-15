@@ -2,15 +2,14 @@ import dayjs from "dayjs";
 import { Bot } from "grammy";
 
 import { schedules, sessions } from "../database";
-import { getNextWeekday } from "../helpers/weekday";
+import { getNextWeekday } from "../utils/get-next-weekday";
 import { MySession } from "../models/my-session.interface";
 import { MyContext } from "../models/my-context.type";
 import { Schedule } from "../models/schedule.interface";
-import { compareSchedule } from "./../helpers/compare-schedule";
-import { getScheduleMessage } from "./../helpers/get-schedule-message";
-import logger from "./../helpers/logger";
-import { groupService } from "./group.service";
-import { scheduleService } from "./schedule.service";
+import { compareSchedule } from "../utils/compare-schedule";
+import { getScheduleMessage } from "../utils/get-schedule-message";
+import logger from "../utils/logger";
+import { finder } from "./finder.service";
 
 export class ScheduleCheckerService {
   public async checkSchedule(bot: Bot<MyContext>) {
@@ -24,7 +23,7 @@ export class ScheduleCheckerService {
       const updatedSchedules = await this.getUpdatedSchedules(secondDate);
 
       for (const [groupId, schedule] of updatedSchedules) {
-        const group = await groupService.findById(groupId);
+        const group = finder.findById(groupId.toString());
         if (group === undefined) return;
 
         logger.profile(group.name);
@@ -92,7 +91,7 @@ export class ScheduleCheckerService {
     date = dayjs()
   ): Promise<Map<number, Schedule>> {
     const groupIds = (await this.getChatsWithSubscription()).map(
-      ({ value }) => value.subscribedGroup
+      ({ value }) => value.subscription
     ) as number[];
 
     const newSchedules = await this.getManySchedules(groupIds, date);

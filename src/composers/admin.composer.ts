@@ -1,9 +1,9 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { getArgument } from "../helpers/get-argument";
+import { getArgument } from "../utils/get-argument";
 import { adminService } from "../services/admin.service";
-import { isAdmin } from "../helpers/is-admin";
+import { isAdmin } from "../utils/is-admin";
 
 const adminComposer = new Composer<MyContext>();
 

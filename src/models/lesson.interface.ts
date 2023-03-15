@@ -1,7 +1,5 @@
-import { DurationModel } from "./duration-model.interface";
-
 export interface Lesson {
-  num: string | DurationModel;
+  num: string;
   title: string;
   teachername: string;
   cab: string;

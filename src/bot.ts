@@ -1,8 +1,8 @@
+import { autoRetry } from "@grammyjs/auto-retry";
 import { I18n } from "@grammyjs/i18n";
+import { parseMode } from "@grammyjs/parse-mode";
 import { sequentialize } from "@grammyjs/runner";
 import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
-import { parseMode } from "@grammyjs/parse-mode";
-import { autoRetry } from "@grammyjs/auto-retry";
 import { AxiosError } from "axios";
 import { Bot, session } from "grammy";
 import path from "path";
@@ -14,10 +14,11 @@ import scheduleComposer from "./composers/schedule.composer";
 import startComposer from "./composers/start.composer";
 import subscribeComposer from "./composers/subscribe.composer";
 import triggerComposer from "./composers/trigger.composer";
-import { config } from "./config";
+import { BOT_TOKEN } from "./config";
 import { sessions } from "./database";
-import logger from "./helpers/logger";
 import { MyContext } from "./models/my-context.type";
+import { finder } from "./services/finder.service";
+import logger from "./utils/logger";
 
 const botCommands = [
   { command: "help", description: "Помощь" },
@@ -43,31 +44,40 @@ const botCommands = [
   { command: "trigger", description: "Добавить или удалить триггер" },
 ];
 
-const bot = new Bot<MyContext>(config.botToken || "");
-
-const i18n = new I18n({
-  defaultLocale: "ru",
-  useSession: true,
-  directory: path.resolve(__dirname, "locales"),
-});
+const bot = new Bot<MyContext>(BOT_TOKEN || "");
 
 bot.api.setMyCommands(botCommands);
 
-bot.api.config.use(parseMode('HTML'));
+bot.api.config.use(parseMode("HTML"));
 bot.api.config.use(autoRetry());
 
-bot.use(i18n);
-bot.use(sequentialize((ctx) => `${ctx.chat?.id}${ctx.from?.id}`));
+bot.use(
+  new I18n({
+    defaultLocale: "ru",
+    useSession: true,
+    directory: path.resolve(__dirname, "locales"),
+  }).middleware()
+);
+bot.use(
+  sequentialize((ctx) => [ctx.from?.id, ctx.chat?.id].filter(Boolean).join())
+);
 bot.use(
   session({
     initial: () => ({
-      defaultGroup: 0,
-      subscribedGroup: 0,
+      default: undefined,
+      subscription: undefined,
       triggers: [],
     }),
     storage: new MongoDBAdapter({ collection: sessions }),
   })
 );
+// custom config
+bot.use((ctx, next) => {
+  ctx.getDefault = () =>
+    ctx.session.default ? finder.findById(ctx.session.default) : undefined;
+
+  next();
+});
 
 bot.use(logComposer);
 

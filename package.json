@@ -6,10 +6,11 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node dist/app.js",
     "start:schedule-checker": "cross-env NODE_ENV=production START_SCHEDULE_CHECKER=true node dist/app.js",
+    "dev": "nodemon src/app.ts",
+    "dev:schedule-checker": "cross-env START_SCHEDULE_CHECKER=true nodemon src/app.ts",
+    "test": "jest",
     "build:start": "npm run build && npm run start",
     "build": "tsc && cp -r ./src/locales ./dist",
-    "dev": "cross-env nodemon src/app.ts",
-    "dev:schedule-checker": "cross-env START_SCHEDULE_CHECKER=true nodemon src/app.ts",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
     "prettier": "prettier --write ./src/**/*.ts",
@@ -32,6 +33,7 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
+    "@types/jest": "^29.4.0",
     "@types/node": "^18.11.7",
     "@types/node-cron": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
@@ -41,6 +43,7 @@
     "husky": "^8.0.0",
     "nodemon": "^2.0.19",
     "prettier": "^2.7.1",
+    "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
   }
