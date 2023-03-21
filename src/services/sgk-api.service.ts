@@ -36,7 +36,7 @@ export class SGKApiService {
     return myAxios
       .get<{ [key: string]: string }>(CABINETS_URL)
       .then((response) =>
-        Object.entries(response.data).map(([id, name]) => new Group(id, name))
+        Object.entries(response.data).map(([id, name]) => new Cabinet(id, name))
       );
   }
 

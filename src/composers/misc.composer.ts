@@ -27,7 +27,6 @@ miscComposer.command("search", async (ctx) => {
 
 miscComposer.command("setdefault", async (ctx) => {
   const argument = getArgument(ctx.message?.text ?? "");
-  console.log(argument);
   if (!argument) {
     await ctx.reply(ctx.t("set_default_fail"), { parse_mode: "HTML" });
     return;

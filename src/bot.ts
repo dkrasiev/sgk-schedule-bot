@@ -2,7 +2,6 @@ import { autoRetry } from "@grammyjs/auto-retry";
 import { I18n } from "@grammyjs/i18n";
 import { parseMode } from "@grammyjs/parse-mode";
 import { sequentialize } from "@grammyjs/runner";
-import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
 import { AxiosError } from "axios";
 import { Bot, session } from "grammy";
 import path from "path";
@@ -15,10 +14,11 @@ import startComposer from "./composers/start.composer";
 import subscribeComposer from "./composers/subscribe.composer";
 import triggerComposer from "./composers/trigger.composer";
 import { BOT_TOKEN } from "./config";
-import { sessions } from "./database";
+import { redis } from "./database";
 import { MyContext } from "./models/my-context.type";
-import { finder } from "./services/finder.service";
 import logger from "./utils/logger";
+import { RedisStorageAdapter } from "./utils/redis-storage-adapter";
+import { finder } from "./services/finder.service";
 
 const botCommands = [
   { command: "help", description: "Помощь" },
@@ -68,15 +68,15 @@ bot.use(
       subscription: undefined,
       triggers: [],
     }),
-    storage: new MongoDBAdapter({ collection: sessions }),
+    storage: new RedisStorageAdapter(redis),
   })
 );
 // custom config
-bot.use((ctx, next) => {
+bot.use(async (ctx, next) => {
   ctx.getDefault = () =>
     ctx.session.default ? finder.findById(ctx.session.default) : undefined;
 
-  next();
+  await next();
 });
 
 bot.use(logComposer);
