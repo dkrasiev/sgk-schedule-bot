@@ -7,32 +7,32 @@ import { getArgument } from "../utils/get-argument";
 const triggerComposer = new Composer<MyContext>();
 
 triggerComposer.command("trigger", async (ctx) => {
-  const triggers = ctx.session.triggers;
-
   const trigger = getArgument(ctx.message?.text || "");
   if (!trigger) {
     await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
   }
 
-  const isTriggerNew = trigger && triggers.includes(trigger) === false;
+  const isTriggerNew =
+    trigger && ctx.session.triggers.includes(trigger) === false;
 
   if (isTriggerNew) {
-    triggers.push(trigger);
+    ctx.session.triggers.push(trigger);
     await ctx.reply(ctx.t("trigger_added", { trigger }));
   } else if (trigger) {
-    triggers.splice(triggers.indexOf(trigger), 1);
+    ctx.session.triggers.splice(ctx.session.triggers.indexOf(trigger), 1);
     await ctx.reply(ctx.t("trigger_deleted", { trigger }));
   }
 
-  if (triggers.length > 0) {
-    await ctx.reply(
-      ctx.t("trigger_list", {
-        triggers: triggers.join("\n"),
-      })
-    );
+  if (ctx.session.triggers.length === 0) {
+    await ctx.reply(ctx.t("trigger_list_not_found"));
+    return;
   }
 
-  await ctx.reply(ctx.t("trigger_list_not_found"));
+  await ctx.reply(
+    ctx.t("trigger_list", {
+      triggers: ctx.session.triggers.join("\n"),
+    })
+  );
 });
 
 triggerComposer.on("message:text", async (ctx, next) => {
