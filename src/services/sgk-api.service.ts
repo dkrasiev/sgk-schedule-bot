@@ -40,15 +40,15 @@ export class SGKApiService {
       );
   }
 
-  public async getScheduleByType(
+  public async getSchedule(
     entity: Group | Teacher | Cabinet,
     date: Dayjs
   ): Promise<Schedule> {
-    const url = this.getScheduleUrlBasedOnType(entity, date);
+    const url = this.getScheduleUrl(entity, date);
     return myAxios.get(url);
   }
 
-  private getScheduleUrlBasedOnType(
+  private getScheduleUrl(
     entity: Group | Teacher | Cabinet,
     date: Dayjs
   ): string {

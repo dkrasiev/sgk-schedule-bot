@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 
 import { MyContext } from "../models/my-context.type";
 import { getScheduleMessage } from "./get-schedule-message";
-import { getNextWeekday } from "./get-next-weekday";
+import { getWeekday } from "./get-weekday";
 import { finder } from "../services/finder.service";
 
 export async function sendShortSchedule(
@@ -25,8 +25,8 @@ export async function sendShortSchedule(
 }
 
 export async function sendSchedule(ctx: MyContext, date = dayjs()) {
-  const firstDate = getNextWeekday(date);
-  const secondDate = getNextWeekday(firstDate.add(1, "day"));
+  const firstDate = getWeekday(0, date);
+  const secondDate = getWeekday(1, date);
 
   (await sendShortSchedule(ctx, firstDate)) &&
     (await sendShortSchedule(ctx, secondDate));

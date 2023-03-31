@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 
-export function getNextWeekday(date = dayjs()) {
+export function getWeekday(offsetInDays = 0, date = dayjs()) {
+  date = date.add(offsetInDays, "day");
+
   if (date.day() === 0) {
     return date.add(1, "day");
   }

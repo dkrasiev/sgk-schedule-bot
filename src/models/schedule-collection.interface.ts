@@ -1,6 +1,6 @@
 import { Schedule } from "./schedule.interface";
 
 export interface ScheduleCollection {
-  groupId: number;
+  id: string;
   schedule: Schedule;
 }
