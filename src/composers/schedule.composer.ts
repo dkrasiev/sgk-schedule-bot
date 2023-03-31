@@ -20,7 +20,10 @@ scheduleComposer.command("tomorrow", async (ctx) => {
 });
 
 scheduleComposer.on("message:text", async (ctx, next) => {
-  if (ctx.chat.type === "private") {
+  if (
+    ctx.chat.type === "private" &&
+    ctx.message.text.startsWith("/") === false
+  ) {
     sendSchedule(ctx);
   }
 

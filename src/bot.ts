@@ -8,6 +8,7 @@ import { Bot, session } from "grammy";
 import path from "path";
 
 import adminComposer from "./composers/admin.composer";
+import commandNotFoundComposer from "./composers/command-not-found.composer";
 import logComposer from "./composers/log.composer";
 import miscComposer from "./composers/misc.composer";
 import scheduleComposer from "./composers/schedule.composer";
@@ -38,9 +39,10 @@ const botCommands = [
     command: "unsubscribe",
     description: "Отписаться от обновлений расписания",
   },
-  { command: "teacher", description: "Поиск по преподавателям" },
-  { command: "cabinet", description: "Поиск по кабинетам" },
-  { command: "groups", description: "Показать все группы" },
+  {
+    command: "search",
+    description: "Поиск по группам, преподавателям и кабинетам",
+  },
   { command: "trigger", description: "Добавить или удалить триггер" },
 ];
 
@@ -89,6 +91,8 @@ bot.use(startComposer);
 bot.use(subscribeComposer);
 bot.use(triggerComposer);
 bot.use(scheduleComposer);
+
+bot.use(commandNotFoundComposer);
 
 bot.catch(({ ctx, error }) => {
   logger.error(`Error while handling update ${ctx.update.update_id}`, error);
