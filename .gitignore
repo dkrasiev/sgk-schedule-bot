@@ -5,3 +5,4 @@ deploy.config.js
 dist
 .out
 log.txt
+.vscode
