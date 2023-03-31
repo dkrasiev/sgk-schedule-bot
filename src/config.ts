@@ -1,32 +1,19 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const {
-  NODE_ENV,
-  DB_NAME,
-  DB_NAME_TEST,
-  MONGODB_URI,
-  BOT_TOKEN,
-  BOT_TOKEN_TEST,
-  START_SCHEDULE_CHECKER
-} = process.env;
+export const PRODUCTION = process.env.NODE_ENV === "production";
 
-const isProduction: boolean = NODE_ENV === "production";
+export const SCHEDULE_URL = "http://asu.samgk.ru/api/schedule";
+export const GROUPS_URL = "https://mfc.samgk.ru/api/groups";
+export const TEACHERS_URL = "http://asu.samgk.ru/api/teachers";
+export const CABINETS_URL = "http://asu.samgk.ru/api/cabs";
 
-export const config = {
-  api: {
-    groups: "https://mfc.samgk.ru/api/groups",
-    schedule: "http://asu.samgk.ru/api/schedule",
-    teachers: "http://asu.samgk.ru/api/teachers",
-    cabinets: "http://asu.samgk.ru/api/cabs",
-  },
-  dateFormat: "YYYY-MM-DD",
-  isProduction,
-  admins: ["dkrasiev"],
-  database: {
-    uri: MONGODB_URI || "localhost",
-    name: isProduction ? DB_NAME : DB_NAME_TEST,
-  },
-  botToken: isProduction ? BOT_TOKEN : BOT_TOKEN_TEST,
-  isScheduleChecker: START_SCHEDULE_CHECKER === 'true',
-};
+export const ADMINS = ["dkrasiev"];
+export const DATE_FORMAT = "YYYY-MM-DD";
+export const BOT_TOKEN = PRODUCTION
+  ? process.env.BOT_TOKEN
+  : process.env.BOT_TOKEN_TEST;
+export const DB_NAME = PRODUCTION
+  ? process.env.DB_NAME
+  : process.env.DB_NAME_TEST;
+export const DB_MONGO_URI = process.env.MONGODB_URI || "localhost";

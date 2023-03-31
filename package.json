@@ -6,10 +6,12 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node dist/app.js",
     "start:schedule-checker": "cross-env NODE_ENV=production START_SCHEDULE_CHECKER=true node dist/app.js",
+    "dev": "nodemon src/app.ts",
+    "dev:schedule-checker": "cross-env START_SCHEDULE_CHECKER=true nodemon src/app.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "build:start": "npm run build && npm run start",
     "build": "tsc && cp -r ./src/locales ./dist",
-    "dev": "cross-env nodemon src/app.ts",
-    "dev:schedule-checker": "cross-env START_SCHEDULE_CHECKER=true nodemon src/app.ts",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
     "prettier": "prettier --write ./src/**/*.ts",
@@ -18,7 +20,9 @@
   "author": "Dmitry Krasiev",
   "license": "ISC",
   "dependencies": {
+    "@grammyjs/auto-retry": "^1.1.1",
     "@grammyjs/i18n": "^1.0.1",
+    "@grammyjs/parse-mode": "^1.6.0",
     "@grammyjs/runner": "^1.0.4",
     "@grammyjs/storage-mongodb": "^2.0.2",
     "axios": "^0.27.2",
@@ -30,6 +34,7 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
+    "@types/jest": "^29.4.0",
     "@types/node": "^18.11.7",
     "@types/node-cron": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
@@ -37,8 +42,10 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.27.0",
     "husky": "^8.0.0",
+    "mockdate": "^3.0.5",
     "nodemon": "^2.0.19",
     "prettier": "^2.7.1",
+    "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
   }

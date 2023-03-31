@@ -1,50 +1,32 @@
 import { Composer } from "grammy";
 import { MyContext } from "../models/my-context.type";
-import { groupService } from "../services/group.service";
+import { finder } from "../services/finder.service";
 
 const subscribeComposer = new Composer<MyContext>();
 
 subscribeComposer.command("subscribe", async (ctx) => {
-  if (!ctx.chat) return;
-
-  const group = await groupService.findInContext(ctx);
-
-  if (!group) {
-    await ctx.reply(ctx.t("subscribe_fail"), { parse_mode: "HTML" });
+  const entity = finder.searchInContext(ctx)[0];
+  if (entity) {
+    ctx.session.subscription = entity.id;
+    await ctx.reply(ctx.t("subscribe_success", { name: entity.name }));
     return;
   }
 
-  ctx.session.subscribedGroup = group.id;
-
-  await ctx.reply(ctx.t("subscribe_success", { name: group.name }));
+  await ctx.reply(ctx.t("subscribe_fail"), { parse_mode: "HTML" });
 });
 
 subscribeComposer.command("unsubscribe", async (ctx) => {
-  const group = await groupService.findById(ctx.session.defaultGroup);
-  if (!group) return;
+  if (ctx.session.subscription) {
+    const entity = finder.findById(ctx.session.subscription);
+    ctx.session.subscription = undefined;
 
-  const removeSubscriptionResult = removeSubscription(ctx);
-
-  if (removeSubscriptionResult === false) {
-    await ctx.reply(ctx.t("unsubscribe_fail"));
-    return;
+    if (entity) {
+      await ctx.reply(ctx.t("unsubscribe_success", { name: entity.name }));
+      return;
+    }
   }
 
-  await ctx.reply(ctx.t("unsubscribe_success", { name: group.name }));
+  await ctx.reply(ctx.t("unsubscribe_fail"));
 });
-
-/**
- * Helper for removing subscription
- * @param {MyContext} ctx Bot context
- * @returns {boolean} Unsubscribe result
- */
-function removeSubscription(ctx: MyContext): boolean {
-  if (ctx.session.subscribedGroup) {
-    ctx.session.subscribedGroup = 0;
-    return true;
-  }
-
-  return false;
-}
 
 export default subscribeComposer;

@@ -1,5 +1,5 @@
 import { sessions } from "../database";
-import logger from "../helpers/logger";
+import logger from "../utils/logger";
 import { MyContext } from "../models/my-context.type";
 
 export class AdminService {
@@ -7,9 +7,7 @@ export class AdminService {
     const chats = await sessions.find().toArray();
 
     for (const chat of chats) {
-      ctx.api
-        .sendMessage(chat.key, message, { parse_mode: "HTML" })
-        .catch(logger.error);
+      ctx.api.sendMessage(chat.key, message).catch(logger.error);
     }
   }
 }

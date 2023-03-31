@@ -1,8 +1,6 @@
-import dayjs from "dayjs";
-import { DurationModel } from "../models/duration-model.interface";
 import { Collection } from "../models/collection.interface";
 
-const times: Collection<string> = {
+export const times: Collection<string> = {
   "1": "08:25-10:00",
   "2": "10:10-11:45",
   "3": "12:15-13:50",
@@ -26,7 +24,7 @@ const times: Collection<string> = {
   "7.2": "20:05-20:50",
 };
 
-const mondayTimes: Collection<string> = {
+export const mondayTimes: Collection<string> = {
   "1": "09:15-10:55",
   "2": "11:00-13:00",
   "3": "13:05-14:45",
@@ -49,24 +47,3 @@ const mondayTimes: Collection<string> = {
   "7.1": "20:05-20:50",
   "7.2": "21:00-21:45",
 };
-
-export function numToDurationModel(
-  num: string,
-  isMonday = false
-): DurationModel {
-  const selectedTime = isMonday ? mondayTimes[num] : times[num];
-
-  const lessonTime = convertToLessonTime(selectedTime);
-
-  return lessonTime;
-}
-
-function convertToLessonTime(time: string) {
-  const [start, end] = time.split("-").map((time) => {
-    const [hours, minutes] = time.split(":").map((v) => +v);
-
-    return dayjs().hour(hours).minute(minutes);
-  });
-
-  return { start, end };
-}

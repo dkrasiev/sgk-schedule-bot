@@ -1,39 +1,38 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { sendSchedule } from "../helpers/bot-helpers";
-import { getArgument } from "../helpers/get-argument";
+import { sendSchedule } from "../utils/bot-helpers";
+import { trimCommand } from "../utils/trim-command";
 
 const triggerComposer = new Composer<MyContext>();
 
 triggerComposer.command("trigger", async (ctx) => {
-  const trigger = getArgument(ctx.message?.text || "");
-
+  const trigger = trimCommand(ctx.message?.text || "");
   if (!trigger) {
     await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
   }
 
-  const isTriggerNew = ctx.session.triggers.includes(trigger) === false;
+  const isTriggerNew =
+    trigger && ctx.session.triggers.includes(trigger) === false;
 
-  if (trigger && isTriggerNew) {
+  if (isTriggerNew) {
     ctx.session.triggers.push(trigger);
     await ctx.reply(ctx.t("trigger_added", { trigger }));
   } else if (trigger) {
-    ctx.session.triggers = ctx.session.triggers.filter(
-      (value: string) => value !== trigger
-    );
-
+    ctx.session.triggers.splice(ctx.session.triggers.indexOf(trigger), 1);
     await ctx.reply(ctx.t("trigger_deleted", { trigger }));
   }
 
-  const result =
-    ctx.session.triggers.length > 0
-      ? ctx.t("trigger_list", {
-          triggers: ctx.session.triggers.join("\n"),
-        })
-      : ctx.t("trigger_list_not_found");
+  if (ctx.session.triggers.length === 0) {
+    await ctx.reply(ctx.t("trigger_list_not_found"));
+    return;
+  }
 
-  await ctx.reply(result);
+  await ctx.reply(
+    ctx.t("trigger_list", {
+      triggers: ctx.session.triggers.join("\n"),
+    })
+  );
 });
 
 triggerComposer.on("message:text", async (ctx, next) => {

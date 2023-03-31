@@ -1,9 +1,9 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { getArgument } from "../helpers/get-argument";
+import { trimCommand } from "../utils/trim-command";
 import { adminService } from "../services/admin.service";
-import { isAdmin } from "../helpers/is-admin";
+import { isAdmin } from "../utils/is-admin";
 
 const adminComposer = new Composer<MyContext>();
 
@@ -13,9 +13,14 @@ adminComposer.command("broadcast", async (ctx, next) => {
     return;
   }
 
-  const message = ctx.message?.text && getArgument(ctx.message.text);
+  if (!ctx.message?.text) {
+    await ctx.reply("Text not found");
+    return;
+  }
+
+  const message = trimCommand(ctx.message.text);
   if (!message) {
-    ctx.reply("Message not found");
+    await ctx.reply("Message not found");
 
     return;
   }

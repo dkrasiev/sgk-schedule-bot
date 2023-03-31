@@ -1,5 +1,5 @@
 export interface MySession {
-  defaultGroup: number;
+  default?: string;
+  subscription?: string;
   triggers: string[];
-  subscribedGroup: number;
 }

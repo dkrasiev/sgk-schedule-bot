@@ -86,28 +86,16 @@ trigger_not_found =
   Пример:
   <code>/trigger словотриггер</code>
 
-teacher_found = 
-  Найденные преподаватели:
-  { $teachers }
-teacher_not_found = 
-  По введенному запросу преподаватели не найдены
-teacher_fail =
+search_found = 
+  Найдено:
+  { $list }
+search_not_found = 
+  По введенному запросу ничего не найдено
+search_fail =
   Для поиска необходимо ввести запрос
 
   Пример:
-  <code>/teacher ТЕКСТ_ЗАПРОСА</code>
-teacher_too_many =
-  Ошибка: найдено слишком много преподавателей
+  <code>/search ТЕКСТ_ЗАПРОСА</code> 
+search_too_many =
+  Ошибка: найдено слишком значений
   Пожалуйста, уточните запрос
-
-cabinet_found = 
-  Найденные кабинеты:
-  { $cabinets }
-cabinet_not_found = 
-  По введенному запросу кабинеты не найдены
-
-groups_found =
-  Найденные группы:
-  { $groups }
-groups_not_found = 
-  По введенному запросу группы не найдены
