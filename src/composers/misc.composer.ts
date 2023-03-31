@@ -1,13 +1,20 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { getArgument } from "../utils/get-argument";
+import { trimCommand } from "../utils/trim-command";
 import { finder } from "../services/finder.service";
 
 const miscComposer = new Composer<MyContext>();
 
 miscComposer.command("search", async (ctx) => {
-  const result = finder.searchFromContext(ctx);
+  const query = trimCommand(ctx.message?.text || "");
+
+  if (!query) {
+    await ctx.reply(ctx.t("search_fail"));
+    return;
+  }
+
+  const result = finder.searchByName(query);
 
   if (result.length === 0) {
     await ctx.reply(ctx.t("search_not_found"));
@@ -26,14 +33,14 @@ miscComposer.command("search", async (ctx) => {
 });
 
 miscComposer.command("setdefault", async (ctx) => {
-  const argument = getArgument(ctx.message?.text ?? "");
-  console.log(argument);
-  if (!argument) {
+  const query = trimCommand(ctx.message?.text || "");
+
+  if (!query) {
     await ctx.reply(ctx.t("set_default_fail"), { parse_mode: "HTML" });
     return;
   }
 
-  const entity = finder.searchFromContext(ctx)[0];
+  const entity = finder.searchByName(query)[0];
 
   if (entity) {
     ctx.session.default = entity.id;

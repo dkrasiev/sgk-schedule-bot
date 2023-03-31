@@ -3,38 +3,48 @@ import { Group } from "../models/group.class";
 import { MyContext } from "../models/my-context.type";
 import { ScheduleEntity } from "../models/schedule-entity.class";
 import { Teacher } from "../models/teacher.class";
-import { getArgument } from "../utils/get-argument";
+import { getArguments } from "../utils/get-arguments";
+import { trimCommand } from "../utils/trim-command";
 import { sgkApi } from "./sgk-api.service";
 
 export class FinderService {
-  private groups: Group[] = [];
-  private teachers: Teacher[] = [];
-  private cabinets: Cabinet[] = [];
+  private _groups: Group[] = [];
+  private _teachers: Teacher[] = [];
+  private _cabinets: Cabinet[] = [];
 
   public get all(): Readonly<ScheduleEntity[]> {
-    return [...this.groups, ...this.teachers, ...this.cabinets];
+    return [...this._groups, ...this._teachers, ...this._cabinets];
   }
 
-  public getGroups(): Readonly<Group[]> {
-    return this.groups;
+  // TODO: три нижних геттера вроде не используются
+  public get groups(): Readonly<Group[]> {
+    return this._groups;
   }
 
-  public getTeachers(): Readonly<Teacher[]> {
-    return this.teachers;
+  public get teachers(): Readonly<Teacher[]> {
+    return this._teachers;
   }
 
-  public getCabinets(): Readonly<Cabinet[]> {
-    return this.cabinets;
+  public get cabinets(): Readonly<Cabinet[]> {
+    return this._cabinets;
   }
 
   public async init() {
-    this.groups = await sgkApi.getGroups();
-    this.teachers = await sgkApi.getTeachers();
-    this.cabinets = await sgkApi.getCabinets();
+    this._groups = await sgkApi.getGroups();
+
+    // filter Администратор, Вакансия, Резерв, методист, методист1
+    this._teachers = (await sgkApi.getTeachers()).filter(
+      (teacher) => teacher.name.split(" ").length > 2
+    );
+
+    // filter п/п, дист/дист
+    this._cabinets = (await sgkApi.getCabinets()).filter(
+      (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист"
+    );
   }
 
-  public searchFromContext(ctx: MyContext): ScheduleEntity[] {
-    const query = getArgument(ctx.message?.text || "");
+  public searchInContext(ctx: MyContext): ScheduleEntity[] {
+    const query = trimCommand(ctx.message?.text || "");
     if (query) {
       return this.searchByName(query);
     }
@@ -48,17 +58,15 @@ export class FinderService {
   }
 
   public searchByName(query: string): ScheduleEntity[] {
-    if (!query) return [];
+    const args: string[] = getArguments(query);
 
-    return this.all.filter((entity) =>
-      entity.name.replace(/-/g, "").toLowerCase().includes(query)
+    return this.all.filter(({ name }) =>
+      args.every((arg) => name.replace(/-/g, "").toLowerCase().includes(arg))
     );
   }
 
   public searchById(id: string) {
-    return [...this.groups, ...this.teachers].filter(
-      (entity) => entity.id === id
-    );
+    return this.all.filter((entity) => entity.id === id);
   }
 
   public findById(id: string) {

@@ -2,12 +2,12 @@ import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
 import { sendSchedule } from "../utils/bot-helpers";
-import { getArgument } from "../utils/get-argument";
+import { trimCommand } from "../utils/trim-command";
 
 const triggerComposer = new Composer<MyContext>();
 
 triggerComposer.command("trigger", async (ctx) => {
-  const trigger = getArgument(ctx.message?.text || "");
+  const trigger = trimCommand(ctx.message?.text || "");
   if (!trigger) {
     await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
   }

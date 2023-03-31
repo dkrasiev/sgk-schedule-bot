@@ -5,7 +5,7 @@ import { finder } from "../services/finder.service";
 const subscribeComposer = new Composer<MyContext>();
 
 subscribeComposer.command("subscribe", async (ctx) => {
-  const entity = finder.searchFromContext(ctx)[0];
+  const entity = finder.searchInContext(ctx)[0];
   if (entity) {
     ctx.session.subscription = entity.id;
     await ctx.reply(ctx.t("subscribe_success", { name: entity.name }));
