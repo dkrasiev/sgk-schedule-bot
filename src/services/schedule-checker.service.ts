@@ -128,5 +128,3 @@ export class ScheduleCheckerService {
     return updatedSchedules;
   }
 }
-
-export const scheduleCheckerService = new ScheduleCheckerService();
