@@ -8,8 +8,8 @@ RUN pm2 update
 EXPOSE 80 443 43554
 
 # Install app dependencies
-COPY package.json package.json
-RUN npm install
+COPY package-lock.json package-lock.json
+RUN npm ci
 
 # Bundle APP files
 COPY . .
