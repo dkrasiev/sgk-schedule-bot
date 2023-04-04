@@ -9,7 +9,7 @@ EXPOSE 80 443 43554
 
 # Install app dependencies
 COPY package.json package.json
-RUN npm install --omit=dev
+RUN npm install
 
 # Bundle APP files
 COPY . .
