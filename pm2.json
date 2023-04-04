@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "sgk-schedule-bot",
-      "script": "src/app.js",
+      "script": "dist/app.js",
       "env": {
         "NODE_ENV": "development"
       },
@@ -12,7 +12,7 @@
     },
     {
       "name": "schedule-checker",
-      "script": "src/app.js",
+      "script": "dist/app.js",
       "env": {
         "NODE_ENV": "development",
         "START_SCHEDULE_CHECKER": "true"
