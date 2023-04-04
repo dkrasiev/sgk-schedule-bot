@@ -1,21 +1,25 @@
-module.exports = {
-  apps: [
+{
+  "apps": [
     {
-      name: "sgk-schedule-bot",
-      script: "dist/app.js",
-      env: {
-        NODE_ENV: "production",
+      "name": "sgk-schedule-bot",
+      "script": "src/app.js",
+      "env": {
+        "NODE_ENV": "development"
       },
-      post_update: ["npm install", "npm run build"],
+      "env_production": {
+        "NODE_ENV": "production"
+      }
     },
     {
-      name: "sgk-schedule-bot:schedule-checker",
-      script: "dist/app.js",
-      env: {
-        NODE_ENV: "production",
-        START_SCHEDULE_CHECKER: "true",
+      "name": "schedule-checker",
+      "script": "src/app.js",
+      "env": {
+        "NODE_ENV": "development",
+        "START_SCHEDULE_CHECKER": "true"
       },
-      post_update: ["npm install", "npm run build"],
-    },
-  ],
-};
+      "env_production": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}

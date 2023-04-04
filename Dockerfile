@@ -1,10 +1,12 @@
 FROM keymetrics/pm2
 
-WORKDIR /app
-
+# Bundle APP files
 COPY . .
 
-RUN npm install
-RUN npm run build
+# Install app dependencies
+RUN npm install --production
 
-CMD [ "pm2", "start", "pm2.js" ]
+# Show current folder structure in logs
+RUN ls -al -R
+
+CMD [ "pm2-runtime", "start", "pm2.json" ]
