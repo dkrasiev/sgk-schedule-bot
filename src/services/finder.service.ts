@@ -16,19 +16,6 @@ export class FinderService {
     return [...this._groups, ...this._teachers, ...this._cabinets];
   }
 
-  // TODO: три нижних геттера вроде не используются
-  public get groups(): Readonly<Group[]> {
-    return this._groups;
-  }
-
-  public get teachers(): Readonly<Teacher[]> {
-    return this._teachers;
-  }
-
-  public get cabinets(): Readonly<Cabinet[]> {
-    return this._cabinets;
-  }
-
   public async init() {
     this._groups = await sgkApi.getGroups();
 
@@ -46,7 +33,10 @@ export class FinderService {
   public searchInContext(ctx: MyContext): ScheduleEntity[] {
     const query = trimCommand(ctx.message?.text || "");
     if (query) {
-      return this.searchByName(query);
+      const searchByNameResult = this.searchByName(query);
+      if (searchByNameResult.length) {
+        return searchByNameResult;
+      }
     }
 
     const defaultEntity = ctx.getDefault();

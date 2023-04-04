@@ -9,11 +9,9 @@ export async function sendShortSchedule(
   ctx: MyContext,
   date = dayjs()
 ): Promise<boolean> {
-  const result = finder.searchInContext(ctx);
+  const entity = finder.searchInContext(ctx)[0];
 
-  if (result.length > 0) {
-    const entity = result[0];
-
+  if (entity) {
     const schedule = await entity.getSchedule(date);
     await ctx.reply(getScheduleMessage(schedule, entity.name));
 
