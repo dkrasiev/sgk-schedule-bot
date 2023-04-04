@@ -2,28 +2,33 @@ import { run } from "@grammyjs/runner";
 import cron from "node-cron";
 
 import bot from "./bot";
-import { mongoClient } from "./database";
-import logger from "./utils/logger";
 import { DB_NAME } from "./config";
 import { finder } from "./services/finder.service";
 import { ScheduleCheckerService } from "./services/schedule-checker.service";
+import logger from "./utils/logger";
 
-logger.info("starting...");
+main().catch(logger.error);
 
-Promise.all([mongoClient.connect(), bot.init(), finder.init()])
-  .then(async () => {
-    logger.info(`database name: ${DB_NAME}`);
-    logger.info(`bot username: @${bot.botInfo.username}`);
+async function main() {
+  logger.info("starting...");
 
-    if (process.env["START_SCHEDULE_CHECKER"]) {
-      logger.info("run schedule checker");
+  await bot.init();
+  await finder.init();
 
-      const checker = new ScheduleCheckerService();
-      cron.schedule("*/30 * * * *", () => checker.checkSchedule(bot));
-    } else {
-      logger.info("run bot");
+  logger.info(`database name: ${DB_NAME}`);
+  logger.info(`bot username: @${bot.botInfo.username}`);
 
-      run(bot);
-    }
-  })
-  .catch(console.error);
+  const checker = new ScheduleCheckerService();
+  checker.checkSchedule(bot);
+
+  if (process.env["START_SCHEDULE_CHECKER"]) {
+    logger.info("run schedule checker");
+
+    const checker = new ScheduleCheckerService();
+    cron.schedule("*/30 * * * *", () => checker.checkSchedule(bot));
+  } else {
+    logger.info("run bot");
+
+    run(bot);
+  }
+}
