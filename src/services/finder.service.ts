@@ -51,7 +51,7 @@ export class FinderService {
     const args: string[] = getArguments(query);
 
     return this.all.filter(({ name }) =>
-      args.every((arg) => name.replace(/-/g, "").toLowerCase().includes(arg))
+      args.every((arg) => getArguments(name).includes(arg))
     );
   }
 

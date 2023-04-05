@@ -24,14 +24,14 @@ export class ScheduleCheckerService {
       const updatedSchedules = await this.getUpdatedSchedules(date);
 
       for (const [entity, schedule] of updatedSchedules) {
-        const group = finder.findById(entity.toString());
+        const group = finder.findById(entity.id);
         if (group === undefined) return;
 
         logger.profile(group.name);
 
         const chats = await this.getChatsWithSubscriptionToEntity(entity);
 
-        logger.info(`Schedule for ${group.name} updated`);
+        logger.info(`${group.name} updated`);
         logger.info(`Affected chats: ${chats.length}`);
 
         const scheduleMessage = getScheduleMessage(schedule, group.name);
@@ -100,26 +100,26 @@ export class ScheduleCheckerService {
 
     const newSchedules = await this.getManySchedules(entities, date);
     const lastSchedulesFromDB = await schedules
-      .find({ subscription: { $in: ids } })
+      .find({ entityId: { $in: ids } })
       .toArray();
 
     // fill map
     const updatedSchedules = new Map<ScheduleEntity, Schedule>();
     for (const [entity, schedule] of newSchedules) {
       const lastSchedule: Schedule | undefined = lastSchedulesFromDB.find(
-        (schedule) => schedule.id === entity.id
+        (schedule) => schedule.entityId === entity.id
       )?.schedule;
 
-      const isEquals: boolean = compareSchedule(schedule, lastSchedule);
+      const equals: boolean = compareSchedule(schedule, lastSchedule);
 
-      if (isEquals === false && schedule.lessons?.length > 0) {
+      if (equals === false && schedule.lessons?.length > 0) {
         // add schedule to map
         updatedSchedules.set(entity, schedule);
 
         // update db
         await schedules.updateOne(
-          { id: entity.id },
-          { $set: { id: entity.id, schedule } },
+          { entityId: entity.id },
+          { $set: { entityId: entity.id, schedule } },
           { upsert: true }
         );
       }
