@@ -18,9 +18,6 @@ async function main() {
   logger.info(`database name: ${DB_NAME}`);
   logger.info(`bot username: @${bot.botInfo.username}`);
 
-  const checker = new ScheduleCheckerService();
-  checker.checkSchedule(bot);
-
   if (process.env["START_SCHEDULE_CHECKER"]) {
     logger.info("run schedule checker");
 

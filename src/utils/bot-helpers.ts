@@ -24,7 +24,7 @@ export async function sendShortSchedule(
 
 export async function sendSchedule(ctx: MyContext, date = dayjs()) {
   const firstDate = getWeekday(0, date);
-  const secondDate = getWeekday(1, date);
+  const secondDate = getWeekday(1, firstDate);
 
   (await sendShortSchedule(ctx, firstDate)) &&
     (await sendShortSchedule(ctx, secondDate));
