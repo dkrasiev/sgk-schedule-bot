@@ -6,5 +6,10 @@ import { MY_WHITESPACE } from "./regex";
  * @returns Array of arguments after "/command"
  */
 export function getArguments(text: string): string[] {
-  return text.trim().toLowerCase().split(MY_WHITESPACE).filter(Boolean);
+  return text
+    .trim()
+    .replace(/-/g, "")
+    .toLowerCase()
+    .split(MY_WHITESPACE)
+    .filter(Boolean);
 }

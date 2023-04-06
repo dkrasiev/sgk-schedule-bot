@@ -4,6 +4,7 @@ import { MyContext } from "../models/my-context.type";
 import { ScheduleEntity } from "../models/schedule-entity.class";
 import { Teacher } from "../models/teacher.class";
 import { getArguments } from "../utils/get-arguments";
+import logger from "../utils/logger";
 import { trimCommand } from "../utils/trim-command";
 import { sgkApi } from "./sgk-api.service";
 
@@ -31,9 +32,11 @@ export class FinderService {
   }
 
   public searchInContext(ctx: MyContext): ScheduleEntity[] {
-    const query = trimCommand(ctx.message?.text || "");
+    const query = (ctx.message?.text && trimCommand(ctx.message.text)) || "";
     if (query) {
+      logger.profile("search");
       const searchByNameResult = this.searchByName(query);
+      logger.profile("search");
       if (searchByNameResult.length) {
         return searchByNameResult;
       }
@@ -51,7 +54,9 @@ export class FinderService {
     const args: string[] = getArguments(query);
 
     return this.all.filter(({ name }) =>
-      args.every((arg) => getArguments(name).includes(arg))
+      args.every((arg) =>
+        getArguments(name).some((nameArg) => nameArg.includes(arg))
+      )
     );
   }
 
