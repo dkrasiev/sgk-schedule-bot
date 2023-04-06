@@ -4,7 +4,6 @@ import { MyContext } from "../models/my-context.type";
 import { ScheduleEntity } from "../models/schedule-entity.class";
 import { Teacher } from "../models/teacher.class";
 import { getArguments } from "../utils/get-arguments";
-import logger from "../utils/logger";
 import { trimCommand } from "../utils/trim-command";
 import { sgkApi } from "./sgk-api.service";
 
@@ -34,9 +33,7 @@ export class FinderService {
   public searchInContext(ctx: MyContext): ScheduleEntity[] {
     const query = (ctx.message?.text && trimCommand(ctx.message.text)) || "";
     if (query) {
-      logger.profile("search");
       const searchByNameResult = this.searchByName(query);
-      logger.profile("search");
       if (searchByNameResult.length) {
         return searchByNameResult;
       }
