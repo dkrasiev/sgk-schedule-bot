@@ -17,17 +17,32 @@ export class FinderService {
   }
 
   public async init() {
-    this._groups = await sgkApi.getGroups();
+    this._groups = await sgkApi
+      .getGroups()
+      .then((groups) => groups.sort((a, b) => a.name.localeCompare(b.name)))
+      .then((groups) => groups.sort((a, b) => a.name.length - b.name.length));
 
     // filter Администратор, Вакансия, Резерв, методист, методист1
-    this._teachers = (await sgkApi.getTeachers()).filter(
-      (teacher) => teacher.name.split(" ").length > 2
-    );
+    this._teachers = await sgkApi
+      .getTeachers()
+      .then((teachers) =>
+        teachers.filter((teacher) => teacher.name.split(" ").length > 2)
+      )
+      .then((teachers) =>
+        teachers.sort((a, b) => a.name.localeCompare(b.name))
+      );
 
     // filter п/п, дист/дист
-    this._cabinets = (await sgkApi.getCabinets()).filter(
-      (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист"
-    );
+    this._cabinets = await sgkApi
+      .getCabinets()
+      .then((cabinets) =>
+        cabinets.filter(
+          (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист"
+        )
+      )
+      .then((cabinets) =>
+        cabinets.sort((a, b) => a.name.localeCompare(b.name))
+      );
   }
 
   public searchInContext(ctx: MyContext): ScheduleEntity[] {
@@ -50,11 +65,19 @@ export class FinderService {
   public searchByName(query: string): ScheduleEntity[] {
     const args: string[] = getArguments(query);
 
-    return this.all.filter(({ name }) =>
-      args.every((arg) =>
-        getArguments(name).some((nameArg) => nameArg.includes(arg))
-      )
-    );
+    return this.all.filter((entity) => {
+      const nameArgs: string[] = getArguments(entity.name);
+
+      if (entity instanceof Group) {
+        // return args.every((arg) =>
+        //   nameArgs.some((nameArg) => nameArg.includes(arg))
+        // );
+      }
+
+      return args.every((arg) =>
+        nameArgs.some((nameArg) => nameArg.includes(arg))
+      );
+    });
   }
 
   public searchById(id: string) {
