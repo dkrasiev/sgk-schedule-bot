@@ -9,17 +9,6 @@
       "env_production": {
         "NODE_ENV": "production"
       }
-    },
-    {
-      "name": "schedule-checker",
-      "script": "dist/app.js",
-      "env": {
-        "NODE_ENV": "development",
-        "START_SCHEDULE_CHECKER": "true"
-      },
-      "env_production": {
-        "NODE_ENV": "production"
-      }
     }
   ]
 }

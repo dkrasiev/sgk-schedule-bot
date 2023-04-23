@@ -20,16 +20,13 @@ async function main() {
   logger.info(`database name: ${DB_NAME}`);
   logger.info(`bot username: @${bot.botInfo.username}`);
 
-  if (process.env["START_SCHEDULE_CHECKER"]) {
-    logger.info("run schedule checker");
+  // bot
+  logger.info("run bot");
+  new LoadWatchService(messageCounter);
+  run(bot);
 
-    const checker = new ScheduleCheckerService();
-    cron.schedule("*/30 * * * *", () => checker.checkSchedule(bot)); // every thirty minutes
-  } else {
-    logger.info("run bot");
-
-    new LoadWatchService(messageCounter);
-
-    run(bot);
-  }
+  // schedule checker
+  logger.info("run schedule checker");
+  const checker = new ScheduleCheckerService();
+  cron.schedule("*/30 * * * *", () => checker.checkSchedule(bot)); // every thirty minutes
 }
