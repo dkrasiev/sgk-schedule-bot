@@ -10,6 +10,7 @@ logComposer.on("message:text", async (ctx, next) => {
   logger.info(ctx.message.text);
 
   messageCounter.count();
+  logger.info(JSON.stringify(ctx.session, undefined, 2));
 
   await next();
 });
