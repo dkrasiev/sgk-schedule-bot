@@ -1,7 +1,6 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { trimCommand } from "../utils/trim-command";
 import { adminService } from "../services/admin.service";
 import { isAdmin } from "../utils/is-admin";
 
@@ -18,7 +17,7 @@ adminComposer.command("broadcast", async (ctx, next) => {
     return;
   }
 
-  const message = trimCommand(ctx.message.text);
+  const message = ctx.message.text.slice(ctx.message.text.indexOf(" ") || 0);
   if (!message) {
     await ctx.reply("Message not found");
     return;

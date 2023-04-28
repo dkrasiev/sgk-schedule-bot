@@ -15,7 +15,7 @@ export class AdminService {
       ctx.reply(`${successMessages}/${chats.length} sended`);
     }, 5000);
 
-    const result = await runSequentialWithDelay(
+    await runSequentialWithDelay(
       chats.map(
         (chat) => () =>
           ctx.api
@@ -31,8 +31,6 @@ export class AdminService {
       ),
       50
     );
-
-    console.log(result);
 
     clearInterval(timer);
 
