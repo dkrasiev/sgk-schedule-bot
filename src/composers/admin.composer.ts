@@ -21,12 +21,10 @@ adminComposer.command("broadcast", async (ctx, next) => {
   const message = trimCommand(ctx.message.text);
   if (!message) {
     await ctx.reply("Message not found");
-
     return;
   }
 
   await adminService.broadcastMessage(message, ctx);
-  await ctx.reply("Messages sent");
 });
 
 export default adminComposer;
