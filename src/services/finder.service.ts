@@ -65,19 +65,11 @@ export class FinderService {
   public searchByName(query: string): ScheduleEntity[] {
     const args: string[] = getArguments(query);
 
-    return this.all.filter((entity) => {
-      const nameArgs: string[] = getArguments(entity.name);
-
-      if (entity instanceof Group) {
-        // return args.every((arg) =>
-        //   nameArgs.some((nameArg) => nameArg.includes(arg))
-        // );
-      }
-
-      return args.every((arg) =>
-        nameArgs.some((nameArg) => nameArg.includes(arg))
-      );
-    });
+    return this.all.filter((entity) =>
+      args.every((arg) =>
+        getArguments(entity.name).some((nameArg) => nameArg.includes(arg))
+      )
+    );
   }
 
   public searchById(id: string) {
