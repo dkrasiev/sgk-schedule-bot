@@ -2,7 +2,7 @@ import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
 import { trimCommand } from "../utils/trim-command";
-import { finder } from "../services/finder.service";
+import { finder } from "../services/singleton-services";
 
 const miscComposer = new Composer<MyContext>();
 

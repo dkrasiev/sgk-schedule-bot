@@ -1,6 +1,7 @@
 import { Composer } from "grammy";
+
 import { MyContext } from "../models/my-context.type";
-import { finder } from "../services/finder.service";
+import { finder } from "../services/singleton-services";
 
 const subscribeComposer = new Composer<MyContext>();
 

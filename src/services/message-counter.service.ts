@@ -13,5 +13,3 @@ export class MessageCounterService {
     this.messageCount = 0;
   }
 }
-
-export const messageCounter = new MessageCounterService();

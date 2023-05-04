@@ -18,8 +18,8 @@ import triggerComposer from "./composers/trigger.composer";
 import { BOT_TOKEN } from "./config";
 import { sessions } from "./database";
 import { MyContext } from "./models/my-context.type";
-import { finder } from "./services/finder.service";
 import logger from "./utils/logger";
+import { finder } from "./services/singleton-services";
 
 const botCommands = [
   { command: "help", description: "Помощь" },

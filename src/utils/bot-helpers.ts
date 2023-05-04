@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 
 import { MyContext } from "../models/my-context.type";
+import { finder } from "../services/singleton-services";
 import { getScheduleMessage } from "./get-schedule-message";
 import { getWeekday } from "./get-weekday";
-import { finder } from "../services/finder.service";
 
 export async function sendShortSchedule(
   ctx: MyContext,

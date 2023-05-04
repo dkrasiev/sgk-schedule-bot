@@ -1,8 +1,8 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { adminService } from "../services/admin.service";
 import { isAdmin } from "../utils/is-admin";
+import { admin } from "../services/singleton-services";
 
 const adminComposer = new Composer<MyContext>();
 
@@ -23,7 +23,7 @@ adminComposer.command("broadcast", async (ctx, next) => {
     return;
   }
 
-  await adminService.broadcastMessage(message, ctx);
+  await admin.broadcastMessage(message, ctx);
 });
 
 export default adminComposer;

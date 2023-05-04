@@ -10,10 +10,12 @@ import { compareSchedule } from "../utils/compare-schedule";
 import { getWeekday } from "../utils/get-weekday";
 import { getScheduleMessage } from "../utils/get-schedule-message";
 import logger from "../utils/logger";
-import { finder } from "./finder.service";
-import { sgkApi } from "./sgk-api.service";
+import { FinderService } from "./finder.service";
+import { SGKApiService } from "./sgk-api.service";
 
 export class ScheduleCheckerService {
+  constructor(private finder: FinderService, private sgkApi: SGKApiService) {}
+
   public async checkSchedule(bot: Bot<MyContext>) {
     logger.profile("checking schedule");
     try {
@@ -24,7 +26,7 @@ export class ScheduleCheckerService {
       const updatedSchedules = await this.getUpdatedSchedules(date);
 
       for (const [entity, schedule] of updatedSchedules) {
-        const group = finder.findById(entity.id);
+        const group = this.finder.findById(entity.id);
         if (group === undefined) return;
 
         logger.profile(group.name);
@@ -80,7 +82,7 @@ export class ScheduleCheckerService {
     const schedules = new Map<ScheduleEntity, Schedule>();
 
     for (const entity of entities) {
-      const schedule: Schedule = await sgkApi.getSchedule(entity, date);
+      const schedule: Schedule = await this.sgkApi.getSchedule(entity, date);
 
       schedules.set(entity, schedule);
     }
@@ -95,7 +97,7 @@ export class ScheduleCheckerService {
       ({ value }) => value.subscription
     ) as string[];
     const entities: ScheduleEntity[] = ids
-      .map((id) => finder.findById(id))
+      .map((id) => this.finder.findById(id))
       .filter(Boolean) as ScheduleEntity[];
 
     const newSchedules = await this.getManySchedules(entities, date);

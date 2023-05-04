@@ -1,6 +1,7 @@
 import { ISession } from "@grammyjs/storage-mongodb";
 import { sessions } from "../database";
 import { MyContext } from "../models/my-context.type";
+import { runSequentialWithDelay } from "../utils/run-sequential-with-delay";
 
 export class AdminService {
   async broadcastMessage(message: string, ctx: MyContext) {
@@ -39,23 +40,3 @@ export class AdminService {
     );
   }
 }
-
-async function runSequentialWithDelay<T>(
-  promises: (() => Promise<T>)[],
-  delay: number
-): Promise<T[]> {
-  const results: T[] = [];
-
-  for (const promise of promises) {
-    await wait(delay);
-    results.push(await promise());
-  }
-
-  return results;
-}
-
-function wait(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export const adminService = new AdminService();

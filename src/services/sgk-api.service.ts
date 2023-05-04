@@ -12,10 +12,14 @@ import { Cabinet } from "../models/cabinet.class";
 import { Group } from "../models/group.class";
 import { Schedule } from "../models/schedule.interface";
 import { Teacher } from "../models/teacher.class";
+import redisCache from "../utils/redis-cache";
 
 export class SGKApiService {
   private api = SCHEDULE_URL;
 
+  @redisCache({
+    prefix: "groups",
+  })
   public async getGroups(): Promise<Group[]> {
     return myAxios
       .get<{ id: number; name: string }[]>(GROUPS_URL)
@@ -24,6 +28,9 @@ export class SGKApiService {
       );
   }
 
+  @redisCache({
+    prefix: "teachers",
+  })
   public async getTeachers(): Promise<Teacher[]> {
     return myAxios
       .get<{ id: string; name: string }[]>(TEACHERS_URL)
@@ -32,6 +39,9 @@ export class SGKApiService {
       );
   }
 
+  @redisCache({
+    prefix: "cabinets",
+  })
   public async getCabinets(): Promise<Cabinet[]> {
     return myAxios
       .get<{ [key: string]: string }>(CABINETS_URL)
@@ -73,5 +83,3 @@ export class SGKApiService {
     return date.format(DATE_FORMAT);
   }
 }
-
-export const sgkApi = new SGKApiService();

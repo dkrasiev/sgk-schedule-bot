@@ -5,25 +5,27 @@ import { ScheduleEntity } from "../models/schedule-entity.class";
 import { Teacher } from "../models/teacher.class";
 import { getArguments } from "../utils/get-arguments";
 import { trimCommand } from "../utils/trim-command";
-import { sgkApi } from "./sgk-api.service";
+import { SGKApiService } from "./sgk-api.service";
 
 export class FinderService {
   private _groups: Group[] = [];
   private _teachers: Teacher[] = [];
   private _cabinets: Cabinet[] = [];
 
+  constructor(private sgkApiService: SGKApiService) {}
+
   public get all(): Readonly<ScheduleEntity[]> {
     return [...this._groups, ...this._teachers, ...this._cabinets];
   }
 
   public async init() {
-    this._groups = await sgkApi
+    this._groups = await this.sgkApiService
       .getGroups()
       .then((groups) => groups.sort((a, b) => a.name.localeCompare(b.name)))
       .then((groups) => groups.sort((a, b) => a.name.length - b.name.length));
 
     // filter Администратор, Вакансия, Резерв, методист, методист1
-    this._teachers = await sgkApi
+    this._teachers = await this.sgkApiService
       .getTeachers()
       .then((teachers) =>
         teachers.filter((teacher) => teacher.name.split(" ").length > 2)
@@ -33,7 +35,7 @@ export class FinderService {
       );
 
     // filter п/п, дист/дист
-    this._cabinets = await sgkApi
+    this._cabinets = await this.sgkApiService
       .getCabinets()
       .then((cabinets) =>
         cabinets.filter(
@@ -80,5 +82,3 @@ export class FinderService {
     return this.all.find((entity) => entity.id === id);
   }
 }
-
-export const finder = new FinderService();

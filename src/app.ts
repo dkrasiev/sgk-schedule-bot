@@ -2,11 +2,10 @@ import { run } from "@grammyjs/runner";
 import cron from "node-cron";
 
 import bot from "./bot";
-import { SCHEDULE_CHECKER, MONGODB_NAME } from "./config";
-import { finder } from "./services/finder.service";
+import { MONGODB_NAME, SCHEDULE_CHECKER } from "./config";
 import { LoadWatchService } from "./services/load-watch.service";
-import { messageCounter } from "./services/message-counter.service";
 import { ScheduleCheckerService } from "./services/schedule-checker.service";
+import { counter, finder, sgkApi } from "./services/singleton-services";
 import logger from "./utils/logger";
 
 main().catch(logger.error);
@@ -23,12 +22,12 @@ async function main() {
   if (SCHEDULE_CHECKER) {
     // schedule checker
     logger.info("run schedule checker");
-    const checker = new ScheduleCheckerService();
+    const checker = new ScheduleCheckerService(finder, sgkApi);
     cron.schedule("*/30 * * * *", () => checker.checkSchedule(bot)); // every thirty minutes
   } else {
     // bot
     logger.info("run bot");
-    new LoadWatchService(messageCounter);
+    new LoadWatchService(counter);
     run(bot);
   }
 }
