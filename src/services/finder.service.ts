@@ -1,8 +1,8 @@
-import { Cabinet } from "../models/cabinet.class";
-import { Group } from "../models/group.class";
+import { Cabinet } from "../models/entities/cabinet.class";
+import { Group } from "../models/entities/group.class";
+import { ScheduleEntity } from "../models/entities/schedule-entity.class";
+import { Teacher } from "../models/entities/teacher.class";
 import { MyContext } from "../models/my-context.type";
-import { ScheduleEntity } from "../models/schedule-entity.class";
-import { Teacher } from "../models/teacher.class";
 import { getArguments } from "../utils/get-arguments";
 import { trimCommand } from "../utils/trim-command";
 import { SGKApiService } from "./sgk-api.service";
@@ -21,12 +21,18 @@ export class FinderService {
   public async init() {
     this._groups = await this.sgkApiService
       .getGroups()
+      .then((entities) =>
+        entities.map((entity) => new Group(entity.id, entity.name))
+      )
       .then((groups) => groups.sort((a, b) => a.name.localeCompare(b.name)))
       .then((groups) => groups.sort((a, b) => a.name.length - b.name.length));
 
     // filter Администратор, Вакансия, Резерв, методист, методист1
     this._teachers = await this.sgkApiService
       .getTeachers()
+      .then((entities) =>
+        entities.map((entity) => new Teacher(entity.id, entity.name))
+      )
       .then((teachers) =>
         teachers.filter((teacher) => teacher.name.split(" ").length > 2)
       )
@@ -37,6 +43,9 @@ export class FinderService {
     // filter п/п, дист/дист
     this._cabinets = await this.sgkApiService
       .getCabinets()
+      .then((entities) =>
+        entities.map((entity) => new Cabinet(entity.id, entity.name))
+      )
       .then((cabinets) =>
         cabinets.filter(
           (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист"

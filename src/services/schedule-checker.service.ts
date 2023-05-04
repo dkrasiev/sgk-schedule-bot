@@ -4,7 +4,7 @@ import { Bot } from "grammy";
 import { schedules, sessions } from "../database";
 import { MyContext } from "../models/my-context.type";
 import { MySession } from "../models/my-session.interface";
-import { ScheduleEntity } from "../models/schedule-entity.class";
+import { ScheduleEntity } from "../models/entities/schedule-entity.class";
 import { Schedule } from "../models/schedule.interface";
 import { compareSchedule } from "../utils/compare-schedule";
 import { getWeekday } from "../utils/get-weekday";
@@ -82,7 +82,7 @@ export class ScheduleCheckerService {
     const schedules = new Map<ScheduleEntity, Schedule>();
 
     for (const entity of entities) {
-      const schedule: Schedule = await this.sgkApi.getSchedule(entity, date);
+      const schedule: Schedule = await entity.getSchedule(date);
 
       schedules.set(entity, schedule);
     }

@@ -1,85 +1,37 @@
-import dayjs, { Dayjs } from "dayjs";
-
 import myAxios from "../axios";
-import {
-  CABINETS_URL,
-  DATE_FORMAT,
-  GROUPS_URL,
-  SCHEDULE_URL,
-  TEACHERS_URL,
-} from "../config";
-import { Cabinet } from "../models/cabinet.class";
-import { Group } from "../models/group.class";
-import { Schedule } from "../models/schedule.interface";
-import { Teacher } from "../models/teacher.class";
+import { CABINETS_URL, GROUPS_URL, TEACHERS_URL } from "../config";
+import { IScheduleEntity } from "../models/entities/schedule-entity.interface";
 import redisCache from "../utils/redis-cache";
 
 export class SGKApiService {
-  private api = SCHEDULE_URL;
-
   @redisCache({
     prefix: "groups",
   })
-  public async getGroups(): Promise<Group[]> {
+  public async getGroups(): Promise<IScheduleEntity[]> {
     return myAxios
       .get<{ id: number; name: string }[]>(GROUPS_URL)
       .then((response) =>
-        response.data.map(({ id, name }) => new Group(id.toString(), name))
+        response.data.map(({ id, name }) => ({ id: String(id), name }))
       );
   }
 
   @redisCache({
     prefix: "teachers",
   })
-  public async getTeachers(): Promise<Teacher[]> {
+  public async getTeachers(): Promise<IScheduleEntity[]> {
     return myAxios
       .get<{ id: string; name: string }[]>(TEACHERS_URL)
-      .then((response) =>
-        response.data.map(({ id, name }) => new Teacher(id, name))
-      );
+      .then((response) => response.data.map(({ id, name }) => ({ id, name })));
   }
 
   @redisCache({
     prefix: "cabinets",
   })
-  public async getCabinets(): Promise<Cabinet[]> {
+  public async getCabinets(): Promise<IScheduleEntity[]> {
     return myAxios
       .get<{ [key: string]: string }>(CABINETS_URL)
       .then((response) =>
-        Object.entries(response.data).map(([id, name]) => new Cabinet(id, name))
+        Object.entries(response.data).map(([id, name]) => ({ id, name }))
       );
-  }
-
-  public async getSchedule(
-    entity: Group | Teacher | Cabinet,
-    date: Dayjs
-  ): Promise<Schedule> {
-    const url = this.getScheduleUrl(entity, date);
-    return myAxios.get<Schedule>(url).then((response) => response.data);
-  }
-
-  private getScheduleUrl(
-    entity: Group | Teacher | Cabinet,
-    date: Dayjs
-  ): string {
-    const url = this.api;
-
-    if (entity instanceof Group) {
-      return url + `/${entity.id}/${this.formatDate(date)}`;
-    }
-
-    if (entity instanceof Teacher) {
-      return url + `/teacher/${this.formatDate(date)}/${entity.id}`;
-    }
-
-    if (entity instanceof Cabinet) {
-      return url + `/cabs/${this.formatDate(date)}/cabNum/${entity.id}`;
-    }
-
-    throw new Error("passed wrong value");
-  }
-
-  private formatDate(date = dayjs()): string {
-    return date.format(DATE_FORMAT);
   }
 }
