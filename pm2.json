@@ -4,11 +4,24 @@
       "name": "sgk-schedule-bot",
       "script": "dist/app.js",
       "env": {
-        "NODE_ENV": "development"
-      },
-      "env_production": {
         "NODE_ENV": "production"
-      }
+      },
+      "post_update": [
+        "npm install",
+        "npm run build"
+      ]
+    },
+    {
+      "name": "sgk-schedule-bot:schedule-checker",
+      "script": "dist/app.js",
+      "env": {
+        "NODE_ENV": "production",
+        "BOT_MODE": "schedule-checker"
+      },
+      "post_update": [
+        "npm install",
+        "npm run build"
+      ]
     }
   ]
 }

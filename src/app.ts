@@ -2,7 +2,7 @@ import { run } from "@grammyjs/runner";
 import cron from "node-cron";
 
 import bot from "./bot";
-import { DB_NAME } from "./config";
+import { BOT_MODE, DB_NAME } from "./config";
 import { finder } from "./services/finder.service";
 import { LoadWatchService } from "./services/load-watch.service";
 import { messageCounter } from "./services/message-counter.service";
@@ -20,13 +20,15 @@ async function main() {
   logger.info(`database name: ${DB_NAME}`);
   logger.info(`bot username: @${bot.botInfo.username}`);
 
-  // bot
-  logger.info("run bot");
-  new LoadWatchService(messageCounter);
-  run(bot);
-
-  // schedule checker
-  logger.info("run schedule checker");
-  const checker = new ScheduleCheckerService();
-  cron.schedule("*/30 * * * *", () => checker.checkSchedule(bot)); // every thirty minutes
+  if (BOT_MODE === "schedule-checker") {
+    // schedule checker
+    logger.info("run schedule checker");
+    const checker = new ScheduleCheckerService();
+    cron.schedule("*/30 * * * *", () => checker.checkSchedule(bot)); // every thirty minutes
+  } else {
+    // bot
+    logger.info("run bot");
+    new LoadWatchService(messageCounter);
+    run(bot);
+  }
 }

@@ -19,3 +19,5 @@ export const DB_URI = process.env.DB_URI || "localhost";
 export const DB_NAME =
   (PRODUCTION ? process.env.DB_NAME : process.env.DB_NAME_TEST) ||
   "schedule_bot";
+
+export const BOT_MODE = process.env.BOT_MODE;
