@@ -2,7 +2,7 @@ import { run } from "@grammyjs/runner";
 import cron from "node-cron";
 
 import bot from "./bot";
-import { BOT_MODE, DB_NAME } from "./config";
+import { SCHEDULE_CHECKER, MONGODB_NAME } from "./config";
 import { finder } from "./services/finder.service";
 import { LoadWatchService } from "./services/load-watch.service";
 import { messageCounter } from "./services/message-counter.service";
@@ -17,10 +17,10 @@ async function main() {
   await bot.init();
   await finder.init();
 
-  logger.info(`database name: ${DB_NAME}`);
+  logger.info(`database name: ${MONGODB_NAME}`);
   logger.info(`bot username: @${bot.botInfo.username}`);
 
-  if (BOT_MODE === "schedule-checker") {
+  if (SCHEDULE_CHECKER) {
     // schedule checker
     logger.info("run schedule checker");
     const checker = new ScheduleCheckerService();
