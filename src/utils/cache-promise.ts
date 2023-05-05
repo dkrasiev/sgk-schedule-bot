@@ -1,14 +1,11 @@
 /**
  * Caches promise
- * @param {Promise<T>}
+ * @param {Promise<T>} promise Promise to cache
  * @returns {function(): Promise<T>}
  */
 export function cachePromise<T>(promise: Promise<T>): () => Promise<T> {
   let data: T;
 
-  return async (): Promise<T> => {
-    if (data) return data;
-
-    return promise.then((value) => (data = value));
-  };
+  return async (): Promise<T> =>
+    data || promise.then((value) => (data = value));
 }
