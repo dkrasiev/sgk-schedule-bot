@@ -4,8 +4,8 @@ import { mondayTimes, times } from "./times";
 
 /**
  * Get schedule message for user
- * @param {Schedule | null} schedule Schedule
- * @param {string} title Title
+ * @param {Schedule | undefined} schedule Schedule
+ * @param {string | undefined} title Title
  * @returns {string} Message for user
  */
 export function getScheduleMessage(

@@ -4,7 +4,7 @@ import { MyContext } from "../models/my-context.type";
 const startComposer = new Composer<MyContext>();
 
 startComposer.command("start", async (ctx) => {
-  if (ctx.from == null) return;
+  if (!ctx.from) return;
 
   await ctx.reply(ctx.t("welcome", { name: ctx.from.first_name }));
 });

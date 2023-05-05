@@ -27,7 +27,7 @@ export class ScheduleCheckerService {
 
       for (const [entity, schedule] of updatedSchedules) {
         const group = this.finder.findById(entity.id);
-        if (group === undefined) return;
+        if (!group) return;
 
         logger.profile(group.name);
 

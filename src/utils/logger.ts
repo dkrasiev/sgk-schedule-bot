@@ -20,7 +20,7 @@ const logger = winston.createLogger({
         level,
         config?.url,
         message,
-        (durationMs && `duration=${durationMs / 1000}s`) || null,
+        (durationMs && `duration=${durationMs / 1000}s`) || undefined,
       ]
         .filter(Boolean)
         .join(" ")
