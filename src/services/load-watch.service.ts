@@ -3,14 +3,14 @@ import dayjs from "dayjs";
 import cron from "node-cron";
 import humanizeDuration from "humanize-duration";
 
-import { MessageCounterService } from "./message-counter.service";
+import { CounterService } from "./message-counter.service";
 import logger from "../utils/logger";
 
 export class LoadWatchService {
   private duration: string;
 
   constructor(
-    private counter: MessageCounterService,
+    private counter: CounterService,
     private cronExpression = "*/60 * * * *" // every hour by default
   ) {
     const parsedCronExpression = cronparser.parseExpression(

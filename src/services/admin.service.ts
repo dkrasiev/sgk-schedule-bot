@@ -14,7 +14,7 @@ export class AdminService {
     let failMessages = 0;
     const timer = setInterval(() => {
       ctx.reply(`${successMessages}/${chats.length} sended`);
-    }, 5000);
+    }, 1000);
 
     await runSequentialWithDelay(
       chats.map(

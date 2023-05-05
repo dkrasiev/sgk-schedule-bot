@@ -12,15 +12,15 @@ export class FinderService {
   private _teachers: Teacher[] = [];
   private _cabinets: Cabinet[] = [];
 
-  constructor(private sgkApiService: SGKApiService) {}
+  constructor(private api: SGKApiService) {}
 
   public get all(): Readonly<ScheduleEntity[]> {
     return [...this._groups, ...this._teachers, ...this._cabinets];
   }
 
   public async init() {
-    this._groups = await this.sgkApiService
-      .getGroups()
+    this._groups = await this.api
+      .fetchGroups()
       .then((entities) =>
         entities.map((entity) => new Group(entity.id, entity.name))
       )
@@ -28,8 +28,8 @@ export class FinderService {
       .then((groups) => groups.sort((a, b) => a.name.length - b.name.length));
 
     // filter Администратор, Вакансия, Резерв, методист, методист1
-    this._teachers = await this.sgkApiService
-      .getTeachers()
+    this._teachers = await this.api
+      .fetchTeachers()
       .then((entities) =>
         entities.map((entity) => new Teacher(entity.id, entity.name))
       )
@@ -41,8 +41,8 @@ export class FinderService {
       );
 
     // filter п/п, дист/дист
-    this._cabinets = await this.sgkApiService
-      .getCabinets()
+    this._cabinets = await this.api
+      .fetchCabinets()
       .then((entities) =>
         entities.map((entity) => new Cabinet(entity.id, entity.name))
       )

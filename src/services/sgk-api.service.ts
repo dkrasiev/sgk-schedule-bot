@@ -7,7 +7,7 @@ export class SGKApiService {
   @redisCache({
     prefix: "groups",
   })
-  public async getGroups(): Promise<IScheduleEntity[]> {
+  public async fetchGroups(): Promise<IScheduleEntity[]> {
     return myAxios
       .get<{ id: number; name: string }[]>(GROUPS_URL)
       .then((response) =>
@@ -18,7 +18,7 @@ export class SGKApiService {
   @redisCache({
     prefix: "teachers",
   })
-  public async getTeachers(): Promise<IScheduleEntity[]> {
+  public async fetchTeachers(): Promise<IScheduleEntity[]> {
     return myAxios
       .get<{ id: string; name: string }[]>(TEACHERS_URL)
       .then((response) => response.data.map(({ id, name }) => ({ id, name })));
@@ -27,7 +27,7 @@ export class SGKApiService {
   @redisCache({
     prefix: "cabinets",
   })
-  public async getCabinets(): Promise<IScheduleEntity[]> {
+  public async fetchCabinets(): Promise<IScheduleEntity[]> {
     return myAxios
       .get<{ [key: string]: string }>(CABINETS_URL)
       .then((response) =>

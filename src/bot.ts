@@ -74,11 +74,11 @@ bot.use(
   })
 );
 // custom config
-bot.use((ctx, next) => {
+bot.use(async (ctx, next) => {
   ctx.getDefault = () =>
     ctx.session.default ? finder.findById(ctx.session.default) : undefined;
 
-  next();
+  await next();
 });
 
 bot.use(logComposer);

@@ -1,15 +1,15 @@
-export class MessageCounterService {
-  private messageCount = 0;
+export class CounterService {
+  private _count = 0;
 
   public getCount() {
-    return this.messageCount;
+    return this._count;
   }
 
   public count() {
-    this.messageCount++;
+    this._count++;
   }
 
   public reset() {
-    this.messageCount = 0;
+    this._count = 0;
   }
 }
