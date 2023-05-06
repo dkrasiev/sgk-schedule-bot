@@ -71,7 +71,6 @@ export function RedisCacheFactory(
 
       return async function (this: This, ...args: Args): Promise<Return> {
         const key = getKey(...args);
-        log("args:", args);
         log("key:", key);
 
         const redisData = await redis.call("JSON.GET", key, "$");
