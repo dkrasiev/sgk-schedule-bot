@@ -1,7 +1,7 @@
 import { Context, SessionFlavor } from "grammy";
 import { I18nFlavor } from "@grammyjs/i18n";
 import { MySession } from "./my-session.interface";
-import { ScheduleEntity } from "./schedule-entity.class";
+import { ScheduleEntity } from "./entities/schedule-entity.class";
 
 export interface MyFlavor {
   getDefault(): ScheduleEntity | undefined;

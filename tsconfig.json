@@ -1,5 +1,10 @@
 {
   "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["./src/**/*"],
   "ts-node": {
     "esm": true
   }

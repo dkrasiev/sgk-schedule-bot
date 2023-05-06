@@ -1,18 +1,28 @@
-FROM node:18-alpine
+FROM node:lts-slim AS build
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# Install app dependencies
+COPY . .
+RUN pnpm install
+RUN pnpm run build
+
+
+FROM node:lts-slim AS runtime
+
+WORKDIR /app
 
 # Expose ports needed to use Keymetrics.io
 EXPOSE 80 443 43554
 
 # install pm2
-RUN npm install pm2 -g
+RUN npm install -g pm2
 RUN pm2 update
 
-# Install app dependencies
-COPY package.json package.json
-RUN npm install
-
-# Bundle APP files
-COPY . .
-RUN npm run build
+COPY --from=build /app/.env /app/.env
+COPY --from=build /app/build /app/build
+COPY --from=build /app/pm2.json /app/pm2.json
 
 CMD [ "pm2-runtime", "start", "pm2.json", "--env", "production" ]

@@ -2,7 +2,7 @@ node_modules
 .prettierrc
 deploy.config.js
 .env
-dist
+build
 .out
 log.txt
 .vscode
