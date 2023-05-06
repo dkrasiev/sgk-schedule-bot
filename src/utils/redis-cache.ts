@@ -38,7 +38,7 @@ export function RedisCacheFactory(
     delimiter: ":",
   };
 
-  return function RedisCache<This, Args extends unknown[], Return>(
+  return function RedisCache<Args extends unknown[], Return>(
     options?: RedisCacheOptions<Args>
   ) {
     const { prefix, delimiter, keyFn } = {
@@ -55,45 +55,44 @@ export function RedisCacheFactory(
     }
 
     return function (
-      target: (this: This, ...args: Args) => Promise<Return>,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      context: ClassMethodDecoratorContext<
-        This,
-        (this: This, ...args: Args) => Promise<Return>
-      >
+      target: unknown,
+      key: string,
+      descriptor: TypedPropertyDescriptor<(...args: Args) => Promise<Return>>
     ) {
-      const methodName = String(context.name);
       function log(...args: unknown[]) {
         if (debug) {
-          console.log(methodName, "REDIS CACHE:", ...args);
+          console.log("REDIS CACHE:", ...args);
         }
       }
+      const originalMethod = descriptor.value;
 
-      return async function (this: This, ...args: Args): Promise<Return> {
-        const key = getKey(...args);
-        log("key:", key);
+      if (typeof originalMethod === "function") {
+        descriptor.value = async function (...args: Args) {
+          const key = getKey(...args);
+          log("key:", key);
 
-        const redisData = await redis.call("JSON.GET", key, "$");
-        if (typeof redisData === "string") {
-          const cache = JSON.parse(redisData)[0] as Return;
-          if (cache) {
-            log("cache hit");
-            return cache;
+          const redisData = await redis.call("JSON.GET", key, "$");
+          if (typeof redisData === "string") {
+            const cache = JSON.parse(redisData)[0] as Return;
+            if (cache) {
+              log("cache hit");
+              return cache;
+            }
           }
-        }
 
-        log("cache miss");
-        const result = await target.call(this, ...args);
-        if (result) {
-          log("caching");
-          await redis.call("JSON.SET", key, "$", JSON.stringify(result));
-          if (ttl) {
-            await redis.expire(key, ttl);
+          log("cache miss");
+          const result = await originalMethod.call(this, ...args);
+          if (result) {
+            log("caching");
+            await redis.call("JSON.SET", key, "$", JSON.stringify(result));
+            if (ttl) {
+              await redis.expire(key, ttl);
+            }
           }
-        }
 
-        return result;
-      };
+          return result;
+        };
+      }
     };
   };
 }
