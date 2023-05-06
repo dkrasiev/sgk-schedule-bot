@@ -14,7 +14,7 @@ miscComposer.command("search", async (ctx) => {
     return;
   }
 
-  const result = finder.searchByName(query);
+  const result = finder.search(query);
 
   if (result.length === 0) {
     await ctx.reply(ctx.t("search_not_found"));
@@ -40,7 +40,7 @@ miscComposer.command("setdefault", async (ctx) => {
     return;
   }
 
-  const entity = finder.searchByName(query)[0];
+  const entity = finder.search(query)[0];
 
   if (entity) {
     ctx.session.default = entity.id;

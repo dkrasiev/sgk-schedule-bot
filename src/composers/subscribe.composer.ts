@@ -19,7 +19,7 @@ subscribeComposer.command("subscribe", async (ctx) => {
 
 subscribeComposer.command("unsubscribe", async (ctx) => {
   if (ctx.session.subscription) {
-    const entity = finder.findById(ctx.session.subscription);
+    const entity = finder.getById(ctx.session.subscription);
     ctx.session.subscription = undefined;
 
     if (entity) {

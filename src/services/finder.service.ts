@@ -1,65 +1,67 @@
+import { Index } from "flexsearch";
 import { Cabinet } from "../models/entities/cabinet.class";
 import { Group } from "../models/entities/group.class";
 import { ScheduleEntity } from "../models/entities/schedule-entity.class";
 import { Teacher } from "../models/entities/teacher.class";
 import { MyContext } from "../models/my-context.type";
-import { getArguments } from "../utils/get-arguments";
 import { trimCommand } from "../utils/trim-command";
 import { SGKApiService } from "./sgk-api.service";
 
 export class FinderService {
-  private _groups: Group[] = [];
-  private _teachers: Teacher[] = [];
-  private _cabinets: Cabinet[] = [];
+  private index = new Index({
+    tokenize: "full",
+  });
+  private map = new Map<string, ScheduleEntity>();
 
   constructor(private api: SGKApiService) {}
 
-  public get all(): Readonly<ScheduleEntity[]> {
-    return [...this._groups, ...this._teachers, ...this._cabinets];
-  }
-
   public async init() {
-    this._groups = await this.api
-      .fetchGroups()
-      .then((entities) =>
-        entities.map((entity) => new Group(entity.id, entity.name))
-      )
-      .then((groups) => groups.sort((a, b) => a.name.localeCompare(b.name)))
-      .then((groups) => groups.sort((a, b) => a.name.length - b.name.length));
-
-    // filter Администратор, Вакансия, Резерв, методист, методист1
-    this._teachers = await this.api
-      .fetchTeachers()
-      .then((entities) =>
-        entities.map((entity) => new Teacher(entity.id, entity.name))
-      )
-      .then((teachers) =>
-        teachers.filter((teacher) => teacher.name.split(" ").length > 2)
-      )
-      .then((teachers) =>
-        teachers.sort((a, b) => a.name.localeCompare(b.name))
-      );
-
-    // filter п/п, дист/дист
-    this._cabinets = await this.api
-      .fetchCabinets()
-      .then((entities) =>
-        entities.map((entity) => new Cabinet(entity.id, entity.name))
-      )
-      .then((cabinets) =>
-        cabinets.filter(
-          (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист"
+    [
+      ...(await this.api
+        .fetchGroups()
+        .then((entities) =>
+          entities.map((entity) => new Group(entity.id, entity.name))
         )
-      )
-      .then((cabinets) =>
-        cabinets.sort((a, b) => a.name.localeCompare(b.name))
-      );
+        .then((groups) => groups.sort((a, b) => a.name.localeCompare(b.name)))
+        .then((groups) =>
+          groups.sort((a, b) => a.name.length - b.name.length)
+        )),
+
+      ...(await this.api
+        .fetchTeachers()
+        .then((entities) =>
+          entities.map((entity) => new Teacher(entity.id, entity.name))
+        )
+        .then((teachers) =>
+          teachers.filter((teacher) => teacher.name.split(" ").length > 2)
+        )
+        .then((teachers) =>
+          teachers.sort((a, b) => a.name.localeCompare(b.name))
+        )),
+
+      ...(await this.api
+        .fetchCabinets()
+        .then((entities) =>
+          entities.map((entity) => new Cabinet(entity.id, entity.name))
+        )
+        .then((cabinets) =>
+          cabinets.filter(
+            (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист"
+          )
+        )
+        .then((cabinets) =>
+          cabinets.sort((a, b) => a.name.localeCompare(b.name))
+        )),
+    ].forEach((entity) => {
+      this.map.set(entity.id, entity);
+      this.index.add(entity.id, entity.name.replace(/-/g, ""));
+    });
   }
 
   public searchInContext(ctx: MyContext): ScheduleEntity[] {
-    const query = (ctx.message?.text && trimCommand(ctx.message.text)) || "";
+    const query = ctx.message?.text ? trimCommand(ctx.message.text) : "";
     if (query) {
-      const searchByNameResult = this.searchByName(query);
+      const searchByNameResult = this.search(query);
       if (searchByNameResult.length) {
         return searchByNameResult;
       }
@@ -73,21 +75,14 @@ export class FinderService {
     return [];
   }
 
-  public searchByName(query: string): ScheduleEntity[] {
-    const args: string[] = getArguments(query);
-
-    return this.all.filter((entity) =>
-      args.every((arg) =>
-        getArguments(entity.name).some((nameArg) => nameArg.includes(arg))
-      )
-    );
+  public search(query: string): ScheduleEntity[] {
+    return this.index
+      .search(query)
+      .map((id) => this.getById(String(id)))
+      .filter(Boolean) as ScheduleEntity[];
   }
 
-  public searchById(id: string) {
-    return this.all.filter((entity) => entity.id === id);
-  }
-
-  public findById(id: string) {
-    return this.all.find((entity) => entity.id === id);
+  public getById(id: string): ScheduleEntity | undefined {
+    return this.map.get(id);
   }
 }

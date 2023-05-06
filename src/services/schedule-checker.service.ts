@@ -26,7 +26,7 @@ export class ScheduleCheckerService {
       const updatedSchedules = await this.getUpdatedSchedules(date);
 
       for (const [entity, schedule] of updatedSchedules) {
-        const group = this.finder.findById(entity.id);
+        const group = this.finder.getById(entity.id);
         if (!group) return;
 
         logger.profile(group.name);
@@ -97,7 +97,7 @@ export class ScheduleCheckerService {
       ({ value }) => value.subscription
     ) as string[];
     const entities: ScheduleEntity[] = ids
-      .map((id) => this.finder.findById(id))
+      .map((id) => this.finder.getById(id))
       .filter(Boolean) as ScheduleEntity[];
 
     const newSchedules = await this.getManySchedules(entities, date);

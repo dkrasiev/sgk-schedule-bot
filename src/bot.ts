@@ -76,7 +76,7 @@ bot.use(
 // custom config
 bot.use(async (ctx, next) => {
   ctx.getDefault = () =>
-    ctx.session.default ? finder.findById(ctx.session.default) : undefined;
+    ctx.session.default ? finder.getById(ctx.session.default) : undefined;
 
   await next();
 });
