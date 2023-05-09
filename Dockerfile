@@ -24,6 +24,6 @@ ENV PM2_SECRET_KEY $PM2_SECRET_KEY
 
 COPY --from=build /app/.env /app/.env
 COPY --from=build /app/build /app/build
-COPY --from=build /app/pm2.json /app/pm2.json
+COPY --from=build /app/ecosystem.config.js /app/ecosystem.config.js
 
-CMD [ "pm2-runtime", "start", "pm2.json", "--env", "production" ]
+CMD [ "pm2-runtime", "start", "ecosystem.config.js", "--env", "production" ]
