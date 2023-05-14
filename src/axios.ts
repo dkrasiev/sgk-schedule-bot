@@ -1,10 +1,5 @@
 import axios from "axios";
+import axiosThrottle from "axios-request-throttle";
 
-const myAxios = axios.create({
-  headers: {
-    origin: "http://samgk.ru",
-    referer: "http://samgk.ru/",
-  },
-});
-
-export default myAxios;
+axiosThrottle.use(axios, { requestsPerSecond: 1 });
+export default axios;
