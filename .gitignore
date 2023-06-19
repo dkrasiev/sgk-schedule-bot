@@ -4,3 +4,4 @@ deploy.config.js
 .env
 dist
 .out
+log.txt
