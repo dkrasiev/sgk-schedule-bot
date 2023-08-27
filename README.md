@@ -16,19 +16,19 @@ To run this project, you will need to add the following environment variables to
 
 ## Run Locally
 
-1. Clone the project
+Clone the project
 
 ```bash
   git clone https://github.com/dkrasiev/sgk-schedule-bot.git
 ```
 
-2. Go to the project directory
+Go to the project directory
 
 ```bash
   cd sgk-schedule-bot
 ```
 
-3. Install dependencies
+Install dependencies
 
 ```bash
   npm install
@@ -40,7 +40,7 @@ or (recommended)
   pnpm install
 ```
 
-4. Start the bot
+Start the bot
 
 ```bash
   npm run dev
