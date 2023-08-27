@@ -1,7 +1,7 @@
 {
   "name": "sgk-schedule-lite-bot",
   "version": "0.1.0",
-  "description": "Telegram bot for Samara State College schedule",
+  "description": "Telegram bot for getting the schedule of classes of Samara State College",
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node dist/index.js",
