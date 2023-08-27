@@ -10,7 +10,7 @@ To run this project, you will need to add the following environment variables to
 
 `MONGODB_URI` (`mongodb://localhost` by default)
 
-`MONGODB_NAME` (`MONGODB_NAME` for development, `sgk-schedule-bot` by default)
+`MONGODB_NAME` (`MONGODB_NAME_TEST` for development, `sgk-schedule-bot` by default)
 
 `REDIS_URI` (`localhost` by default)
 
