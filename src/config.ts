@@ -15,7 +15,7 @@ export const BOT_TOKEN = PRODUCTION
   ? process.env.BOT_TOKEN
   : process.env.BOT_TOKEN_TEST;
 
-export const MONGODB_URI = process.env.MONGODB_URI || "localhost";
+export const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost";
 export const MONGODB_NAME =
   (PRODUCTION ? process.env.MONGODB_NAME : process.env.MONGODB_NAME_TEST) ||
   "schedule_bot";
