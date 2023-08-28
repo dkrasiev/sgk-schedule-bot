@@ -20,6 +20,6 @@ export const MONGODB_NAME =
   (PRODUCTION ? process.env.MONGODB_NAME : process.env.MONGODB_NAME_TEST) ||
   "schedule_bot";
 
-export const REDIS_URI = process.env.REDIS_URI || "localhost";
+export const REDIS_URI = process.env.REDIS_URI || "redis://localhost";
 
 export const SCHEDULE_CHECKER = process.env.BOT_MODE === "schedule-checker";
