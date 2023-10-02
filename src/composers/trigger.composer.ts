@@ -1,8 +1,8 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { sendSchedule } from "../utils/bot-helpers";
-import { trimCommand } from "../utils/trim-command";
+import { sendSchedule } from "../modules/common/utils/bot-helpers";
+import { trimCommand } from "../modules/common/utils/trim-command";
 
 const triggerComposer = new Composer<MyContext>();
 
@@ -31,13 +31,13 @@ triggerComposer.command("trigger", async (ctx) => {
   await ctx.reply(
     ctx.t("trigger_list", {
       triggers: ctx.session.triggers.join("\n"),
-    })
+    }),
   );
 });
 
 triggerComposer.on("message:text", async (ctx, next) => {
   const triggered = ctx.session.triggers.some((trigger: string) =>
-    ctx.message.text.toLowerCase().split(/\s/m).includes(trigger)
+    ctx.message.text.toLowerCase().split(/\s/m).includes(trigger),
   );
 
   if (triggered) {

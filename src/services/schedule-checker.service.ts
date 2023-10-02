@@ -2,19 +2,22 @@ import dayjs from "dayjs";
 import { Bot } from "grammy";
 
 import { schedules, sessions } from "../database";
+import { ScheduleEntity } from "../models/entities/schedule-entity.class";
 import { MyContext } from "../models/my-context.type";
 import { MySession } from "../models/my-session.interface";
-import { ScheduleEntity } from "../models/entities/schedule-entity.class";
 import { Schedule } from "../models/schedule.interface";
-import { compareSchedule } from "../utils/compare-schedule";
-import { getWeekday } from "../utils/get-weekday";
-import { getScheduleMessage } from "../utils/get-schedule-message";
-import logger from "../utils/logger";
+import { compareSchedule } from "../modules/common/utils/compare-schedule";
+import { getScheduleMessage } from "../modules/common/utils/get-schedule-message";
+import { getWeekday } from "../modules/common/utils/get-weekday";
+import logger from "../modules/common/utils/logger";
 import { FinderService } from "./finder.service";
 import { SGKApiService } from "./sgk-api.service";
 
 export class ScheduleCheckerService {
-  constructor(private finder: FinderService, private sgkApi: SGKApiService) {}
+  constructor(
+    private finder: FinderService,
+    private sgkApi: SGKApiService,
+  ) {}
 
   public async checkSchedule(bot: Bot<MyContext>) {
     logger.profile("checking schedule");
@@ -77,7 +80,7 @@ export class ScheduleCheckerService {
 
   private async getManySchedules(
     entities: ScheduleEntity[],
-    date = dayjs()
+    date = dayjs(),
   ): Promise<Map<ScheduleEntity, Schedule>> {
     const schedules = new Map<ScheduleEntity, Schedule>();
 
@@ -91,10 +94,10 @@ export class ScheduleCheckerService {
   }
 
   private async getUpdatedSchedules(
-    date = dayjs()
+    date = dayjs(),
   ): Promise<Map<ScheduleEntity, Schedule>> {
     const ids = (await this.getChatsWithSubscription()).map(
-      ({ value }) => value.subscription
+      ({ value }) => value.subscription,
     ) as string[];
     const entities: ScheduleEntity[] = ids
       .map((id) => this.finder.getById(id))
@@ -109,7 +112,7 @@ export class ScheduleCheckerService {
     const updatedSchedules = new Map<ScheduleEntity, Schedule>();
     for (const [entity, schedule] of newSchedules) {
       const lastSchedule: Schedule | undefined = lastSchedulesFromDB.find(
-        (schedule) => schedule.entityId === entity.id
+        (schedule) => schedule.entityId === entity.id,
       )?.schedule;
 
       const equals: boolean = compareSchedule(schedule, lastSchedule);
@@ -122,7 +125,7 @@ export class ScheduleCheckerService {
         await schedules.updateOne(
           { entityId: entity.id },
           { $set: { entityId: entity.id, schedule } },
-          { upsert: true }
+          { upsert: true },
         );
       }
     }

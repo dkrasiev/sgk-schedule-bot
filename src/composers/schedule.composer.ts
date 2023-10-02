@@ -1,8 +1,11 @@
 import dayjs from "dayjs";
 import { Composer } from "grammy";
 
-import { sendSchedule, sendShortSchedule } from "../utils/bot-helpers";
 import { MyContext } from "../models/my-context.type";
+import {
+  sendSchedule,
+  sendShortSchedule,
+} from "../modules/common/utils/bot-helpers";
 
 const scheduleComposer = new Composer<MyContext>();
 

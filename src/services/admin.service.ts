@@ -1,7 +1,8 @@
 import { ISession } from "@grammyjs/storage-mongodb";
+
 import { sessions } from "../database";
 import { MyContext } from "../models/my-context.type";
-import { runSequentialWithDelay } from "../utils/run-sequential-with-delay";
+import { runSequentialWithDelay } from "../modules/common/utils/run-sequential-with-delay";
 
 export class AdminService {
   async broadcastMessage(message: string, ctx: MyContext) {
@@ -28,15 +29,15 @@ export class AdminService {
             .catch(() => {
               failMessages++;
               return false;
-            })
+            }),
       ),
-      50
+      50,
     );
 
     clearInterval(timer);
 
     await ctx.reply(
-      `complete\n${successMessages} sended\n${failMessages} failed`
+      `complete\n${successMessages} sended\n${failMessages} failed`,
     );
   }
 }
