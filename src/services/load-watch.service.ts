@@ -1,20 +1,20 @@
 import cronparser from "cron-parser";
 import dayjs from "dayjs";
-import cron from "node-cron";
 import humanizeDuration from "humanize-duration";
+import cron from "node-cron";
 
+import logger from "../modules/common/utils/logger";
 import { CounterService } from "./message-counter.service";
-import logger from "../utils/logger";
 
 export class LoadWatchService {
   private duration: string;
 
   constructor(
     private counter: CounterService,
-    private cronExpression = "*/60 * * * *" // every hour by default
+    private cronExpression = "*/60 * * * *", // every hour by default
   ) {
     const parsedCronExpression = cronparser.parseExpression(
-      this.cronExpression
+      this.cronExpression,
     );
 
     const prev = dayjs(parsedCronExpression.prev().toDate());
@@ -25,7 +25,7 @@ export class LoadWatchService {
 
     cron.schedule(this.cronExpression, () => {
       logger.info(
-        `In ${this.duration} got ${this.counter.getCount()} messages`
+        `In ${this.duration} got ${this.counter.getCount()} messages`,
       );
 
       this.counter.reset();

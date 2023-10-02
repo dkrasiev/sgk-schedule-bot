@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import logger from "../utils/logger";
+import logger from "../modules/common/utils/logger";
 import { counter } from "../services/singleton-services";
 
 const logComposer = new Composer<MyContext>();

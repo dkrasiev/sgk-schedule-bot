@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { isAdmin } from "../utils/is-admin";
+import { isAdmin } from "../modules/common/utils/is-admin";
 import { adminService } from "../services/singleton-services";
 
 const adminComposer = new Composer<MyContext>();

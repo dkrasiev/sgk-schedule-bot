@@ -1,4 +1,5 @@
 import { Composer, InlineKeyboard } from "grammy";
+
 import { MyContext } from "../models/my-context.type";
 
 const startComposer = new Composer<MyContext>();
@@ -13,7 +14,7 @@ startComposer.command("help", async (ctx) => {
   await ctx.reply(ctx.t("help"), {
     reply_markup: new InlineKeyboard().url(
       "Предложения по улучшению можно написать сюда",
-      "https://t.me/dkrasiev"
+      "https://t.me/dkrasiev",
     ),
     parse_mode: "HTML",
   });

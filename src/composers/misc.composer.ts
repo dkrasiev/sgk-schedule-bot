@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
 
 import { MyContext } from "../models/my-context.type";
-import { trimCommand } from "../utils/trim-command";
+import { trimCommand } from "../modules/common/utils/trim-command";
 import { finder } from "../services/singleton-services";
 
 const miscComposer = new Composer<MyContext>();
@@ -25,7 +25,7 @@ miscComposer.command("search", async (ctx) => {
     await ctx.reply(
       ctx.t("search_found", {
         list: result.map((entity) => entity.name).join("\n"),
-      })
+      }),
     );
   } catch (error) {
     await ctx.reply(ctx.t("search_too_many"));
