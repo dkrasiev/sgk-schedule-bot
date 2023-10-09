@@ -1,18 +1,22 @@
 import dayjs from "dayjs";
 
-import { finder } from "../../../services/singleton-services";
+import { diContainerService } from "../../../config/container";
+// import { finder } from "../../../services/singleton-services";
+import { ScheduleEntity, ScheduleService } from "../../core";
+import { DateService } from "../../core/services/date.service";
 import { MyContext } from "../models/my-context.type";
 import { getScheduleMessage } from "./get-schedule-message";
-import { getWeekday } from "./get-weekday";
 
 export async function sendShortSchedule(
   ctx: MyContext,
   date = dayjs(),
 ): Promise<boolean> {
-  const entity = finder.searchInContext(ctx)[0];
+  const scheduleService = diContainerService.container.get(ScheduleService);
+  // const entity = finder.searchInContext(ctx)[0];
+  const entity = ([] as ScheduleEntity[])[0];
 
   if (entity) {
-    const schedule = await entity.getSchedule(date);
+    const schedule = await scheduleService.getSchedule(entity, date.toDate());
     await ctx.reply(getScheduleMessage(schedule, entity.name));
 
     return true;
@@ -23,9 +27,13 @@ export async function sendShortSchedule(
 }
 
 export async function sendSchedule(ctx: MyContext, date = dayjs()) {
-  const firstDate = getWeekday(0, date);
-  const secondDate = getWeekday(1, firstDate);
+  const dateService = diContainerService.container.get(DateService);
 
-  (await sendShortSchedule(ctx, firstDate)) &&
-    (await sendShortSchedule(ctx, secondDate));
+  const firstDate = dateService.getNextWeekday(date.toDate());
+  const secondDate = dateService.getNextWeekday(
+    dayjs(firstDate).add(1, "day").toDate(),
+  );
+
+  (await sendShortSchedule(ctx, dayjs(firstDate))) &&
+    (await sendShortSchedule(ctx, dayjs(secondDate)));
 }

@@ -1,15 +1,15 @@
 import dayjs from "dayjs";
 import { Bot } from "grammy";
 
-import { schedules, sessions } from "../database";
-import { ScheduleEntity } from "../models/entities/schedule-entity.class";
-import { MyContext } from "../models/my-context.type";
-import { MySession } from "../models/my-session.interface";
-import { Schedule } from "../models/schedule.interface";
-import { compareSchedule } from "../modules/common/utils/compare-schedule";
-import { getScheduleMessage } from "../modules/common/utils/get-schedule-message";
-import { getWeekday } from "../modules/common/utils/get-weekday";
-import logger from "../modules/common/utils/logger";
+import { sessions } from "../config/database";
+import logger from "../config/logger";
+import {
+  compareSchedule,
+  getScheduleMessage,
+  MyContext,
+  MySession,
+} from "../modules/common";
+import { Schedule, ScheduleEntity } from "../modules/core";
 import { FinderService } from "./finder.service";
 import { SGKApiService } from "./sgk-api.service";
 

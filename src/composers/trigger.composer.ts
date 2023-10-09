@@ -1,8 +1,6 @@
 import { Composer } from "grammy";
 
-import { MyContext } from "../models/my-context.type";
-import { sendSchedule } from "../modules/common/utils/bot-helpers";
-import { trimCommand } from "../modules/common/utils/trim-command";
+import { MyContext, sendSchedule, trimCommand } from "../modules/common";
 
 const triggerComposer = new Composer<MyContext>();
 

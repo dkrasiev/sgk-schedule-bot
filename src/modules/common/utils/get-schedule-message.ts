@@ -1,4 +1,4 @@
-import { Schedule } from "../../../models/schedule.interface";
+import { Schedule } from "../../core";
 import { times } from "./times";
 
 /**

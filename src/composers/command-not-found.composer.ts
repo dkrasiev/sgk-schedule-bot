@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 
-import { MyContext } from "../models/my-context.type";
+import { MyContext } from "../modules/common";
 
 const commandNotFoundComposer = new Composer<MyContext>();
 

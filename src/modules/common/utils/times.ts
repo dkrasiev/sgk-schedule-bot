@@ -1,4 +1,4 @@
-import { Collection } from "../../../models/collection.interface";
+import { Collection } from "../models/collection.interface";
 
 export const times: Collection<string> = {
   "1": "08:25-10:00",

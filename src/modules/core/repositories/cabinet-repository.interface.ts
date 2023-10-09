@@ -1,8 +1,5 @@
 import { Cabinet } from "../models/cabinet.class";
+import { IScheduleEntityRepository } from "../repositories/schedule-entity-repository.interface";
 
-export interface ICabinetRepository {
-  getAll(): Promise<Cabinet[]>;
-  getById(id: string): Promise<Cabinet | undefined>;
-  find(query: string): Promise<Cabinet | undefined>;
-  search(query: string): Promise<Cabinet[]>;
-}
+export interface ICabinetRepository
+  extends IScheduleEntityRepository<Cabinet> {}

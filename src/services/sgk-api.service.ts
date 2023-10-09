@@ -1,7 +1,7 @@
 import myAxios from "../config/axios";
 import { CABINETS_URL, GROUPS_URL, TEACHERS_URL } from "../config/config";
+import { Cabinet } from "../modules/cabinet";
 import redisCache from "../modules/common/utils/redis-cache";
-import { Cabinet } from "../modules/core";
 import { ScheduleEntity } from "../modules/core/models/schedule-entity.class";
 
 export class SGKApiService {

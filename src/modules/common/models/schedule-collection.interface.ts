@@ -1,4 +1,4 @@
-import { Schedule } from "./schedule.interface";
+import { Schedule } from "../../core";
 
 export interface ScheduleCollection {
   entityId: string;

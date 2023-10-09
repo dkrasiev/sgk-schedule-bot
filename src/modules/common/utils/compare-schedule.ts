@@ -1,4 +1,4 @@
-import { Schedule } from "../../../models/schedule.interface";
+import { Schedule } from "../../core/models/schedule.class";
 
 export function compareSchedule(a?: Schedule, b?: Schedule) {
   if (!a || !b) return false;

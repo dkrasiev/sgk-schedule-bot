@@ -1,21 +1,32 @@
 export const TYPES = {
   GroupApiUrl: Symbol("GroupApiUrl"),
-  TeacherApiUrl: Symbol("TeacherApiUrl"),
-  CabinetApiUrl: Symbol("CabinetApiUrl"),
-  ScheduleApiUrl: Symbol("ScheduleApiUrl"),
-
+  GroupFactory: Symbol("GroupFactory"),
   GroupRepository: Symbol("GroupRepository"),
-  TeacherRepository: Symbol("TeacherRepository"),
-  CabinetRepository: Symbol("CabinetRepository"),
-
   GroupService: Symbol("GroupService"),
-  TeacherService: Symbol("TeacherRepository"),
+
+  TeacherApiUrl: Symbol("TeacherApiUrl"),
+  TeacherFactory: Symbol("TeacherFactory"),
+  TeacherRepository: Symbol("TeacherRepository"),
+  TeacherService: Symbol("TeacherService"),
+
+  CabinetApiUrl: Symbol("CabinetApiUrl"),
+  CabinetFactory: Symbol("CabinetFactory"),
+  CabinetRepository: Symbol("CabinetRepository"),
   CabinetService: Symbol("CabinetService"),
 
+  ScheduleApiUrl: Symbol("ScheduleApiUrl"),
+
+  MainScheduleEntityRepository: Symbol("MainScheduleEntityRepository"),
   ScheduleEntityRepository: Symbol("ScheduleEntityRepository"),
+
   SearchRepository: Symbol("SearchRepository"),
   ScheduleRepository: Symbol("ScheduleRepository"),
+  ScheduleService: Symbol("ScheduleService"),
+
+  DateRepository: Symbol("DateRepository"),
+  DateService: Symbol("DateService"),
 
   Axios: Symbol("Axios"),
+  HTTPClient: Symbol("HttpClient"),
   DateFormat: Symbol("DateFormat"),
 };

@@ -1,11 +1,8 @@
 import { Index } from "flexsearch";
 
-import { Cabinet } from "../models/entities/cabinet.class";
-import { Group } from "../models/entities/group.class";
-import { ScheduleEntity } from "../models/entities/schedule-entity.class";
-import { Teacher } from "../models/entities/teacher.class";
-import { MyContext } from "../models/my-context.type";
+import { MyContext } from "../modules/common";
 import { trimCommand } from "../modules/common/utils/trim-command";
+import { ScheduleEntity } from "../modules/core";
 import { SGKApiService } from "./sgk-api.service";
 
 export class FinderService {
@@ -17,46 +14,44 @@ export class FinderService {
   constructor(private api: SGKApiService) {}
 
   public async init() {
-    [
-      ...(await this.api
-        .fetchGroups()
-        .then((entities) =>
-          entities.map((entity) => new Group(entity.id, entity.name)),
-        )
-        .then((groups) => groups.sort((a, b) => a.name.localeCompare(b.name)))
-        .then((groups) =>
-          groups.sort((a, b) => a.name.length - b.name.length),
-        )),
-
-      ...(await this.api
-        .fetchTeachers()
-        .then((entities) =>
-          entities.map((entity) => new Teacher(entity.id, entity.name)),
-        )
-        .then((teachers) =>
-          teachers.filter((teacher) => teacher.name.split(" ").length > 2),
-        )
-        .then((teachers) =>
-          teachers.sort((a, b) => a.name.localeCompare(b.name)),
-        )),
-
-      ...(await this.api
-        .fetchCabinets()
-        .then((entities) =>
-          entities.map((entity) => new Cabinet(entity.id, entity.name)),
-        )
-        .then((cabinets) =>
-          cabinets.filter(
-            (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист",
-          ),
-        )
-        .then((cabinets) =>
-          cabinets.sort((a, b) => a.name.localeCompare(b.name)),
-        )),
-    ].forEach((entity) => {
-      this.map.set(entity.id, entity);
-      this.index.add(entity.id, entity.name.replace(/-/g, ""));
-    });
+    // [
+    //   ...(await this.api
+    //     .fetchGroups()
+    //     .then((entities) =>
+    //       entities.map((entity) => new Group(entity.id, entity.name)),
+    //     )
+    //     .then((groups) => groups.sort((a, b) => a.name.localeCompare(b.name)))
+    //     .then((groups) =>
+    //       groups.sort((a, b) => a.name.length - b.name.length),
+    //     )),
+    //   ...(await this.api
+    //     .fetchTeachers()
+    //     .then((entities) =>
+    //       entities.map((entity) => new Teacher(entity.id, entity.name)),
+    //     )
+    //     .then((teachers) =>
+    //       teachers.filter((teacher) => teacher.name.split(" ").length > 2),
+    //     )
+    //     .then((teachers) =>
+    //       teachers.sort((a, b) => a.name.localeCompare(b.name)),
+    //     )),
+    //   ...(await this.api
+    //     .fetchCabinets()
+    //     .then((entities) =>
+    //       entities.map((entity) => new Cabinet(entity.id, entity.name)),
+    //     )
+    //     .then((cabinets) =>
+    //       cabinets.filter(
+    //         (cabinet) => cabinet.name !== "п/п" && cabinet.name !== "дист/дист",
+    //       ),
+    //     )
+    //     .then((cabinets) =>
+    //       cabinets.sort((a, b) => a.name.localeCompare(b.name)),
+    //     )),
+    // ].forEach((entity) => {
+    //   this.map.set(entity.id, entity);
+    //   this.index.add(entity.id, entity.name.replace(/-/g, ""));
+    // });
   }
 
   public searchInContext(ctx: MyContext): ScheduleEntity[] {

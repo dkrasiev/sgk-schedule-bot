@@ -1,37 +1,22 @@
-import { inject, injectable } from "inversify";
+import { injectable, multiInject } from "inversify";
 
 import { TYPES } from "../config/types.const";
-import {
-  ICabinetRepository,
-  IGroupRepository,
-  ITeacherRepository,
-  ScheduleEntity,
-} from "../modules/core";
-import { BaseScheduleEntityRepository } from "./base-schedule-entity-repository.class";
+import { IScheduleEntityRepository } from "../modules/core";
 
 @injectable()
-export class ScheduleEntityRepository extends BaseScheduleEntityRepository {
-  private entities: ScheduleEntity[] = [];
-
+export class ScheduleEntityRepository implements IScheduleEntityRepository {
   constructor(
-    @inject(TYPES.GroupRepository) private groupRepository: IGroupRepository,
-    @inject(TYPES.TeacherRepository)
-    private teacherRepository: ITeacherRepository,
-    @inject(TYPES.CabinetRepository)
-    private cabinetRepository: ICabinetRepository,
-  ) {
-    super();
-  }
+    @multiInject(TYPES.ScheduleEntityRepository)
+    private repositories: IScheduleEntityRepository[],
+  ) {}
 
   public async getAll() {
-    return this.entities.length > 0
-      ? this.entities
-      : Promise.all([
-          this.groupRepository.getAll(),
-          this.teacherRepository.getAll(),
-          this.cabinetRepository.getAll(),
-        ])
-          .then((result) => result.flat() as ScheduleEntity[])
-          .then((entities) => (this.entities = entities));
+    return Promise.all(this.repositories.map((r) => r.getAll())).then((v) =>
+      v.flat(),
+    );
+  }
+
+  public async getById(id: string) {
+    return this.getAll().then((entities) => entities.find((e) => e.id === id));
   }
 }

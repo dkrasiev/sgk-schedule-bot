@@ -7,20 +7,19 @@ import { AxiosError } from "axios";
 import { Bot, session } from "grammy";
 import path from "path";
 
-import adminComposer from "./composers/admin.composer";
-import commandNotFoundComposer from "./composers/command-not-found.composer";
-import logComposer from "./composers/log.composer";
-import miscComposer from "./composers/misc.composer";
-import scheduleComposer from "./composers/schedule.composer";
-import startComposer from "./composers/start.composer";
-import subscribeComposer from "./composers/subscribe.composer";
-import triggerComposer from "./composers/trigger.composer";
+import adminComposer from "../composers/admin.composer";
+import commandNotFoundComposer from "../composers/command-not-found.composer";
+import logComposer from "../composers/log.composer";
+import miscComposer from "../composers/misc.composer";
+import scheduleComposer from "../composers/schedule.composer";
+import startComposer from "../composers/start.composer";
+import subscribeComposer from "../composers/subscribe.composer";
+import triggerComposer from "../composers/trigger.composer";
+import { MyContext, MySession } from "../modules/common";
+// import { finder } from "../services/singleton-services";
 import { BOT_TOKEN } from "./config";
 import { sessions } from "./database";
-import { MyContext } from "./models/my-context.type";
-import { MySession } from "./models/my-session.interface";
-import { finder } from "./services/singleton-services";
-import logger from "./utils/logger";
+import logger from "./logger";
 
 const botCommands = [
   { command: "help", description: "Помощь" },
@@ -58,7 +57,7 @@ bot.use(
   new I18n({
     defaultLocale: "ru",
     useSession: true,
-    directory: path.resolve(__dirname, "locales"),
+    directory: path.resolve(__dirname, "..", "locales"),
   }).middleware(),
 );
 bot.use(
@@ -76,8 +75,8 @@ bot.use(
 );
 // custom config
 bot.use(async (ctx, next) => {
-  ctx.getDefault = () =>
-    ctx.session.default ? finder.getById(ctx.session.default) : undefined;
+  // ctx.getDefault = () =>
+  //   ctx.session.default ? finder.getById(ctx.session.default) : undefined;
 
   await next();
 });

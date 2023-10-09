@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import humanizeDuration from "humanize-duration";
 import cron from "node-cron";
 
-import logger from "../modules/common/utils/logger";
+import logger from "../config/logger";
 import { CounterService } from "./message-counter.service";
 
 export class LoadWatchService {

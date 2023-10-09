@@ -11,10 +11,6 @@ export class ScheduleEntityService {
     return this.scheduleEntityRepository.getAll();
   }
 
-  public find(query: string) {
-    return this.searchRepository.find(query);
-  }
-
   public search(query: string) {
     return this.searchRepository.search(query);
   }
