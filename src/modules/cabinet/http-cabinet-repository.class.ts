@@ -1,6 +1,7 @@
-import { IScheduleEntityFactory, IScheduleEntityRepository } from "../../core";
-import { IHTTPClient } from "../../http";
-import { Cabinet } from "../models/cabinet.class";
+import { IScheduleEntityFactory } from '../common'
+import { IScheduleEntityRepository } from '../core'
+import { IHTTPClient } from '../http'
+import { Cabinet } from './cabinet.class'
 
 export class HTTPCabinetRepository
   implements IScheduleEntityRepository<Cabinet>
@@ -9,7 +10,7 @@ export class HTTPCabinetRepository
     private httpClient: IHTTPClient,
     private cabinetFactory: IScheduleEntityFactory<Cabinet>,
     private cabinetApiUrl: string,
-  ) {}
+  ) { }
 
   public async getAll() {
     return this.httpClient
@@ -18,10 +19,10 @@ export class HTTPCabinetRepository
         Object.entries(data).map(([id, name]) =>
           this.cabinetFactory.createEntity(id, name),
         ),
-      );
+      )
   }
 
   public async getById(id: string) {
-    return this.getAll().then((entities) => entities.find((e) => e.id === id));
+    return this.getAll().then((entities) => entities.find((e) => e.id === id))
   }
 }

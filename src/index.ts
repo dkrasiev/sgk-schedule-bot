@@ -1,51 +1,74 @@
-import { run } from "@grammyjs/runner";
+// import { run } from '@grammyjs/runner'
 
-import bot from "./config/bot";
-import { MONGODB_NAME } from "./config/config";
-import { diContainerService } from "./config/container";
-import logger from "./config/logger";
-import { TYPES } from "./config/types.const";
-import { Cabinet } from "./modules/cabinet";
-import { IScheduleEntityRepository, ISearchRepository } from "./modules/core";
-import { Group } from "./modules/group";
-import { Teacher } from "./modules/teacher";
+// import bot from './config/bot'
+// import { MONGODB_NAME } from './config/config'
+import { diContainerService } from './config/container'
+import logger from './config/logger'
+import { TYPES } from './config/types.const'
+import { Cabinet } from './modules/cabinet'
+import {
+  IScheduleEntityRepository,
+  IScheduleRepository,
+  ISearchRepository,
+  TwoDaysScheduleUseCase,
+} from './modules/core'
+import { Group } from './modules/group'
+import { Teacher } from './modules/teacher'
 
 // main().catch((e) => logger.error(e));
-main();
+main()
 
 async function main() {
-  logger.info("starting...");
+  logger.info('starting...')
 
-  await bot.init();
+  // await bot.init()
 
-  diContainerService.setup();
+  diContainerService.setup()
 
-  const container = diContainerService.container;
+  const container = diContainerService.container
   const scheduleEntityRepository = container.get<IScheduleEntityRepository>(
     TYPES.MainScheduleEntityRepository,
-  );
+  )
   const searchRepository = container.get<ISearchRepository>(
     TYPES.SearchRepository,
-  );
+  )
+  const scheduleRepository = container.get<IScheduleRepository>(
+    TYPES.ScheduleRepository,
+  )
 
-  const entities = await scheduleEntityRepository.getAll();
-  console.log(entities);
+  const entities = await scheduleEntityRepository.getAll()
+  console.log(entities.length)
 
-  const groups = entities.filter((e) => e instanceof Group);
-  const teachers = entities.filter((e) => e instanceof Teacher);
-  const cabinets = entities.filter((e) => e instanceof Cabinet);
+  const groups = entities.filter((e) => e instanceof Group)
+  const teachers = entities.filter((e) => e instanceof Teacher)
+  const cabinets = entities.filter((e) => e instanceof Cabinet)
 
-  console.log("GROUPS", groups.length);
-  console.log("TEACHERS", teachers.length);
-  console.log("CABINETS", cabinets.length);
+  console.log('GROUPS', groups.length)
+  console.log('TEACHERS', teachers.length)
+  console.log('CABINETS', cabinets.length)
 
-  const findResult = await searchRepository.search("Андрей");
-  console.log(findResult);
+  const entityForSchedule = teachers.find((t) => t.name.includes('Кулагин'))
+  console.log(entityForSchedule)
 
-  logger.info(`database name: ${MONGODB_NAME}`);
-  logger.info(`bot username: @${bot.botInfo.username}`);
+  if (entityForSchedule) {
+    const schedules = await new TwoDaysScheduleUseCase(
+      scheduleRepository,
+    ).execute(entityForSchedule)
+    console.log(
+      schedules.map((s) => ({
+        ...s,
+        lessons: s.lessons.map((l) => l.nameGroup),
+      })),
+    )
+  }
 
-  run(bot);
+  const findResult = await searchRepository.search('Андрей')
+  console.log('founded', findResult)
+
+  // logger.info(`database name: ${MONGODB_NAME}`)
+  // logger.info(`bot username: @${bot.botInfo.username}`)
+
+  // run(bot)
 }
 
 // import { container } from "./config/container";

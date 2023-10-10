@@ -1,15 +1,15 @@
-import { Index } from "flexsearch";
+import { Index } from 'flexsearch'
 
-import { MyContext } from "../modules/common";
-import { trimCommand } from "../modules/common/utils/trim-command";
-import { ScheduleEntity } from "../modules/core";
-import { SGKApiService } from "./sgk-api.service";
+import { MyContext } from '../modules/common'
+import { trimCommand } from '../modules/common/utils/trim-command'
+import { ScheduleEntity } from '../modules/core'
+import { SGKApiService } from './sgk-api.service'
 
 export class FinderService {
   private index = new Index({
-    tokenize: "full",
-  });
-  private map = new Map<string, ScheduleEntity>();
+    tokenize: 'full',
+  })
+  private map = new Map<string, ScheduleEntity>()
 
   constructor(private api: SGKApiService) {}
 
@@ -55,30 +55,30 @@ export class FinderService {
   }
 
   public searchInContext(ctx: MyContext): ScheduleEntity[] {
-    const query = ctx.message?.text ? trimCommand(ctx.message.text) : "";
+    const query = ctx.message?.text ? trimCommand(ctx.message.text) : ''
     if (query) {
-      const searchByNameResult = this.search(query);
+      const searchByNameResult = this.search(query)
       if (searchByNameResult.length) {
-        return searchByNameResult;
+        return searchByNameResult
       }
     }
 
-    const defaultEntity = ctx.getDefault();
+    const defaultEntity = ctx.getDefault()
     if (defaultEntity) {
-      return [defaultEntity];
+      return [defaultEntity]
     }
 
-    return [];
+    return []
   }
 
   public search(query: string): ScheduleEntity[] {
     return this.index
       .search(query)
       .map((id) => this.getById(String(id)))
-      .filter(Boolean) as ScheduleEntity[];
+      .filter(Boolean) as ScheduleEntity[]
   }
 
   public getById(id: string): ScheduleEntity | undefined {
-    return this.map.get(id);
+    return this.map.get(id)
   }
 }

@@ -4,8 +4,7 @@
  * @returns {function(): Promise<T>}
  */
 export function cachePromise<T>(promise: Promise<T>): () => Promise<T> {
-  let data: T;
+  let data: T
 
-  return async (): Promise<T> =>
-    data || promise.then((value) => (data = value));
+  return async (): Promise<T> => data || promise.then((value) => (data = value))
 }

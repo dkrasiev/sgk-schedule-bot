@@ -1,4 +1,4 @@
-export * from "./models/teacher.class";
-
-export * from "./factories/teacher-factory.class";
-export * from "./repositories/http-teacher-repository.class";
+export * from './http-teacher-repository.class'
+export * from './http-teacher-schedule-repository.class'
+export * from './teacher-factory.class'
+export * from './teacher.class'

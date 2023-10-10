@@ -1,7 +1,7 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify'
 
-import { TYPES } from "../config/types.const";
-import { IScheduleEntityRepository, ISearchRepository } from "../modules/core";
+import { TYPES } from '../config/types.const'
+import { IScheduleEntityRepository, ISearchRepository } from '../modules/core'
 
 @injectable()
 export class SearchRepository implements ISearchRepository {
@@ -11,14 +11,14 @@ export class SearchRepository implements ISearchRepository {
   ) {}
 
   public async search(query: string) {
-    const entities = await this.getEntities();
+    const entities = await this.getEntities()
     return entities.filter(
       (entities) =>
         entities.id.includes(query) || entities.name.includes(query),
-    );
+    )
   }
 
   private async getEntities() {
-    return await this.scheduleEntityRepository.getAll();
+    return await this.scheduleEntityRepository.getAll()
   }
 }

@@ -1,17 +1,17 @@
-import winston from "winston";
+import winston from 'winston'
 
 const logger = winston.createLogger({
   transports: [
     new winston.transports.Console(),
-    new winston.transports.File({ filename: "log.txt" }),
+    new winston.transports.File({ filename: 'log.txt' }),
   ],
   format: winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp({
       format: () =>
-        new Intl.DateTimeFormat("ru-ru", {
-          dateStyle: "short",
-          timeStyle: "long",
+        new Intl.DateTimeFormat('ru-ru', {
+          dateStyle: 'short',
+          timeStyle: 'long',
         }).format(new Date()),
     }),
     winston.format.printf(({ level, message, timestamp, durationMs, config }) =>
@@ -23,9 +23,9 @@ const logger = winston.createLogger({
         (durationMs && `duration=${durationMs / 1000}s`) || undefined,
       ]
         .filter(Boolean)
-        .join(" "),
+        .join(' '),
     ),
   ),
-});
+})
 
-export default logger;
+export default logger

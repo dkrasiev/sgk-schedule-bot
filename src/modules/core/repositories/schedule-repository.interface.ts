@@ -1,6 +1,6 @@
-import { Schedule } from "../models/schedule.class";
-import { ScheduleEntity } from "../models/schedule-entity.class";
+import { Schedule } from '../entities/schedule.class'
+import { ScheduleEntity } from '../entities/schedule-entity.class'
 
 export interface IScheduleRepository {
-  getSchedule(scheduleEntity: ScheduleEntity, date: Date): Promise<Schedule>;
+  getSchedule(scheduleEntity: ScheduleEntity, date: Date): Promise<Schedule>
 }

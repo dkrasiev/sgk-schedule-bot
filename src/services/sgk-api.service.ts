@@ -1,32 +1,32 @@
-import myAxios from "../config/axios";
-import { CABINETS_URL, GROUPS_URL, TEACHERS_URL } from "../config/config";
-import { Cabinet } from "../modules/cabinet";
-import redisCache from "../modules/common/utils/redis-cache";
-import { ScheduleEntity } from "../modules/core/models/schedule-entity.class";
+import myAxios from '../config/axios'
+import { CABINETS_URL, GROUPS_URL, TEACHERS_URL } from '../config/config'
+import { Cabinet } from '../modules/cabinet'
+import redisCache from '../modules/common/utils/redis-cache'
+import { ScheduleEntity } from '../modules/core/entities/schedule-entity.class'
 
 export class SGKApiService {
   @redisCache({
-    prefix: "groups",
+    prefix: 'groups',
   })
   public async fetchGroups(): Promise<ScheduleEntity[]> {
     return myAxios
       .get<{ id: number; name: string }[]>(GROUPS_URL)
       .then((response) =>
         response.data.map(({ id, name }) => ({ id: String(id), name })),
-      );
+      )
   }
 
   @redisCache({
-    prefix: "teachers",
+    prefix: 'teachers',
   })
   public async fetchTeachers(): Promise<ScheduleEntity[]> {
     return myAxios
       .get<{ id: string; name: string }[]>(TEACHERS_URL)
-      .then((response) => response.data.map(({ id, name }) => ({ id, name })));
+      .then((response) => response.data.map(({ id, name }) => ({ id, name })))
   }
 
   @redisCache({
-    prefix: "cabinets",
+    prefix: 'cabinets',
   })
   public async fetchCabinets(): Promise<ScheduleEntity[]> {
     return myAxios
@@ -35,6 +35,6 @@ export class SGKApiService {
         Object.entries(response.data).map(
           ([id, name]) => new Cabinet(id, name),
         ),
-      );
+      )
   }
 }

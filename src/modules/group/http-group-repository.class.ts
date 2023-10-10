@@ -1,10 +1,7 @@
-import {
-  IScheduleEntityFactory,
-  IScheduleEntityRepository,
-  ScheduleEntity,
-} from "../../core";
-import { IHTTPClient } from "../../http";
-import { Group } from "../models/group.class";
+import { IScheduleEntityFactory } from '../common'
+import { IScheduleEntityRepository, ScheduleEntity } from '../core'
+import { IHTTPClient } from '../http'
+import { Group } from './group.class'
 
 export class HTTPGroupRepository implements IScheduleEntityRepository {
   constructor(
@@ -20,14 +17,14 @@ export class HTTPGroupRepository implements IScheduleEntityRepository {
         data.map(({ id, name }) =>
           this.groupFactory.createEntity(String(id), name),
         ),
-      );
+      )
   }
 
   public async getById(id: string): Promise<ScheduleEntity | undefined> {
     if (!id) {
-      return;
+      return
     }
 
-    return this.getAll().then((entities) => entities.find((e) => e.id === id));
+    return this.getAll().then((entities) => entities.find((e) => e.id === id))
   }
 }

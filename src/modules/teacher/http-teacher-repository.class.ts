@@ -1,6 +1,7 @@
-import { IScheduleEntityFactory, IScheduleEntityRepository } from "../../core";
-import { IHTTPClient } from "../../http";
-import { Teacher } from "../models/teacher.class";
+import { IScheduleEntityFactory } from '../common'
+import { IScheduleEntityRepository } from '../core'
+import { IHTTPClient } from '../http'
+import { Teacher } from './teacher.class'
 
 export class HTTPTeacherRepository
   implements IScheduleEntityRepository<Teacher>
@@ -16,10 +17,10 @@ export class HTTPTeacherRepository
       .get<Array<{ id: string; name: string }>>(this.teacherApiUrl)
       .then((data) =>
         data.map(({ id, name }) => this.teacherFactory.createEntity(id, name)),
-      );
+      )
   }
 
   public async getById(id: string) {
-    return this.getAll().then((entities) => entities.find((e) => e.id === id));
+    return this.getAll().then((entities) => entities.find((e) => e.id === id))
   }
 }

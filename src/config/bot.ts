@@ -1,68 +1,69 @@
-import { autoRetry } from "@grammyjs/auto-retry";
-import { I18n } from "@grammyjs/i18n";
-import { parseMode } from "@grammyjs/parse-mode";
-import { sequentialize } from "@grammyjs/runner";
-import { MongoDBAdapter } from "@grammyjs/storage-mongodb";
-import { AxiosError } from "axios";
-import { Bot, session } from "grammy";
-import path from "path";
+import { autoRetry } from '@grammyjs/auto-retry'
+import { I18n } from '@grammyjs/i18n'
+import { parseMode } from '@grammyjs/parse-mode'
+import { sequentialize } from '@grammyjs/runner'
+import { MongoDBAdapter } from '@grammyjs/storage-mongodb'
+import { AxiosError } from 'axios'
+import { Bot, session } from 'grammy'
+import path from 'path'
 
-import adminComposer from "../composers/admin.composer";
-import commandNotFoundComposer from "../composers/command-not-found.composer";
-import logComposer from "../composers/log.composer";
-import miscComposer from "../composers/misc.composer";
-import scheduleComposer from "../composers/schedule.composer";
-import startComposer from "../composers/start.composer";
-import subscribeComposer from "../composers/subscribe.composer";
-import triggerComposer from "../composers/trigger.composer";
-import { MyContext, MySession } from "../modules/common";
+import adminComposer from '../composers/admin.composer'
+import commandNotFoundComposer from '../composers/command-not-found.composer'
+import logComposer from '../composers/log.composer'
+import miscComposer from '../composers/misc.composer'
+import scheduleComposer from '../composers/schedule.composer'
+import startComposer from '../composers/start.composer'
+import subscribeComposer from '../composers/subscribe.composer'
+import triggerComposer from '../composers/trigger.composer'
+import { MyContext, MySession } from '../modules/common'
 // import { finder } from "../services/singleton-services";
-import { BOT_TOKEN } from "./config";
-import { sessions } from "./database";
-import logger from "./logger";
+import { BOT_TOKEN } from './config'
+import { diContainerService } from './container'
+import { sessions } from './database'
+import logger from './logger'
 
 const botCommands = [
-  { command: "help", description: "Помощь" },
-  { command: "schedule", description: "Расписание на два дня" },
-  { command: "today", description: "Расписание на сегодня" },
-  { command: "tomorrow", description: "Расписание на завтра" },
+  { command: 'help', description: 'Помощь' },
+  { command: 'schedule', description: 'Расписание на два дня' },
+  { command: 'today', description: 'Расписание на сегодня' },
+  { command: 'tomorrow', description: 'Расписание на завтра' },
   {
-    command: "setdefault",
-    description: "Выбрать группу/преподавателя по умолчанию",
+    command: 'setdefault',
+    description: 'Выбрать группу/преподавателя по умолчанию',
   },
   {
-    command: "removedefault",
-    description: "Удалить группу/преподавателя по умолчанию",
+    command: 'removedefault',
+    description: 'Удалить группу/преподавателя по умолчанию',
   },
-  { command: "subscribe", description: "Подписаться на обновления расписания" },
+  { command: 'subscribe', description: 'Подписаться на обновления расписания' },
   {
-    command: "unsubscribe",
-    description: "Отписаться от обновлений расписания",
+    command: 'unsubscribe',
+    description: 'Отписаться от обновлений расписания',
   },
   {
-    command: "search",
-    description: "Поиск по группам, преподавателям и кабинетам",
+    command: 'search',
+    description: 'Поиск по группам, преподавателям и кабинетам',
   },
-  { command: "trigger", description: "Добавить или удалить триггер" },
-];
+  { command: 'trigger', description: 'Добавить или удалить триггер' },
+]
 
-const bot = new Bot<MyContext>(BOT_TOKEN || "");
+const bot = new Bot<MyContext>(BOT_TOKEN || '')
 
-bot.api.setMyCommands(botCommands);
+bot.api.setMyCommands(botCommands)
 
-bot.api.config.use(parseMode("HTML"));
-bot.api.config.use(autoRetry());
+bot.api.config.use(parseMode('HTML'))
+bot.api.config.use(autoRetry())
 
 bot.use(
   new I18n({
-    defaultLocale: "ru",
+    defaultLocale: 'ru',
     useSession: true,
-    directory: path.resolve(__dirname, "..", "locales"),
+    directory: path.resolve(__dirname, '..', 'locales'),
   }).middleware(),
-);
+)
 bot.use(
   sequentialize((ctx) => [ctx.from?.id, ctx.chat?.id].filter(Boolean).join()),
-);
+)
 bot.use(
   session({
     initial: (): MySession => ({
@@ -72,36 +73,38 @@ bot.use(
     }),
     storage: new MongoDBAdapter({ collection: sessions }),
   }),
-);
+)
 // custom config
 bot.use(async (ctx, next) => {
   // ctx.getDefault = () =>
   //   ctx.session.default ? finder.getById(ctx.session.default) : undefined;
 
-  await next();
-});
+  ctx.container = diContainerService.container
 
-bot.use(logComposer);
+  await next()
+})
 
-bot.use(miscComposer);
-bot.use(adminComposer);
+bot.use(logComposer)
 
-bot.use(startComposer);
+bot.use(miscComposer)
+bot.use(adminComposer)
 
-bot.use(subscribeComposer);
-bot.use(triggerComposer);
-bot.use(scheduleComposer);
+bot.use(startComposer)
 
-bot.use(commandNotFoundComposer);
+bot.use(subscribeComposer)
+bot.use(triggerComposer)
+bot.use(scheduleComposer)
+
+bot.use(commandNotFoundComposer)
 
 bot.catch(({ ctx, error }) => {
-  logger.error(`Error while handling update ${ctx.update.update_id}`, error);
+  logger.error(`Error while handling update ${ctx.update.update_id}`, error)
 
   if (error instanceof AxiosError) {
-    const status = error.response?.status || 200;
+    const status = error.response?.status || 200
 
-    if (status >= 500) ctx.reply("Расписание недоступно");
+    if (status >= 500) ctx.reply('Расписание недоступно')
   }
-});
+})
 
-export default bot;
+export default bot

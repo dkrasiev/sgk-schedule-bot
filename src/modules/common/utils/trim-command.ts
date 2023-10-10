@@ -4,5 +4,5 @@
  * @returns Text without "/command"
  */
 export function trimCommand(text: string): string {
-  return text.replace(/(^\/\S*)/, "").trim();
+  return text.replace(/(^\/\S*)/, '').trim()
 }

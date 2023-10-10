@@ -1,17 +1,17 @@
-import dayjs from "dayjs";
-import { Bot } from "grammy";
+import dayjs from 'dayjs'
+import { Bot } from 'grammy'
 
-import { sessions } from "../config/database";
-import logger from "../config/logger";
+import { sessions } from '../config/database'
+import logger from '../config/logger'
 import {
   compareSchedule,
   getScheduleMessage,
   MyContext,
   MySession,
-} from "../modules/common";
-import { Schedule, ScheduleEntity } from "../modules/core";
-import { FinderService } from "./finder.service";
-import { SGKApiService } from "./sgk-api.service";
+} from '../modules/common'
+import { Schedule, ScheduleEntity } from '../modules/core'
+import { FinderService } from './finder.service'
+import { SGKApiService } from './sgk-api.service'
 
 export class ScheduleCheckerService {
   constructor(
@@ -20,77 +20,77 @@ export class ScheduleCheckerService {
   ) {}
 
   public async checkSchedule(bot: Bot<MyContext>) {
-    logger.profile("checking schedule");
+    logger.profile('checking schedule')
     try {
-      logger.info("checking schedule...");
+      logger.info('checking schedule...')
 
-      const date = getWeekday(1);
+      const date = getWeekday(1)
 
-      const updatedSchedules = await this.getUpdatedSchedules(date);
+      const updatedSchedules = await this.getUpdatedSchedules(date)
 
       for (const [entity, schedule] of updatedSchedules) {
-        const group = this.finder.getById(entity.id);
-        if (!group) return;
+        const group = this.finder.getById(entity.id)
+        if (!group) return
 
-        logger.profile(group.name);
+        logger.profile(group.name)
 
-        const chats = await this.getChatsWithSubscriptionToEntity(entity);
+        const chats = await this.getChatsWithSubscriptionToEntity(entity)
 
-        logger.info(`${group.name} updated`);
-        logger.info(`Affected chats: ${chats.length}`);
+        logger.info(`${group.name} updated`)
+        logger.info(`Affected chats: ${chats.length}`)
 
-        const scheduleMessage = getScheduleMessage(schedule, group.name);
+        const scheduleMessage = getScheduleMessage(schedule, group.name)
 
         for (const { key } of chats) {
           bot.api
-            .sendMessage(key, "Вышло новое расписание!")
+            .sendMessage(key, 'Вышло новое расписание!')
             .then(() => bot.api.sendMessage(key, scheduleMessage))
             .then(() => logger.info(`Schedule sended to ${key}`))
-            .catch(logger.error);
+            .catch(logger.error)
         }
 
-        logger.profile(group.name);
+        logger.profile(group.name)
       }
     } catch (e) {
-      logger.error("Error while checking schedule", e);
+      logger.error('Error while checking schedule', e)
     } finally {
-      logger.profile("checking schedule");
+      logger.profile('checking schedule')
     }
   }
 
   private async getChatsWithSubscription() {
     const chats: { key: string; value: MySession }[] = (await sessions
       .find({
-        "value.subscription": { $exists: true, $ne: null },
+        'value.subscription': { $exists: true, $ne: null },
       })
-      .toArray()) as { key: string; value: MySession }[];
+      .toArray()) as { key: string; value: MySession }[]
 
-    return chats;
+    return chats
   }
 
   private async getChatsWithSubscriptionToEntity(entity: ScheduleEntity) {
     const chats = await sessions
       .find({
-        "value.subscription": entity.id,
+        'value.subscription': entity.id,
       })
-      .toArray();
+      .toArray()
 
-    return chats;
+    return chats
   }
 
   private async getManySchedules(
     entities: ScheduleEntity[],
     date = dayjs(),
   ): Promise<Map<ScheduleEntity, Schedule>> {
-    const schedules = new Map<ScheduleEntity, Schedule>();
+    const schedules = new Map<ScheduleEntity, Schedule>()
 
     for (const entity of entities) {
-      const schedule: Schedule = await entity.getSchedule(date);
+      const schedule: Schedule = await entity.getSchedule(date)
 
-      schedules.set(entity, schedule);
+      schedules.set(entity, schedule)
     }
 
-    return schedules;
+    return schedules
   }
 
   private async getUpdatedSchedules(
@@ -98,38 +98,38 @@ export class ScheduleCheckerService {
   ): Promise<Map<ScheduleEntity, Schedule>> {
     const ids = (await this.getChatsWithSubscription()).map(
       ({ value }) => value.subscription,
-    ) as string[];
+    ) as string[]
     const entities: ScheduleEntity[] = ids
       .map((id) => this.finder.getById(id))
-      .filter(Boolean) as ScheduleEntity[];
+      .filter(Boolean) as ScheduleEntity[]
 
-    const newSchedules = await this.getManySchedules(entities, date);
+    const newSchedules = await this.getManySchedules(entities, date)
     const lastSchedulesFromDB = await schedules
       .find({ entityId: { $in: ids } })
-      .toArray();
+      .toArray()
 
     // fill map
-    const updatedSchedules = new Map<ScheduleEntity, Schedule>();
+    const updatedSchedules = new Map<ScheduleEntity, Schedule>()
     for (const [entity, schedule] of newSchedules) {
       const lastSchedule: Schedule | undefined = lastSchedulesFromDB.find(
         (schedule) => schedule.entityId === entity.id,
-      )?.schedule;
+      )?.schedule
 
-      const equals: boolean = compareSchedule(schedule, lastSchedule);
+      const equals: boolean = compareSchedule(schedule, lastSchedule)
 
       if (equals === false && schedule.lessons?.length > 0) {
         // add schedule to map
-        updatedSchedules.set(entity, schedule);
+        updatedSchedules.set(entity, schedule)
 
         // update db
         await schedules.updateOne(
           { entityId: entity.id },
           { $set: { entityId: entity.id, schedule } },
           { upsert: true },
-        );
+        )
       }
     }
 
-    return updatedSchedules;
+    return updatedSchedules
   }
 }

@@ -1,49 +1,49 @@
-import { Composer } from "grammy";
+import { Composer } from 'grammy'
 
-import { MyContext, sendSchedule, trimCommand } from "../modules/common";
+import { MyContext, sendSchedule, trimCommand } from '../modules/common'
 
-const triggerComposer = new Composer<MyContext>();
+const triggerComposer = new Composer<MyContext>()
 
-triggerComposer.command("trigger", async (ctx) => {
-  const trigger = trimCommand(ctx.message?.text || "");
+triggerComposer.command('trigger', async (ctx) => {
+  const trigger = trimCommand(ctx.message?.text || '')
   if (!trigger) {
-    await ctx.reply(ctx.t("trigger_not_found"), { parse_mode: "HTML" });
+    await ctx.reply(ctx.t('trigger_not_found'), { parse_mode: 'HTML' })
   }
 
   const isTriggerNew =
-    trigger && ctx.session.triggers.includes(trigger) === false;
+    trigger && ctx.session.triggers.includes(trigger) === false
 
   if (isTriggerNew) {
-    ctx.session.triggers.push(trigger);
-    await ctx.reply(ctx.t("trigger_added", { trigger }));
+    ctx.session.triggers.push(trigger)
+    await ctx.reply(ctx.t('trigger_added', { trigger }))
   } else if (trigger) {
-    ctx.session.triggers.splice(ctx.session.triggers.indexOf(trigger), 1);
-    await ctx.reply(ctx.t("trigger_deleted", { trigger }));
+    ctx.session.triggers.splice(ctx.session.triggers.indexOf(trigger), 1)
+    await ctx.reply(ctx.t('trigger_deleted', { trigger }))
   }
 
   if (ctx.session.triggers.length === 0) {
-    await ctx.reply(ctx.t("trigger_list_not_found"));
-    return;
+    await ctx.reply(ctx.t('trigger_list_not_found'))
+    return
   }
 
   await ctx.reply(
-    ctx.t("trigger_list", {
-      triggers: ctx.session.triggers.join("\n"),
+    ctx.t('trigger_list', {
+      triggers: ctx.session.triggers.join('\n'),
     }),
-  );
-});
+  )
+})
 
-triggerComposer.on("message:text", async (ctx, next) => {
+triggerComposer.on('message:text', async (ctx, next) => {
   const triggered = ctx.session.triggers.some((trigger: string) =>
     ctx.message.text.toLowerCase().split(/\s/m).includes(trigger),
-  );
+  )
 
   if (triggered) {
-    await sendSchedule(ctx);
-    return;
+    await sendSchedule(ctx)
+    return
   }
 
-  await next();
-});
+  await next()
+})
 
-export default triggerComposer;
+export default triggerComposer

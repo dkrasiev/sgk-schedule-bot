@@ -1,6 +1,6 @@
-import { Schedule } from "../../core";
+import { Schedule } from '../../core'
 
 export interface ScheduleCollection {
-  entityId: string;
-  schedule: Schedule;
+  entityId: string
+  schedule: Schedule
 }

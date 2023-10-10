@@ -1,4 +1,4 @@
-import { Lesson } from "./lesson.class";
+import { Lesson } from './lesson.class'
 
 export class Schedule {
   constructor(

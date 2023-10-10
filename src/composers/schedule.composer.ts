@@ -1,33 +1,33 @@
-import dayjs from "dayjs";
-import { Composer } from "grammy";
+import dayjs from 'dayjs'
+import { Composer } from 'grammy'
 
-import { MyContext, sendSchedule, sendShortSchedule } from "../modules/common";
+import { MyContext, sendSchedule, sendShortSchedule } from '../modules/common'
 
-const scheduleComposer = new Composer<MyContext>();
+const scheduleComposer = new Composer<MyContext>()
 
-scheduleComposer.command("schedule", async (ctx) => {
-  await sendSchedule(ctx);
-});
+scheduleComposer.command('schedule', async (ctx) => {
+  await sendSchedule(ctx)
+})
 
-scheduleComposer.command("today", async (ctx) => {
-  await sendShortSchedule(ctx);
-});
+scheduleComposer.command('today', async (ctx) => {
+  await sendShortSchedule(ctx)
+})
 
-scheduleComposer.command("tomorrow", async (ctx) => {
-  const date = dayjs().add(1, "day");
-  await sendShortSchedule(ctx, date);
-});
+scheduleComposer.command('tomorrow', async (ctx) => {
+  const date = dayjs().add(1, 'day')
+  await sendShortSchedule(ctx, date)
+})
 
-scheduleComposer.on("message:text", async (ctx, next) => {
+scheduleComposer.on('message:text', async (ctx, next) => {
   if (
-    ctx.chat.type === "private" &&
-    ctx.message.text.startsWith("/") === false
+    ctx.chat.type === 'private' &&
+    ctx.message.text.startsWith('/') === false
   ) {
-    await sendSchedule(ctx);
-    return;
+    await sendSchedule(ctx)
+    return
   }
 
-  await next();
-});
+  await next()
+})
 
-export default scheduleComposer;
+export default scheduleComposer
