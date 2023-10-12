@@ -1,4 +1,4 @@
-import { Schedule } from '../../core'
+import { Schedule } from '@modules/domain'
 
 export interface ScheduleCollection {
   entityId: string

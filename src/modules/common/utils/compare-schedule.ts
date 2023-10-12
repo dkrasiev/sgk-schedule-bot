@@ -1,4 +1,4 @@
-import { Schedule } from '../../core/entities/schedule.class'
+import { Schedule } from '@modules/domain'
 
 export function compareSchedule(a?: Schedule, b?: Schedule) {
   if (!a || !b) return false

@@ -1,26 +1,19 @@
-import { IScheduleEntityFactory } from '../common'
-import { IScheduleEntityRepository } from '../core'
-import { IHTTPClient } from '../http'
-import { Teacher } from './teacher.class'
+import { AbstractScheduleEntityRepository } from '@modules/application'
+import { IHTTPClient } from '@modules/http'
 
-export class HTTPTeacherRepository
-  implements IScheduleEntityRepository<Teacher>
-{
+import { TeacherFactory } from './teacher-factory.class'
+
+export class HTTPTeacherRepository extends AbstractScheduleEntityRepository {
   constructor(
     private httpClient: IHTTPClient,
-    private teacherFactory: IScheduleEntityFactory<Teacher>,
     private teacherApiUrl: string,
-  ) {}
-
-  public async getAll() {
-    return this.httpClient
-      .get<Array<{ id: string; name: string }>>(this.teacherApiUrl)
-      .then((data) =>
-        data.map(({ id, name }) => this.teacherFactory.createEntity(id, name)),
-      )
+  ) {
+    super(new TeacherFactory())
   }
 
-  public async getById(id: string) {
-    return this.getAll().then((entities) => entities.find((e) => e.id === id))
+  protected async fetch() {
+    return this.httpClient.get<Array<{ id: string; name: string }>>(
+      this.teacherApiUrl,
+    )
   }
 }

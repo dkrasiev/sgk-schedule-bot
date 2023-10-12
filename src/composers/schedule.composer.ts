@@ -1,7 +1,6 @@
+import { MyContext, sendSchedule, sendShortSchedule } from '@modules/common'
 import dayjs from 'dayjs'
 import { Composer } from 'grammy'
-
-import { MyContext, sendSchedule, sendShortSchedule } from '../modules/common'
 
 const scheduleComposer = new Composer<MyContext>()
 

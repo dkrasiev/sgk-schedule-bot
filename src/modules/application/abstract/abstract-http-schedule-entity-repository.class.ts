@@ -1,10 +1,7 @@
-import {
-  IScheduleRepository,
-  Lesson,
-  Schedule,
-  ScheduleEntity,
-} from '../../core'
-import { IHTTPClient } from '../../http'
+import { Lesson, Schedule, ScheduleEntity } from '@modules/domain'
+import { IHTTPClient } from '@modules/http'
+
+import { IScheduleRepository } from '../interfaces/schedule-repository.interface'
 
 type IScheduleResponse = {
   date: string
@@ -17,11 +14,12 @@ type IScheduleResponse = {
   }>
 }
 
-export abstract class BaseHTTPScheduleEntityRepository
-  implements IScheduleRepository {
+export abstract class AbstractHTTPScheduleEntityRepository
+  implements IScheduleRepository
+{
   abstract getApiUrl(entity: ScheduleEntity, date: Date): string
 
-  constructor(private httpClient: IHTTPClient) { }
+  constructor(private httpClient: IHTTPClient) {}
 
   public async getSchedule(entity: ScheduleEntity, date: Date) {
     const url = this.getApiUrl(entity, date)

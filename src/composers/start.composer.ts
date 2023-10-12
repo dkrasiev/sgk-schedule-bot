@@ -1,6 +1,5 @@
+import { MyContext } from '@modules/common'
 import { Composer, InlineKeyboard } from 'grammy'
-
-import { MyContext } from '../modules/common'
 
 const startComposer = new Composer<MyContext>()
 

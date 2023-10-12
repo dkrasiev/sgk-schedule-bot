@@ -1,8 +1,8 @@
 import { I18nFlavor } from '@grammyjs/i18n'
+import { ScheduleEntity } from '@modules/domain'
 import { Context, SessionFlavor } from 'grammy'
 import { Container } from 'inversify'
 
-import { ScheduleEntity } from '../../../modules/core'
 import { MySession } from './my-session.interface'
 
 export interface MyFlavor {

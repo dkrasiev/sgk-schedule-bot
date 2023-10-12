@@ -1,14 +1,10 @@
-import { inject, injectable } from 'inversify'
+import {
+  IScheduleEntityRepository,
+  ISearchRepository,
+} from '@modules/application'
 
-import { TYPES } from '../config/types.const'
-import { IScheduleEntityRepository, ISearchRepository } from '../modules/core'
-
-@injectable()
 export class SearchRepository implements ISearchRepository {
-  constructor(
-    @inject(TYPES.MainScheduleEntityRepository)
-    private scheduleEntityRepository: IScheduleEntityRepository,
-  ) {}
+  constructor(private scheduleEntityRepository: IScheduleEntityRepository) {}
 
   public async search(query: string) {
     const entities = await this.getEntities()

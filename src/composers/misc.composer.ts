@@ -1,6 +1,6 @@
+import { MyContext, trimCommand } from '@modules/common'
 import { Composer } from 'grammy'
 
-import { MyContext, trimCommand } from '../modules/common'
 import { finder } from '../services/singleton-services'
 
 const miscComposer = new Composer<MyContext>()

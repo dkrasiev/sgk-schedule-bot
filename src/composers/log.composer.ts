@@ -1,7 +1,7 @@
+import { MyContext } from '@modules/common'
 import { Composer } from 'grammy'
 
 import logger from '../config/logger'
-import { MyContext } from '../modules/common'
 import { counter } from '../services/singleton-services'
 
 const logComposer = new Composer<MyContext>()

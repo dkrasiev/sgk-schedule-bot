@@ -1,8 +1,9 @@
-import myAxios from '../config/axios'
+import { Cabinet } from '@modules/cabinet'
+import { redisCache } from '@modules/common'
+import { ScheduleEntity } from '@modules/domain'
+
+import { myAxios } from '../config/axios'
 import { CABINETS_URL, GROUPS_URL, TEACHERS_URL } from '../config/config'
-import { Cabinet } from '../modules/cabinet'
-import redisCache from '../modules/common/utils/redis-cache'
-import { ScheduleEntity } from '../modules/core/entities/schedule-entity.class'
 
 export class SGKApiService {
   @redisCache({

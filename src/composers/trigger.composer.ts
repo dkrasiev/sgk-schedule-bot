@@ -1,6 +1,5 @@
+import { MyContext, sendSchedule, trimCommand } from '@modules/common'
 import { Composer } from 'grammy'
-
-import { MyContext, sendSchedule, trimCommand } from '../modules/common'
 
 const triggerComposer = new Composer<MyContext>()
 

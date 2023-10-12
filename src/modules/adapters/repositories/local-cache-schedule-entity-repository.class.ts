@@ -1,4 +1,5 @@
-import { IScheduleEntityRepository, ScheduleEntity } from '../modules/core'
+import { IScheduleEntityRepository } from '@modules/application'
+import { ScheduleEntity } from '@modules/domain'
 
 export class LocalCacheScheduleEntityRepository
   implements IScheduleEntityRepository

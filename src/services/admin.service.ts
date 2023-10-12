@@ -1,7 +1,7 @@
 import { ISession } from '@grammyjs/storage-mongodb'
+import { MyContext, runSequentialWithDelay } from '@modules/common'
 
 import { sessions } from '../config/database'
-import { MyContext, runSequentialWithDelay } from '../modules/common'
 
 export class AdminService {
   async broadcastMessage(message: string, ctx: MyContext) {

@@ -1,6 +1,6 @@
+import { MyContext } from '@modules/common'
 import { Composer } from 'grammy'
 
-import { MyContext } from '../modules/common'
 import { finder } from '../services/singleton-services'
 
 const subscribeComposer = new Composer<MyContext>()

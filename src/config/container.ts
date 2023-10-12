@@ -1,54 +1,59 @@
 import 'reflect-metadata'
 
-import axios from 'axios'
-import { Container } from 'inversify'
-
 import {
-  Cabinet,
-  CabinetFactory,
-  HTTPCabinetRepository,
-  HTTPCabinetScheduleRepository,
-} from '../modules/cabinet'
-import { IScheduleEntityFactory } from '../modules/common'
+  HTTPScheduleRepository,
+  LocalCacheScheduleEntityRepository,
+  ScheduleEntityRepository,
+  SimpleSearchRepository,
+} from '@modules/adapters'
 import {
   IScheduleEntityRepository,
   IScheduleRepository,
   ISearchRepository,
-} from '../modules/core'
+} from '@modules/application'
 import {
-  Group,
-  GroupFactory,
+  HTTPCabinetRepository,
+  HTTPCabinetScheduleRepository,
+} from '@modules/cabinet'
+import {
   HTTPGroupRepository,
   HTTPGroupScheduleRepository,
-} from '../modules/group'
-import { IHTTPClient } from '../modules/http'
+} from '@modules/group'
+import { AxiosHTTPClient, IHTTPClient } from '@modules/http'
 import {
   HTTPTeacherRepository,
   HTTPTeacherScheduleRepository,
-  Teacher,
-  TeacherFactory,
-} from '../modules/teacher'
-import { AxiosHTTPClient } from '../repositories/axios-http-client.class'
-import { HTTPScheduleRepository } from '../repositories/http-schedule-repository.class'
-import { LocalCacheScheduleEntityRepository } from '../repositories/local-cache-schedule-entity-repository.class'
-import { ScheduleEntityRepository } from '../repositories/schedule-entity-repository.class'
-import { SimpleSearchRepository } from '../repositories/simple-search-repository.class'
-import config from './config'
+} from '@modules/teacher'
+import axios, { AxiosInstance } from 'axios'
+import { Container } from 'inversify'
+
+import CONFIG from './config'
 import { TYPES } from './types.const'
 
 export class DIContainerService {
-  constructor(public container = new Container()) {}
+  public container
+  public config
+
+  constructor({ container = new Container(), config = CONFIG }) {
+    this.container = container
+    this.config = config
+  }
 
   public setup() {
     this.container
       .bind<axios.AxiosInstance>(TYPES.Axios)
       .toConstantValue(axios.create())
-
-    this.container.bind<IHTTPClient>(TYPES.HTTPClient).to(AxiosHTTPClient)
-
+    this.container
+      .bind<IHTTPClient>(TYPES.HTTPClient)
+      .toDynamicValue(
+        (ctx) =>
+          new AxiosHTTPClient(ctx.container.get<AxiosInstance>(TYPES.Axios)),
+      )
     this.container
       .bind<string>(TYPES.ScheduleApiUrl)
-      .toConstantValue(config.SCHEDULE_URL)
+      .toConstantValue(this.config.SCHEDULE_URL)
+
+    this.container.get<IHTTPClient>(TYPES.HTTPClient)
 
     this.setupGroup()
     this.setupTeacher()
@@ -68,92 +73,90 @@ export class DIContainerService {
       )
     this.container
       .bind<ISearchRepository>(TYPES.SearchRepository)
-      .to(SimpleSearchRepository)
+      .toDynamicValue(
+        (ctx) =>
+          new SimpleSearchRepository(
+            ctx.container.get(TYPES.MainScheduleEntityRepository),
+          ),
+      )
     this.container
       .bind<IScheduleRepository>(TYPES.ScheduleRepository)
-      .to(HTTPScheduleRepository)
+      .toDynamicValue(
+        (ctx) =>
+          new HTTPScheduleRepository(
+            ctx.container.get(TYPES.GroupScheduleRepository),
+            ctx.container.get(TYPES.TeacherScheduleRepository),
+            ctx.container.get(TYPES.CabinetScheduleRepository),
+          ),
+      )
   }
 
-  public setupGroup() {
-    const scheduleApiUrl = this.container.get<string>(TYPES.ScheduleApiUrl)
-    const httpClient = this.container.get<IHTTPClient>(TYPES.HTTPClient)
-    const groupApiUrl = config.GROUPS_URL
-
-    const groupFactory = new GroupFactory()
-
+  private setupGroup() {
     this.container
-      .bind<IScheduleEntityFactory<Group>>(TYPES.GroupFactory)
-      .toConstantValue(groupFactory)
-
-    this.container.bind<string>(TYPES.GroupApiUrl).toConstantValue(groupApiUrl)
-
-    this.container
-      .bind<IScheduleEntityRepository<Group>>(TYPES.ScheduleEntityRepository)
-      .toConstantValue(
-        new HTTPGroupRepository(httpClient, groupFactory, groupApiUrl),
+      .bind<IScheduleEntityRepository>(TYPES.ScheduleEntityRepository)
+      .toDynamicValue(
+        (ctx) =>
+          new HTTPGroupRepository(
+            ctx.container.get(TYPES.HTTPClient),
+            this.config.GROUPS_URL,
+          ),
       )
 
     this.container
       .bind<IScheduleRepository>(TYPES.GroupScheduleRepository)
-      .toConstantValue(
-        new HTTPGroupScheduleRepository(scheduleApiUrl, httpClient),
+      .toDynamicValue(
+        (ctx) =>
+          new HTTPGroupScheduleRepository(
+            ctx.container.get(TYPES.ScheduleApiUrl),
+            ctx.container.get(TYPES.HTTPClient),
+          ),
       )
   }
 
-  public setupTeacher() {
-    const scheduleApiUrl = this.container.get<string>(TYPES.ScheduleApiUrl)
-    const httpClient = this.container.get<IHTTPClient>(TYPES.HTTPClient)
-    const teacherApiUrl = config.TEACHERS_URL
-
-    const teacherFactory = new TeacherFactory()
-
+  private setupTeacher() {
     this.container
-      .bind<IScheduleEntityFactory<Teacher>>(TYPES.TeacherFactory)
-      .toConstantValue(teacherFactory)
-
-    this.container
-      .bind<string>(TYPES.TeacherApiUrl)
-      .toConstantValue(teacherApiUrl)
-
-    this.container
-      .bind<IScheduleEntityRepository<Teacher>>(TYPES.ScheduleEntityRepository)
-      .toConstantValue(
-        new HTTPTeacherRepository(httpClient, teacherFactory, teacherApiUrl),
+      .bind<IScheduleEntityRepository>(TYPES.ScheduleEntityRepository)
+      .toDynamicValue(
+        (ctx) =>
+          new HTTPTeacherRepository(
+            ctx.container.get(TYPES.HTTPClient),
+            this.config.TEACHERS_URL,
+          ),
       )
 
     this.container
       .bind<IScheduleRepository>(TYPES.TeacherScheduleRepository)
-      .toConstantValue(
-        new HTTPTeacherScheduleRepository(scheduleApiUrl, httpClient),
+      .toDynamicValue(
+        (ctx) =>
+          new HTTPTeacherScheduleRepository(
+            ctx.container.get(TYPES.ScheduleApiUrl),
+            ctx.container.get(TYPES.HTTPClient),
+          ),
       )
   }
-  public setupCabinet() {
-    const scheduleApiUrl = this.container.get<string>(TYPES.ScheduleApiUrl)
-    const httpClient = this.container.get<IHTTPClient>(TYPES.HTTPClient)
-    const cabinetApiUrl = config.CABINETS_URL
-
-    const cabinetFactory = new CabinetFactory()
-
+  private setupCabinet() {
     this.container
-      .bind<IScheduleEntityFactory<Cabinet>>(TYPES.CabinetFactory)
-      .toConstantValue(cabinetFactory)
-
-    this.container
-      .bind<string>(TYPES.CabinetApiUrl)
-      .toConstantValue(cabinetApiUrl)
-
-    this.container
-      .bind<IScheduleEntityRepository<Cabinet>>(TYPES.ScheduleEntityRepository)
-      .toConstantValue(
-        new HTTPCabinetRepository(httpClient, cabinetFactory, cabinetApiUrl),
+      .bind<IScheduleEntityRepository>(TYPES.ScheduleEntityRepository)
+      .toDynamicValue(
+        (ctx) =>
+          new HTTPCabinetRepository(
+            ctx.container.get(TYPES.HTTPClient),
+            this.config.CABINETS_URL,
+          ),
       )
 
     this.container
       .bind<IScheduleRepository>(TYPES.CabinetScheduleRepository)
-      .toConstantValue(
-        new HTTPCabinetScheduleRepository(scheduleApiUrl, httpClient),
+      .toDynamicValue(
+        (ctx) =>
+          new HTTPCabinetScheduleRepository(
+            ctx.container.get(TYPES.ScheduleApiUrl),
+            ctx.container.get(TYPES.HTTPClient),
+          ),
       )
   }
 }
 
-export const diContainerService = new DIContainerService()
+export const diContainerService = new DIContainerService({
+  config: CONFIG,
+})

@@ -1,4 +1,4 @@
-import { ISearchRepository } from '..'
+import { ISearchRepository } from '../interfaces/search-repository.interface'
 
 export class SearchUseCase {
   constructor(private searchRepository: ISearchRepository) {}

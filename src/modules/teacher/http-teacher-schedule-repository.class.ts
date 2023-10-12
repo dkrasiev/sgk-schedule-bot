@@ -1,8 +1,9 @@
-import { BaseHTTPScheduleEntityRepository } from '../common/classes/base-http-schedule-entity-repository.class'
-import { IHTTPClient } from '../http'
+import { AbstractHTTPScheduleEntityRepository } from '@modules/application'
+import { IHTTPClient } from '@modules/http'
+
 import { Teacher } from './teacher.class'
 
-export class HTTPTeacherScheduleRepository extends BaseHTTPScheduleEntityRepository {
+export class HTTPTeacherScheduleRepository extends AbstractHTTPScheduleEntityRepository {
   constructor(
     private scheduleApiUrl: string,
 
@@ -12,7 +13,8 @@ export class HTTPTeacherScheduleRepository extends BaseHTTPScheduleEntityReposit
   }
 
   public getApiUrl(teacher: Teacher, date: Date): string {
-    return `${this.scheduleApiUrl}/teacher/${this.formatDate(date)}/${teacher.id
-      }`
+    return `${this.scheduleApiUrl}/teacher/${this.formatDate(date)}/${
+      teacher.id
+    }`
   }
 }

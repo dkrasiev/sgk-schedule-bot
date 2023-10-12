@@ -9,12 +9,12 @@
 
     "strict": true,
 
-    "types": ["reflect-metadata"],
+    "types": ["reflect-metadata", "jest"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "paths": {
-      "@modules/*": ["./src/modules/*"],
+      "@modules/*": ["./src/modules/*"]
     }
   },
   "include": ["./src/**/*"],

@@ -1,28 +1,19 @@
-import { IScheduleEntityFactory } from '../common'
-import { IScheduleEntityRepository } from '../core'
-import { IHTTPClient } from '../http'
-import { Cabinet } from './cabinet.class'
+import { AbstractScheduleEntityRepository } from '@modules/application'
+import { IHTTPClient } from '@modules/http'
 
-export class HTTPCabinetRepository
-  implements IScheduleEntityRepository<Cabinet>
-{
+import { CabinetFactory } from './cabinet-factory.class'
+
+export class HTTPCabinetRepository extends AbstractScheduleEntityRepository {
   constructor(
     private httpClient: IHTTPClient,
-    private cabinetFactory: IScheduleEntityFactory<Cabinet>,
     private cabinetApiUrl: string,
-  ) { }
-
-  public async getAll() {
-    return this.httpClient
-      .get<Record<string, string>>(this.cabinetApiUrl)
-      .then((data) =>
-        Object.entries(data).map(([id, name]) =>
-          this.cabinetFactory.createEntity(id, name),
-        ),
-      )
+  ) {
+    super(new CabinetFactory())
   }
 
-  public async getById(id: string) {
-    return this.getAll().then((entities) => entities.find((e) => e.id === id))
+  protected async fetch() {
+    return this.httpClient
+      .get<Record<string, string>>(this.cabinetApiUrl)
+      .then((data) => Object.entries(data).map(([id, name]) => ({ id, name })))
   }
 }

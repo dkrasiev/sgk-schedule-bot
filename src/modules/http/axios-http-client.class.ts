@@ -1,12 +1,9 @@
 import { AxiosInstance } from 'axios'
-import { inject, injectable } from 'inversify'
 
-import { TYPES } from '../config/types.const'
-import { IHTTPClient } from '../modules/http/http-client.interface'
+import { IHTTPClient } from './http-client.interface'
 
-@injectable()
 export class AxiosHTTPClient implements IHTTPClient {
-  constructor(@inject(TYPES.Axios) private axios: AxiosInstance) {}
+  constructor(private axios: AxiosInstance) {}
 
   public async get(url: string) {
     return this.axios.get(url).then((r) => r.data)

@@ -13,5 +13,4 @@ export * from './utils/regex'
 export * from './utils/run-sequential-with-delay'
 export * from './utils/times'
 export * from './utils/trim-command'
-
-export * from './interfaces/schedule-entity-factory.interface'
+export * from './utils/wait'

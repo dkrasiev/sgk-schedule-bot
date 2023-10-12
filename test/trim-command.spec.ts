@@ -1,4 +1,4 @@
-import { trimCommand } from '../src/utils/trim-command'
+import { trimCommand } from '../src/modules/common'
 
 describe('trimCommand function', () => {
   it('should return a string after a command', () => {

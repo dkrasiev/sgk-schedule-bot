@@ -1,4 +1,6 @@
-import { IScheduleRepository, ScheduleEntity } from '..'
+import { ScheduleEntity } from '@modules/domain'
+
+import { IScheduleRepository } from '../interfaces/schedule-repository.interface'
 
 export class TomorrowScheduleUseCase {
   constructor(private scheduleRepository: IScheduleRepository) {}

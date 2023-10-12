@@ -1,14 +1,7 @@
-import { injectable, multiInject } from 'inversify'
+import { IScheduleEntityRepository } from '@modules/application'
 
-import { TYPES } from '../config/types.const'
-import { IScheduleEntityRepository } from '../modules/core'
-
-@injectable()
 export class ScheduleEntityRepository implements IScheduleEntityRepository {
-  constructor(
-    @multiInject(TYPES.ScheduleEntityRepository)
-    private repositories: IScheduleEntityRepository[],
-  ) {}
+  constructor(private repositories: IScheduleEntityRepository[]) {}
 
   public async getAll() {
     return Promise.all(this.repositories.map((r) => r.getAll())).then((v) =>

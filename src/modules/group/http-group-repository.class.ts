@@ -1,30 +1,20 @@
-import { IScheduleEntityFactory } from '../common'
-import { IScheduleEntityRepository, ScheduleEntity } from '../core'
-import { IHTTPClient } from '../http'
-import { Group } from './group.class'
+import { AbstractScheduleEntityRepository } from '@modules/application'
+import { IHTTPClient } from '@modules/http'
 
-export class HTTPGroupRepository implements IScheduleEntityRepository {
+import { Group } from './group.class'
+import { GroupFactory } from './group-factory.class'
+
+export class HTTPGroupRepository extends AbstractScheduleEntityRepository {
   constructor(
     private httpClient: IHTTPClient,
-    private groupFactory: IScheduleEntityFactory<Group>,
     private groupApiUrl: string,
-  ) {}
-
-  public async getAll(): Promise<Group[]> {
-    return this.httpClient
-      .get<Array<{ id: number; name: string }>>(this.groupApiUrl)
-      .then((data) =>
-        data.map(({ id, name }) =>
-          this.groupFactory.createEntity(String(id), name),
-        ),
-      )
+  ) {
+    super(new GroupFactory())
   }
 
-  public async getById(id: string): Promise<ScheduleEntity | undefined> {
-    if (!id) {
-      return
-    }
-
-    return this.getAll().then((entities) => entities.find((e) => e.id === id))
+  protected async fetch(): Promise<Group[]> {
+    return this.httpClient
+      .get<Array<{ id: number; name: string }>>(this.groupApiUrl)
+      .then((data) => data.map(({ id, name }) => ({ id: String(id), name })))
   }
 }

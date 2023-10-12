@@ -1,4 +1,5 @@
-import { Schedule } from '../../core'
+import { Schedule } from '@modules/domain'
+
 import { times } from './times'
 
 /**

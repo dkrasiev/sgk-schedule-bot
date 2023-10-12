@@ -1,8 +1,9 @@
-import { BaseHTTPScheduleEntityRepository } from '../common/classes/base-http-schedule-entity-repository.class'
-import { IHTTPClient } from '../http'
+import { AbstractHTTPScheduleEntityRepository } from '@modules/application'
+import { IHTTPClient } from '@modules/http'
+
 import { Group } from './group.class'
 
-export class HTTPGroupScheduleRepository extends BaseHTTPScheduleEntityRepository {
+export class HTTPGroupScheduleRepository extends AbstractHTTPScheduleEntityRepository {
   constructor(
     private scheduleApiUrl: string,
 

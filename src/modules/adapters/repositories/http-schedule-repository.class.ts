@@ -1,19 +1,13 @@
-import { inject, injectable } from 'inversify'
+import { IScheduleRepository } from '@modules/application'
+import { Cabinet } from '@modules/cabinet'
+import { ScheduleEntity } from '@modules/domain'
+import { Group } from '@modules/group'
+import { Teacher } from '@modules/teacher'
 
-import { TYPES } from '../config/types.const'
-import { Cabinet } from '../modules/cabinet'
-import { IScheduleRepository, ScheduleEntity } from '../modules/core'
-import { Group } from '../modules/group'
-import { Teacher } from '../modules/teacher'
-
-@injectable()
 export class HTTPScheduleRepository implements IScheduleRepository {
   constructor(
-    @inject(TYPES.GroupScheduleRepository)
     private groupScheduleRepository: IScheduleRepository,
-    @inject(TYPES.TeacherScheduleRepository)
     private teacherScheduleRepository: IScheduleRepository,
-    @inject(TYPES.CabinetScheduleRepository)
     private cabinetScheduleRepository: IScheduleRepository,
   ) {}
 

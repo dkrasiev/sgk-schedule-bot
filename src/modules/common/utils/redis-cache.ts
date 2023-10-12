@@ -98,7 +98,7 @@ export function RedisCacheFactory(
   }
 }
 
-export default RedisCacheFactory(redis, {
+export const redisCache = RedisCacheFactory(redis, {
   debug: true,
   globalPrefix: 'sgk-schedule-bot',
   ttl: 30 * 24 * 3600, // 1 month

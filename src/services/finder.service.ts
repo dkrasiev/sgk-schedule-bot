@@ -1,14 +1,12 @@
-import { Index } from 'flexsearch'
+import { MyContext, trimCommand } from '@modules/common'
+import { ScheduleEntity } from '@modules/domain'
 
-import { MyContext } from '../modules/common'
-import { trimCommand } from '../modules/common/utils/trim-command'
-import { ScheduleEntity } from '../modules/core'
 import { SGKApiService } from './sgk-api.service'
 
 export class FinderService {
-  private index = new Index({
-    tokenize: 'full',
-  })
+  // private index = new Index({
+  //   tokenize: 'full',
+  // })
   private map = new Map<string, ScheduleEntity>()
 
   constructor(private api: SGKApiService) {}
@@ -72,10 +70,11 @@ export class FinderService {
   }
 
   public search(query: string): ScheduleEntity[] {
-    return this.index
-      .search(query)
-      .map((id) => this.getById(String(id)))
-      .filter(Boolean) as ScheduleEntity[]
+    return [this.getById(query)] as ScheduleEntity[]
+    // return this.index
+    //   .search(query)
+    //   .map((id) => this.getById(String(id)))
+    //   .filter(Boolean) as ScheduleEntity[]
   }
 
   public getById(id: string): ScheduleEntity | undefined {
